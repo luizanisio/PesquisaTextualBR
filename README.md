@@ -1,4 +1,4 @@
-# Pesquisa textual textual em documentos
+# Pesquisa textual em documentos
 Essa é uma proposta de pesquisa textual implementada com recursos em python puro com o uso de dicionário de sinônimos e distância entre termos pesquisados. É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas resultados precisos. 
 Implementada em python para uso em pesquisa textual avançada com foco no Português, permitindo busca em campos textuais e critérios de proximidade textual. O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos. Ou análise em tempo real se textos correspondem a critérios pré estabelecidos (regras de texto para mudança de fluxo de trabalho).
 Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar.
