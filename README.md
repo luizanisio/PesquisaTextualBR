@@ -130,6 +130,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
   <li> <b>critérios por campo</b>: (papel PROX2 casa).text. E 2017.ano=.</li>
   <li> <b>campo ANO>=2017</b>: papel PROX2 casa E 2017.ano>=.</li>
   <li> <b>critérios por campo</b>: (papel PROX2 casa).texto. E 2017.ano=.</li>
+  <li> <b>critérios por campo (escrita alternativa)</b>: (papel PROX2 casa).texto. E @ano=2017 </li>
   <li> <b>critérios por campos diferentes</b>: (papel PROX2 casa).texto. E 2017.ano=. E "muito bom".comentario.</li>
 </ul>
 
