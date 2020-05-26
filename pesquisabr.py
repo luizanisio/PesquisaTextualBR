@@ -143,7 +143,6 @@ class PesquisaBR():
     if self.erros == '':
       self.mapa_criterios = self.processar_mapa_criterios(self.tokens_criterios)
       self.criterios = self.criterios_para_texto(self.mapa_criterios)
-      #self.criterios_and_or_not = self.criterios_para_texto(self.mapa_criterios, and_or_not = True)
       self.criterios_and_or_not = self.converte_criterios_para_aon(self.criterios)
     self.contem_operadores_especiais = bool(self.RE_OPERADORES_ESPECIAIS.search(self.criterios))
     self.atualizar_mapa_pesquisa()
@@ -161,7 +160,7 @@ class PesquisaBR():
       # permite uma pesquisa rápida nos valores dos tokens
       return {_ for _ in set(tokens)}
 
-  #RE_SINGULAR_PRONOMES = re.compile(r'(-(ao|me|te|se|mos?|mas?|to|ta|lhos?|lhas?|nos?|nas?|vos?|lhes?|los?|las?|les?|iam?|ei|os?|as?))+$')
+  RE_SINGULAR_PALAVRAS = re.compile(r'^(lei|pai)(s)$')
   RE_SINGULAR_OES = re.compile(r'(oes|aes)$')
   RE_SINGULAR_AIS = re.compile(r'(ais)$')
   RE_SINGULAR_EIS = re.compile(r'(eis)$')
@@ -185,7 +184,9 @@ class PesquisaBR():
 	  # pronomes
     #_txt = self.RE_SINGULAR_PRONOMES.sub('',_txt)
     # plurais
-    _txt = self.RE_SINGULAR_OES.sub('ao',termo)
+    
+    _txt = self.RE_SINGULAR_PALAVRAS.sub('\\1',termo)
+    _txt = self.RE_SINGULAR_OES.sub('ao',_txt)
     _txt = self.RE_SINGULAR_AIS.sub('al',_txt)
     _txt = self.RE_SINGULAR_EIS.sub('el',_txt)
     _txt = self.RE_SINGULAR_OIS.sub('ol',_txt)
@@ -197,9 +198,12 @@ class PesquisaBR():
     _txt = self.RE_SINGULAR_S.sub('\\1',_txt)
     return _txt
 
+  ################################################################################
+  # remove acentos
+  ################################################################################
   RE_UNICODE = re.compile("[\u0300-\u036f]")
   def normalizar_simbolos(self, texto):
-      return self.RE_UNICODE.sub('', normalize("NFD", texto)).lower().replace('<br>','\n')
+      return self.RE_UNICODE.sub('', normalize("NFD", texto)).lower().replace('<br>','\n').replace('§',' parágrafo ')
 
   ################################################################################
   # faz um pré processamento do texto para remover acentos e padronizar 
@@ -281,6 +285,10 @@ class PesquisaBR():
     for w in _txt_match:
         # trim se não for a própria quebra - corrige tokenização de critérios
         _tks.extend([_w.strip() if _w !='\n' else _w for _w in w if len(_w)>0 and _w != '.' and not _re_ignorar.match(_w)])
+    # por conta do regex separando números e palavras, pode ocorrer de ? ou $ sozinhos ao separar um critério do tipo: ?abc? ?123?
+    # então une os tokens ? com o próximo
+    _tks = [ _t if _i >= 0 and _tks[_i-1] not in ('?','$') else f'{_tks[_i-1]}{_t}' for _i, _t in enumerate(_tks) if _t not in ('?','$')]
+        
     # debug        
     if self.print_debug and len(texto)>0: 
        if criterios:
@@ -344,7 +352,66 @@ class PesquisaBR():
               mapa.append(self.OPERADOR_MAPA_ADJ1)
         _anterior_termo = (tk !='(')
       mapa.append({'texto':tk, 'operador':_op, 'numero':_n, 'literal': _lt})
-    return mapa
+    return self.corrigir_parenteses_and(mapa)
+
+  ################################################################################
+  # agrupa operadores AND (ou equivalentes) com parênteses se estiverem soltos entre OR, corrige a precedência para o AON no memsql
+  # exemplo: casa ADJ5 papel E seriado OU teste  ==> (casa ADJ5 papel E seriado) OU teste
+  ################################################################################
+  def corrigir_parenteses_and(self, mapa_criterios):
+      if len(mapa_criterios)<=3:
+         return mapa_criterios
+      _mapa = mapa_criterios
+      _par1 = cp.copy(self.TERMO_MAPA_TRUE)
+      _par1['texto'] = '('
+      _par2 = cp.copy(self.TERMO_MAPA_TRUE)
+      _par2['texto'] = ')'
+      #print('Corrigindo mapa de critérios: ', [m['texto'] for m in _mapa])
+      def _localizar_inicio(_i):
+          _parenteses = 0 # pula parêntenses de fechamento
+          while _i>0:
+              if _parenteses == 0 and _mapa[_i]['texto'] == '(' :
+                 return _i
+              elif _parenteses == 0 and (self.e_operador(_mapa[_i]) and _mapa[_i]['operador'] in ('OU','NAO')) :
+                 return _i + 1
+              elif _mapa[_i]['texto'] == ')':
+                _parenteses += 1
+              elif _mapa[_i]['texto'] == '(':
+                _parenteses += -1
+              _i += -1
+          return 0
+      def _localizar_fim(_i):
+          _parenteses = 0 # pula parêntenses de abertura
+          while _i<len(_mapa)-1:
+              if _parenteses == 0 and _mapa[_i]['texto'] == ')':
+                 return _i
+              elif _parenteses == 0 and (self.e_operador(_mapa[_i]) and _mapa[_i]['operador'] in ('OU','NAO')) :
+                 return _i - 1
+              elif _mapa[_i]['texto'] == '(':
+                _parenteses += 1
+              elif _mapa[_i]['texto'] == ')':
+                _parenteses += -1
+              _i += 1
+          return len(_mapa)-1
+
+      i = 0
+      _corrigido = False
+      while i<len(_mapa):
+           op = _mapa[i]
+           if self.e_operador(op) and op.get('operador') not in ('OU','NAO','CAMPO'):
+              inicio = _localizar_inicio(i)
+              fim = _localizar_fim(i) 
+              if (inicio ==0 and fim == len(_mapa)-1) or \
+                 (_mapa[inicio]['texto'] == '(' and _mapa[fim]['texto'] == ')'):
+                 i += 1
+                 continue
+              #print('corrigindo: ', inicio, fim, _mapa[inicio]['texto'], _mapa[fim]['texto'])
+              _mapa = _mapa[:inicio] + [_par1] + _mapa[inicio:fim+1] + [_par2] + _mapa[fim+1:]
+              i += 1
+              _corrigido = True
+           i += 1
+      if self.print_debug and _corrigido: print('corrigir_parenteses_and - correção: ', [m['texto'] for m in _mapa])
+      return _mapa
 
   ################################################################################
   # cria um mapeamento do posicionamento de cada token
@@ -437,8 +504,8 @@ class PesquisaBR():
   # com isso os critérios mais complexos (ADJ, PROX, etc) são analisados apenas
   # nos textos com mais probabilidade de terem o que é pesquisado
   ################################################################################
-  RE_AON_OPERADORES_PARA_AND = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* )|( E )')
-  RE_OPERADORES_ESPECIAIS = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* )')
+  RE_AON_OPERADORES_PARA_AND = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* | MESMO )|( E )')
+  RE_OPERADORES_ESPECIAIS = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* | MESMO )')
   RE_AON_OPERADORES_PARA_OR = re.compile(r'( OU )')
   RE_AON_OPERADORES_PARA_NOT = re.compile(r'( NAO )')
   RE_AON_LIMPAR_FILTRO_PARENTESES = re.compile(r'(AND )?(OR )?(NOT )?(\(.+\))(\.)([a-zA-Z0-9]+)(>=?|<=?|<>)(\.)')
@@ -449,6 +516,8 @@ class PesquisaBR():
   RE_AON_PARENTESES_VAZIOS = re.compile(r'\(\s*\)')
   RE_AON_OPERADOR_REPETIDO = re.compile(r'(\s+AND|\s+OR|\s+NOT)+')
   RE_AON_ESPACOS = re.compile(r'\s+')
+  RE_AON_CURINGA_INICIAL = re.compile(r'( |^|\(|")(\?|\$)(\w)')
+  RE_AON_CURINGA_ASPAS = re.compile(r'(")([a-z0-9\*\$\?]+)(")')
   def converte_criterios_para_aon(self, criterios:str):
       _txt = self.RE_AON_OPERADORES_PARA_AND.sub(' AND ',criterios)  # ADJ PROX COM e E para AND
       _txt = self.RE_AON_OPERADORES_PARA_OR.sub(' OR ',_txt)     # OU para OR
@@ -462,6 +531,10 @@ class PesquisaBR():
             _txt = self.RE_AON_PARENTESES_VAZIOS.sub('',_txt)
       _txt = self.RE_AON_OPERADOR_REPETIDO.sub('\\1',_txt)  # OPERADORES REPETIDOS mantém o último
       _txt = self.RE_AON_ESPACOS.sub(' ',_txt)
+      _txt = self.RE_AON_CURINGA_INICIAL.sub('\\1\\3', _txt)
+      _txt = _txt.replace('$','*') # curinga geral do memsql é *
+      # para os curingas dentro de aspas com termos simples, retira as aspas
+      _txt = self.RE_AON_CURINGA_ASPAS.sub('\\2', _txt)
       if self.print_debug: print(f'converte_criterios_para_aon: [{criterios}] => [{_txt}]'  )
       return _txt.strip()
 
@@ -650,9 +723,9 @@ class PesquisaBR():
       print(' - tokens:', self.tokens_texto)
       print(' - tokens_unicos:', self.tokens_texto_unicos)
       if self.contem_operadores_especiais:
-         print(' - criterios (especiais):', self.tokens_criterios)
+         print(' - criterios (especiais):', self.criterios)
       else:
-        print(' - criterios (simples):', self.tokens_criterios)
+        print(' - criterios (simples):', self.criterios)
       print(' - criterios AON:', self.criterios_and_or_not)
       print(' - mapa:', self.mapa_texto)    
       if self.erros:
@@ -758,8 +831,19 @@ class PesquisaBR():
         _mapa = cp.copy(mapa_pesquisa)
     if len(_mapa) == 0:
         return False
+
+    # verifica se o termo a ser adicionado (termo, parágrafo, campo) já está na lista agrupada
+    def _existe_termo_soma(tpc_consulta, t_consulta, p_consulta, c_consulta):
+        # acelera se o termo não existir na lista
+        if len(t_consulta) == 0 or len(t_consulta)==0 or (tpc_consulta[0] not in t_consulta):
+           return False
+        # confere se o trio existe na lista 
+        for _t, _p, _c in zip(t_consulta, p_consulta, c_consulta):
+            if  tpc_consulta[0] == _t  and  tpc_consulta[1] == _p and tpc_consulta[2]==_c:
+               return True
+        return True
     # une dois termos com suas posições para análise em conjunto
-    # distancia positica (para frente) negativa (para tras e para frente) zero (não analisa)
+    # distancia positiva (para frente) negativa (para tras e para frente) zero (não analisa)
     def _soma_termos(termo1,termo2, mesmo_paragrafo=False, mesmo_campo=False, distancia = 0, distancia_par = 1):
         _distancia_par = distancia_par -1 if distancia_par >1 else 0 # máximo de parágrafos analisados abaixo
         if distancia==0 and (not mesmo_paragrafo) and (not mesmo_campo): # operador OU, junta todas as posições
@@ -777,16 +861,18 @@ class PesquisaBR():
           #print('_tpc1: ', _tpc1, '  _tpc2: ', _tpc2) 
           for _t1 in _tpc1:
             for _t2 in _tpc2:
+                # verifica se é o mesmo termo com a mesma posição, ignora
                 #print(f't1 {_t1}  t2 {_t2}')
                 if ( (not mesmo_paragrafo) or ( 0<= _t2[1] - _t1[1] <= _distancia_par) ) and \
                   ( (not mesmo_campo) or (_t1[2] == _t2[2]) ) and \
                   ( (distancia == 0) or (distancia>0 and 0 <= _t2[0] - _t1[0] <= distancia) or ( distancia<0 and distancia <= _t2[0] - _t1[0] <= -distancia) ):
                   # o segundo termos sempre é retornado no adj ou no prox
-                  _tsoma.append(_t2[0])
-                  _psoma.append(_t2[1])
-                  _csoma.append(_t2[2])
+                  if not _existe_termo_soma(_t2, _tsoma, _psoma, _csoma):
+                     _tsoma.append(_t2[0])
+                     _psoma.append(_t2[1])
+                     _csoma.append(_t2[2])
                   # distância <0 é prox, junta os termos
-                  if distancia < 0 : 
+                  if (distancia < 0) and not _existe_termo_soma(_t1, _tsoma, _psoma, _csoma): 
                       _tsoma.append(_t1[0])
                       _psoma.append(_t1[1])
                       _csoma.append(_t1[2])
@@ -895,29 +981,7 @@ class PesquisaBR():
       # {"texto" : "", "criterio":, "resposta" : true/false}
       _testes = None
       if (testes is None) or (somar_internos):
-          _texto = "a casa de papel é um seriado bem interessante numero123"
-          _testes = [{'texto': 'áéíóúàâôçÁÉÍÓÚÀÂÔÇ Üü texto123', 'criterio':'texto 123 uu aeiouaaocaeiouaaoc', 'retorno': True},
-                     {'texto': _texto, 'criterio': "casa adj2 papel", 'retorno' : True},
-                     {'texto': _texto, 'criterio': "'numero 123' prox3 interessante", 'retorno' : True},
-                     {'texto': _texto, 'criterio': "casa adj6 seriado", 'retorno' : True},
-                     {'texto': _texto, 'criterio': "seriado prox3 papel", 'retorno' : True},
-                     {'texto': _texto, 'criterio': "casa adj3 seriado", 'retorno' : False},
-                     {'texto': _texto, 'criterio': "(casa prox4 seriado) ou (seriado adj1 interessante)", 'retorno' : False},
-                     {'texto': _texto, 'criterio': "(casa prox4 seriado) ou (seriado adj1 interessante) ou uns", 'retorno' : True},
-                     {'texto': _texto, 'criterio': "pape$ ou seria$", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': 'segundo'}, 'criterio': "(casa papel) e segund$", 'retorno' : True},
-                     {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com literal", 'retorno' : False},
-                     {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com2 literal", 'retorno' : False},
-                     {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com3 literal", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': 'segundo'}, 'criterio': "(casa papel) com segund$", 'retorno' : False},
-                     {'texto': {'a':_texto,'b': 'segundo'}, 'criterio': "(casa papel) e segund$.b.", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': 'segundo'}, 'criterio': "(casa papel).a. e segund$.b. e 'casa de papel'.a. (seriado segundo) ", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': 'segundo texto com o número 1234'}, 'criterio': "(casa papel) e segund$.b. e 1234.b>=. e 123.b>. e 12345.b<=. ", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': 'segundo texto com o número 1234'}, 'criterio': "(casa papel) e segund$.b. e 1234.b>=. e @b>'123' e @b<=12345 ", 'retorno' : True},
-                     {'texto': {'a':_texto,'b': '12 123 1 13 1234'}, 'criterio': " (1235.b>. ou 1236.b>.) ou @b>'12345' ", 'retorno' : False},
-                     {'texto': {'a':_texto,'b': 'a aa b '}, 'criterio': " (ddd.b>. ou bbbb.b>.) ou @b>'ccc' ", 'retorno' : False},
-                     {'texto': "o instituto nacional de seguridade social fez um teste com texto literal", 'criterio' : 'texto com literais (teste OU testa) ("inss" ou "CaSa de pApél")', 'retorno': True}
-                     ]
+          _testes = TESTES_COMPLETOS
       fim_internos = len(_testes) if not (_testes is None) else -1
       if not (testes is None):
         _testes += testes
@@ -974,8 +1038,9 @@ class PesquisaBR():
           criterio_aon = re.sub(' AND ',' E ', str(self.criterios_and_or_not))
           criterio_aon = re.sub(' OR ',' OU ', criterio_aon)
           criterio_aon = re.sub(' NOT ',' NAO ', criterio_aon)
+          _retorno_aon = teste.get('retorno_aon',teste["retorno"])
           if criterio_aon.strip() !='':
-              if teste["retorno"]==1 or teste["retorno"] == True:
+              if _retorno_aon==1 or _retorno_aon == True:
                   self.novo_criterio(criterio_aon)
                   if self.erros =='':
                     retorno = self.analisar_mapa_pesquisa()
@@ -990,27 +1055,30 @@ class PesquisaBR():
           else:
               print(f'   AON => VAZIO *** ')
 
-
-if __name__ == "__main__":
-
-    print('####################################')
-    print('>> USO SIMPLES')
-    print('------------------------------------')
-    pb = PesquisaBR(texto = 'A casa de papel é um seriado muito legal', criterios='casa adj2 papel adj5 seriado')
-    print(pb.print_resumo())
-    #pb.print()
-    #exit()
-    print('####################################')
-    print('>> TESTE BÁSICOS')
-    print('------------------------------------')
-    
-    pb=PesquisaBR(print_debug=False)
-    pb.testes()
-
-    print('####################################')
-    print('>> TESTE COMPLEMENTARES')
-    print('------------------------------------')
-    testes = [  {"texto":"	teste de texto agravo não provido ou sei lá	", "criterio":"	teste adj4 agravo	", "retorno":	1	},
+__texto__ = "a casa de papel é um seriado bem interessante numero123"
+TESTES_COMPLETOS = [
+                {'texto': 'áéíóúàâôçÁÉÍÓÚÀÂÔÇ Üü texto123', 'criterio':'texto 123 uu aeiouaaocaeiouaaoc', 'retorno': True},
+                {'texto': __texto__, 'criterio': "casa adj2 papel", 'retorno' : True},
+                {'texto': __texto__, 'criterio': "'numero 123' prox3 interessante", 'retorno' : True},
+                {'texto': __texto__, 'criterio': "casa adj6 seriado", 'retorno' : True},
+                {'texto': __texto__, 'criterio': "seriado prox3 papel", 'retorno' : True},
+                {'texto': __texto__, 'criterio': "casa adj3 seriado", 'retorno' : False},
+                {'texto': __texto__, 'criterio': "(casa prox4 seriado) ou (seriado adj1 interessante)", 'retorno' : False},
+                {'texto': __texto__, 'criterio': "(casa prox4 seriado) ou (seriado adj1 interessante) ou uns", 'retorno' : True},
+                {'texto': __texto__, 'criterio': "pape$ ou seria$", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': 'segundo'}, 'criterio': "(casa papel) e segund$", 'retorno' : True},
+                {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com literal", 'retorno' : False},
+                {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com2 literal", 'retorno' : False},
+                {'texto': 'esses textos \ntem\n os e literais para uns testes sorridente', 'criterio': "texto com3 literal", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': 'segundo'}, 'criterio': "(casa papel) com segund$", 'retorno' : False},
+                {'texto': {'a':__texto__,'b': 'segundo'}, 'criterio': "(casa papel) e segund$.b.", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': 'segundo'}, 'criterio': "(casa papel).a. e segund$.b. e 'casa de papel'.a. (seriado segundo) ", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': 'segundo texto com o número 1234'}, 'criterio': "(casa papel) e segund$.b. e 1234.b>=. e 123.b>. e 12345.b<=. ", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': 'segundo texto com o número 1234'}, 'criterio': "(casa papel) e segund$.b. e 1234.b>=. e @b>'123' e @b<=12345 ", 'retorno' : True},
+                {'texto': {'a':__texto__,'b': '12 123 1 13 1234'}, 'criterio': " (1235.b>. ou 1236.b>.) ou @b>'12345' ", 'retorno' : False},
+                {'texto': {'a':__texto__,'b': 'a aa b '}, 'criterio': " (ddd.b>. ou bbbb.b>.) ou @b>'ccc' ", 'retorno' : False},
+                {'texto': "o instituto nacional de seguridade social fez um teste com texto literal", 'criterio' : 'texto com literais (teste OU testa) ("inss" ou "CaSa de pApél")', 'retorno': True},
+                {"texto":"	teste de texto agravo não provido ou sei lá	", "criterio":"	teste adj4 agravo	", "retorno":	1	},
                 {"texto":"	a casa<br>grande	", "criterio":"	grande proxc10 casa	", "retorno":	0	},
                 {"texto":"	nesse contexto, indefiro a liminar entre outras coisas mais, solicito e quero muito mais quaisquer informações	", "criterio":"	indefir$ adj4 liminar (solicit$ adj5 informações)	", "retorno":	0	},
                 {"texto":"	confirmando que o dano moral que pode ser estético foi presumida a	", "criterio":"	'dano moral' adj5 estético não (presumido? ou presumida?)	", "retorno":	0	},
@@ -1040,8 +1108,32 @@ if __name__ == "__main__":
                 {"texto": {"a":"esse é um teste com campos", "b":"esse outro teste com campos"}, "criterio": "(teste adj2 campos) e (outro com teste)" , "retorno":	1	},
                 {"texto": {"a":"esse é o primeiro texto ", "b":"esse é o segundo texto"}, "criterio": "(primeiro com segundo)" , "retorno":	0	},
                 {"texto": {"a":"esse é o primeiro texto ", "b":"esse é o segundo texto"}, "criterio": "(primeir? e segun$ e tex*)" , "retorno":	1	},
-                {"texto": "153.972.567. números quebrados por pontos", "criterio": "1539725$ E ('1539725'$ ou '1.539. 725'$ ou '1283540' ou '1.283.540'$)", "retorno": 1}]
+                {"texto": "153.972.567. números quebrados por pontos", "criterio": "1539725$ E ('1539725'$ ou '1.539. 725'$ ou '1283540' ou '1.283.540'$)", "retorno": 1},
+                {"texto": " conteúdo no meio com critérios com todos os curingas", "criterio": "$ri$ri$ E ?ur?nga? ", "retorno": 1, "retorno_aon": 0}]
+
+if __name__ == "__main__":
+
+    print('####################################')
+    print('>> USO SIMPLES')
+    print('------------------------------------')
+    pb = PesquisaBR(texto = 'A casa de papel é um seriado muito legal', criterios='casa adj2 papel adj5 seriado')
+    #pb.novo_texto('15397.2.56. 123. lkertjlwert4334. ')
+    #pb.novo_criterio('("1539725"$ ou "1.539. 725"$ ou "1283540" ou "1.283.540"$)')
+    #pb.novo_criterio('1539725$ ou "1.539. 725" ou "1283540" ou "1.283.540"')
+    print(pb.print_resumo())
+    #pb.print()
+    #exit()
+    print('####################################')
+    print('>> TESTE BÁSICOS')
+    print('------------------------------------')
+    
+    pb=PesquisaBR(print_debug=False)
+    pb.testes()
+
+    print('####################################')
+    print('>> TESTE COMPLEMENTARES')
+    print('------------------------------------')
 
     pb = PesquisaBR()
-    pb.testes(testes = testes)
+    pb.testes(testes = TESTES_COMPLEMENTARES)
 
