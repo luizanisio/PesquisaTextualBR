@@ -1,13 +1,16 @@
+# -*- coding: utf-8 -*-
 import re
 from unicodedata import normalize
 import copy as cp
+import json
 
 ############################################
 ############################################
 class PesquisaBR():
   RE_QUEBRA = re.compile('(<\s*\/?\s*[bB][rR]\s*\/?\s*>)')
   # campos são analisados como um token .campo. após um termo ou um conjunto entre parênteses
-  RE_TOKENS_CRITERIOS = re.compile(r'(\s)|(adjc?\d* |proxc?\d* |com\d* )|(\.[a-z0-9<>=]+\.)|([0-9]+)|([a-zA-Z\$\?~]+)|(\n+)|(\W|.)')
+  #RE_TOKENS_CRITERIOS = re.compile(r'(\s)|(adjc?\d* |proxc?\d* |com\d* )|(\.[a-z0-9<>=]+\.)|([0-9\$\?~]+)|([a-zA-Z\$\?~]+)|(\n+)|(\W|.)')
+  RE_TOKENS_CRITERIOS = re.compile(r'(\s)|(adjc?\d* |proxc?\d* |com\d* )|(\.[a-z<>=]+\.)|([0-9\$\?~]+)|([a-zA-Z\$\?~]+)|(\n+)|(\W|.)')
   RE_TOKENS = re.compile(r'(\s)|([0-9]+)|([a-zA-Z]+)|(\n+)|(\W|.)')
   RE_IGNORAR_CRITERIOS = re.compile(r'([^a-z0-9\.\)\(\$\?~"\n])+')
   RE_IGNORAR = re.compile(r'([^a-z0-9\n])+')
@@ -15,6 +18,7 @@ class PesquisaBR():
   RE_PARENTESES_FECHA = re.compile(r'}|\]')
   RE_ASPAS = re.compile(r"'" + '|"|´|`|“|”')
   RE_NUMEROS = re.compile(r'([0-9])([\.,]+)([0-9])')
+  RE_NUMEROS_ESPACO = re.compile(r'([0-9])([\.,]+)( )')
 
   SINONIMOS = {'alegre': ['feliz','sorridente'], 'feliz':['alegre','sorridente'], 'sorridente':['alegre','feliz'] }
   SINONIMOS_COMPOSTOS = {'casa_de_papel':['la casa de papel','a casa de papel'], "inss" : ['instituto nacional de seguridade social'], 'instituto_nacional_de_seguridade_social':['inss']}
@@ -34,6 +38,25 @@ class PesquisaBR():
        self.novo_mapa_texto(mapa_texto, atualizar_pesquisa = False)
     self.novo_criterio(criterios = criterios)
 
+
+  ################################################################################
+  # retorna um novo objeto clonando os objetos relacionados aos critérios
+  # agiliza rodar os critérios em múltiplos textos sem precisar reconstruir os 
+  # objetos relacionados aos critérios
+  ################################################################################
+  def clone_criterios(self) -> 'PesquisaBR':
+      novo = PesquisaBR(print_debug=self.print_debug)
+      novo.tokens_criterios = cp.deepcopy(self.tokens_criterios)
+      novo.erros = cp.deepcopy(self.erros)
+      novo.mapa_criterios = cp.deepcopy(self.mapa_criterios)
+      novo.criterios= str(self.criterios)
+      novo.criterios_and_or_not = str(self.criterios_and_or_not)
+      novo.mapa_pesquisa = [] # o texto não existe, então o mapa deve vir em branco
+      novo.contem_operadores_especiais = self.contem_operadores_especiais
+      novo.SINONIMOS = cp.deepcopy(self.SINONIMOS)
+      novo.SINONIMOS_COMPOSTOS = cp.deepcopy(self.SINONIMOS_COMPOSTOS)
+      return novo
+
   ################################################################################
   # retorna o match final da pesquisa
   ################################################################################
@@ -50,6 +73,7 @@ class PesquisaBR():
     self.criterios = ''             # texto com os critérios de pesquisa já analisados
     self.criterios_and_or_not = ''  # texto com critérios simples de pesquisa - exemplo MemSQL
     self.mapa_pesquisa = []         # mapa de pesquisa consolidado entre critérios de pesquisa e texto 
+    self.contem_operadores_especiais = False # caso tenha operadores diferentes de AND OR NOT
 
   ################################################################################
   # atualzia o mapa cruzando dados dos critérios e do texto
@@ -118,9 +142,10 @@ class PesquisaBR():
     # continua se não houve erros de construção dos critérios
     if self.erros == '':
       self.mapa_criterios = self.processar_mapa_criterios(self.tokens_criterios)
-      self.criterios = self.criterios_texto(self.mapa_criterios)
-      #self.criterios_and_or_not = self.criterios_texto(self.mapa_criterios, and_or_not = True)
+      self.criterios = self.criterios_para_texto(self.mapa_criterios)
+      #self.criterios_and_or_not = self.criterios_para_texto(self.mapa_criterios, and_or_not = True)
       self.criterios_and_or_not = self.converte_criterios_para_aon(self.criterios)
+    self.contem_operadores_especiais = bool(self.RE_OPERADORES_ESPECIAIS.search(self.criterios))
     self.atualizar_mapa_pesquisa()
 
   ################################################################################
@@ -199,6 +224,7 @@ class PesquisaBR():
     _txt = self.RE_ASPAS.sub('"',_txt)
     # padronizar números 1.000.111,33 - tira os símbolos 
     _txt = self.RE_NUMEROS.sub('\\1\\3',_txt)
+    _txt = self.RE_NUMEROS_ESPACO.sub('\\1\\3',_txt)
     # quebra de linha br 
     _txt = self.RE_QUEBRA.sub('\n',_txt)
     return _txt
@@ -228,6 +254,7 @@ class PesquisaBR():
   # texto ou nos critérios de pesquisa
   ################################################################################
   RE_NAO_LITERAL = re.compile(r'(nao\s+)(")(.*)(")')
+  RE_CURINGA_FORA = re.compile(r'([a-z0-9\$\?~])(")(\$|\?|~)') # coloca curinga dentro das aspas ex.:  "casa"$ vira "casa$"
   def processar_tokens(self, texto, criterios : bool, processar: bool):
     # tokens de dicionário 
     if type(texto) is dict:
@@ -241,6 +268,7 @@ class PesquisaBR():
     if criterios:
       # prepara critérios nao "literal literal literal" para nao ("literal literal literal")
       _txt = texto.replace('*','$').replace("'",'"') if not processar else self.processar_texto(texto.replace('*','$').replace("'",'"'))
+      _txt = self.RE_CURINGA_FORA.sub('\\1\\3\\2',_txt)
       _txt = self.incluir_sinonimos_compostos(_txt)
       _txt = self.RE_CAMPO_COMPARA_CONVERTE.sub('\\4.\\2\\3.',_txt) # converte @campo=123 para 123.campo=. e afins
       _txt = self.RE_NAO_LITERAL.sub('\\1(\\2\\3\\4)',_txt)
@@ -252,7 +280,7 @@ class PesquisaBR():
     _re_ignorar = self.RE_IGNORAR_CRITERIOS if criterios else self.RE_IGNORAR
     for w in _txt_match:
         # trim se não for a própria quebra - corrige tokenização de critérios
-        _tks.extend([_w.strip() if _w !='\n' else _w for _w in w if len(_w)>0 and not _re_ignorar.match(_w)])
+        _tks.extend([_w.strip() if _w !='\n' else _w for _w in w if len(_w)>0 and _w != '.' and not _re_ignorar.match(_w)])
     # debug        
     if self.print_debug and len(texto)>0: 
        if criterios:
@@ -410,6 +438,7 @@ class PesquisaBR():
   # nos textos com mais probabilidade de terem o que é pesquisado
   ################################################################################
   RE_AON_OPERADORES_PARA_AND = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* )|( E )')
+  RE_OPERADORES_ESPECIAIS = re.compile(r'( ADJC?\d* | PROXC?\d* | COM\d* )')
   RE_AON_OPERADORES_PARA_OR = re.compile(r'( OU )')
   RE_AON_OPERADORES_PARA_NOT = re.compile(r'( NAO )')
   RE_AON_LIMPAR_FILTRO_PARENTESES = re.compile(r'(AND )?(OR )?(NOT )?(\(.+\))(\.)([a-zA-Z0-9]+)(>=?|<=?|<>)(\.)')
@@ -441,7 +470,7 @@ class PesquisaBR():
   ################################################################################
   RE_ADJ_AND_OU_NOT = re.compile('"\s*ADJ1\s*"')
   # para o filtro simples AND OR NOT, filtros de campo >, <, <> devem ser ignorados pois não são avaliáveis nessas pesquisas
-  def criterios_texto(self, mapa_criterios: list):
+  def criterios_para_texto(self, mapa_criterios: list):
     _texto = []
     _aspas = False
     for cr in mapa_criterios:
@@ -512,12 +541,11 @@ class PesquisaBR():
       if not cr.get('operador'):
         _mp = mapa_texto.get(cr['texto'])
         _sin = []
-        if not cr.get('literal'):
-           if (self.SINONIMOS is not None) and len(self.SINONIMOS)>0:
-              _sin = self.SINONIMOS.get(cr['texto'],[])
-           _curingas = self.termos_por_curinga(termo = cr['texto'], tokens_texto = self.tokens_texto_unicos)
-           _sin = list(set(_sin + _curingas))
-           if self.print_debug and len(_sin)>0: print(' - sinônimos e curingas: ', _sin)
+        if (self.SINONIMOS is not None) and len(self.SINONIMOS)>0 and (not cr.get('literal')):
+           _sin = self.SINONIMOS.get(cr['texto'],[])
+        _curingas = self.termos_por_curinga(termo = cr['texto'], tokens_texto = self.tokens_texto_unicos)
+        _sin = list(set(_sin + _curingas))
+        if self.print_debug and len(_sin)>0: print(' - sinônimos e curingas: ', _sin)
            #   _proximos = [t for t in ]
         # não encontrou o texto nem sinônimos
         if (_mp == None) and (len(_sin) == 0):
@@ -621,8 +649,14 @@ class PesquisaBR():
       print(' - texto:', self.texto)
       print(' - tokens:', self.tokens_texto)
       print(' - tokens_unicos:', self.tokens_texto_unicos)
-      print(' - criterios:', self.tokens_criterios)
+      if self.contem_operadores_especiais:
+         print(' - criterios (especiais):', self.tokens_criterios)
+      else:
+        print(' - criterios (simples):', self.tokens_criterios)
+      print(' - criterios AON:', self.criterios_and_or_not)
       print(' - mapa:', self.mapa_texto)    
+      if self.erros:
+        print(' - ERROS: ', self.erros)
 
   ################################################################################
   # imprime todos os dados do objeto de pesquisa
@@ -922,6 +956,20 @@ class PesquisaBR():
              pbmapa.print()
              pbmapa.analisar_mapa_pesquisa()
              break
+          # verifica o clone dos critérios
+          pbclone = self.clone_criterios()
+          pbclone.novo_mapa_texto(mapa_texto=self.mapa_texto)
+          retorno = pbclone.retorno() if pbclone.erros == '' else None
+          if pbclone.erros!= '' or retorno != teste['retorno']:
+             print('ERRO AO REFAZAR A PESQUISA PELO CLONE')
+             print(f' - Teste: {i} - {criterio}  ==> esperado {teste["retorno"]}')
+             if pbclone.erros != '':
+                print(' -- ERRO NOS CRITÉRIOS DO CLONE: ', pbmapa.erros)
+             pbclone.print_debug = True
+             pbclone.print()
+             pbclone.analisar_mapa_pesquisa()
+             break
+
           #verifica o AND OR NOT
           criterio_aon = re.sub(' AND ',' E ', str(self.criterios_and_or_not))
           criterio_aon = re.sub(' OR ',' OU ', criterio_aon)
@@ -950,7 +998,8 @@ if __name__ == "__main__":
     print('------------------------------------')
     pb = PesquisaBR(texto = 'A casa de papel é um seriado muito legal', criterios='casa adj2 papel adj5 seriado')
     print(pb.print_resumo())
-
+    #pb.print()
+    #exit()
     print('####################################')
     print('>> TESTE BÁSICOS')
     print('------------------------------------')
@@ -990,7 +1039,8 @@ if __name__ == "__main__":
                 {"texto":"	o apartamento de folha e um filme interessante	", "criterio":"	(casa ou apartamento) adj3 (papel ou folha) adj3 filme	", "retorno":	1	},
                 {"texto": {"a":"esse é um teste com campos", "b":"esse outro teste com campos"}, "criterio": "(teste adj2 campos) e (outro com teste)" , "retorno":	1	},
                 {"texto": {"a":"esse é o primeiro texto ", "b":"esse é o segundo texto"}, "criterio": "(primeiro com segundo)" , "retorno":	0	},
-                {"texto": {"a":"esse é o primeiro texto ", "b":"esse é o segundo texto"}, "criterio": "(primeir? e segun$ e tex*)" , "retorno":	1	}]
+                {"texto": {"a":"esse é o primeiro texto ", "b":"esse é o segundo texto"}, "criterio": "(primeir? e segun$ e tex*)" , "retorno":	1	},
+                {"texto": "153.972.567. números quebrados por pontos", "criterio": "1539725$ E ('1539725'$ ou '1.539. 725'$ ou '1283540' ou '1.283.540'$)", "retorno": 1}]
 
     pb = PesquisaBR()
     pb.testes(testes = testes)
