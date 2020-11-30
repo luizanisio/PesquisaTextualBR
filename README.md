@@ -105,7 +105,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 #### Exemplo de textos, texto com campos
 * esses textos serão usados mais abaixo
 <ul>
-  <li> <b>Texto únivo</b>: A casa de papel é um seriado muito interessante</li>
+  <li> <b>Texto único</b>: A casa de papel é um seriado muito interessante</li>
   <li> <b>Texto composto</b>: {'texto' : 'A casa de papel é um seriado muito interessante', 'tipo' : 'seriado', 'ano': '2017', 'comentario': 'seriado muito bom'} </li>
 </ul>
 
@@ -128,7 +128,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 ** um conjunto de critérios pode ser analisado no campo colocando (termo1 E termo2).nome_campo.
 ** combinações mais complexas podem ser feitas em conjuntos de critérios (termo1.campo1. E termo2 E termo3).campo2. - operadores de campos internos serão avaliados no lugar dos externos quando existirem.
 <ul>
-  <li> <b>critérios por campo</b>: (papel PROX2 casa).text. E 2017.ano=.</li>
+  <li> <b>critérios por campo</b>: (papel PROX2 casa).texto. E 2017.ano=.</li>
   <li> <b>campo ANO>=2017</b>: papel PROX2 casa E 2017.ano>=.</li>
   <li> <b>critérios por campo</b>: (papel PROX2 casa).texto. E 2017.ano=.</li>
   <li> <b>critérios por campo (escrita alternativa)</b>: (papel PROX2 casa).texto. E @ano=2017 </li>
