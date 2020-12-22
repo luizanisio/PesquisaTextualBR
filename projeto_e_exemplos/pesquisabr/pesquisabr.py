@@ -1116,6 +1116,72 @@ TESTES_COMPLETOS = [
                 {"texto": "153.972.567. números quebrados por pontos", "criterio": "1539725$ E ('1539725'$ ou '1.539. 725'$ ou '1283540' ou '1.283.540'$)", "retorno": 1},
                 {"texto": " conteúdo no meio com critérios com todos os curingas", "criterio": "$ri$ri$ E ?ur?nga? ", "retorno": 1, "retorno_aon": 0}]
 
+################################################################################
+################################################################################
+
+class RegrasPesquisaBR():
+  __teste_regras__ = [{'grupo' : 'grupo 1', 'rotulo': 'ok1', 'regra': 'casa ADJ2 papel'},
+                      {'grupo' : 'grupo 1', 'rotulo': 'ok1', 'regra': 'seriado ADJ2 "la casa de papel"'},
+                      {'grupo' : 'grupo 2', 'rotulo': 'ok2', 'regra': '"a casa de papel"'},
+                      {'grupo' : 'grupo teste', 'rotulo': 'teste', 'regra': 'teste'}]
+  __texto_teste__ = 'o seriado a casa de papel é legal'
+
+  def __init__(self, regras = [], print_debug = False):
+    self.print_debug = print_debug
+    self.regras = sorted(regras, key=lambda k:k.get('grupo',''))
+
+  # aplica as regras na ordem dos grupos, cada grupo só é testado até retornar TRUE
+  # pois o rótulo é por grupo
+  def aplicar_regras(self, texto = None):
+      if (not self.regras) or (not texto):
+         return []
+      grupos_ok = []
+      retorno_rotulos = []
+      pbr = PesquisaBR(texto=texto)
+      if self.print_debug:
+         print(f'Testando {len(self.regras)} regras para o texto: {texto}')
+      for r in self.regras:
+          grupo = r.get('grupo','')
+          regra = r.get('regra')
+          rotulo = r.get('rotulo','')
+          # se o grupo já retornou TRUE, ignora ele
+          # se a regra está vazia, ignora ela
+          if (not regra) or (grupo in grupos_ok) or (rotulo in retorno_rotulos):
+             continue
+          # atualiza o critério para o objeto de pesquisa que já processou o texto
+          pbr.novo_criterio(regra)
+          if self.print_debug:
+             print(f'Testando grupo: {grupo} com rótulo: {rotulo} e regra: {regra}')
+             pbr.print_resumo()
+          if pbr.retorno():
+             grupos_ok.append(grupo)
+             retorno_rotulos.append(rotulo)
+      return retorno_rotulos
+
+  @staticmethod
+  def testes(print_debug = False):
+      print('RegrasPesquisaBR(): Testes das regras internas')
+      _obj_teste = RegrasPesquisaBR(regras = RegrasPesquisaBR.__teste_regras__, print_debug=print_debug)
+      res = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__)
+      if ('ok1' in res ) and ('ok2' in res) and len(res) == 2:
+        print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
+      else:
+        print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+      # incluindo teste na pesquisa
+      res = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__ + ' com esse teste')
+      if ('ok1' in res ) and ('ok2' in res) and ('teste' in res) and len(res) == 3:
+        print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
+      else:
+        print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+      # texto sem regras aplicáveis
+      res = _obj_teste.aplicar_regras('esse é um texto qualquer com a casa mas não tem nada de papel')
+      if len(res) == 0:
+        print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
+      else:
+        print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+
+################################################################################
+################################################################################
 if __name__ == "__main__":
 
     print('####################################')
@@ -1142,4 +1208,10 @@ if __name__ == "__main__":
     pb = PesquisaBR()
     pb.testes(testes = TESTES_COMPLETOS, somar_internos=False)
     #pb.testes(somar_internos=True)
+
+    print('####################################')
+    print('>> TESTE REGRAS')
+    print('------------------------------------')
+    RegrasPesquisaBR().testes(print_debug=False)
+
 
