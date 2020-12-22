@@ -164,5 +164,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 Exemplos disponíveis no arquivo <b>testes_exemplos.py</b> e <b>testes_exemplos_sem_db.py</b>
 Para uso da classe <b>PesquisaBRMemSQL</b> é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
 
-####... em atualização
-...
+####... em breve
+Em breve vou disponibilizar um serviço simples em flask que recebe um texto e verifica os labels que são aplicáveis a ele por um conjunto de regras pré-estabelecido. <br>
+As regras podem estar em um banco de dados comum e serem carregadas de tempo em tempo para o serviço. A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
+
