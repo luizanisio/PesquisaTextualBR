@@ -7,7 +7,7 @@ import json
 ############################################
 ############################################
 class PesquisaBR():
-  RE_QUEBRA = re.compile('(<\s*\/?\s*[bB][rR]\s*\/?\s*>)')
+  RE_QUEBRA = re.compile(r'(<\s*\/?\s*[bB][rR]\s*\/?\s*>)')
   # campos são analisados como um token .campo. após um termo ou um conjunto entre parênteses
   #RE_TOKENS_CRITERIOS = re.compile(r'(\s)|(adjc?\d* |proxc?\d* |com\d* )|(\.[a-z0-9<>=]+\.)|([0-9\$\?~]+)|([a-zA-Z\$\?~]+)|(\n+)|(\W|.)')
   RE_TOKENS_CRITERIOS = re.compile(r'(\s)|(adjc?\d* |proxc?\d* |com\d* )|(\.[a-z<>=]+\.)|([0-9\$\?~]+)|([a-zA-Z\$\?~]+)|(\n+)|(\W|.)')
@@ -979,7 +979,7 @@ class PesquisaBR():
   ################################################################################
   def testes(self, testes = None, somar_internos = True):
       # {"texto" : "", "criterio":, "resposta" : true/false}
-      _testes = None
+      _testes = []
       if (testes is None) or (somar_internos):
           _testes = TESTES_COMPLETOS
       fim_internos = len(_testes) if not (_testes is None) else -1
@@ -1008,7 +1008,8 @@ class PesquisaBR():
              self.print()
              self.analisar_mapa_pesquisa()
              break
-          # verifica a reconstrução da pesquisa apenas pelo mapa
+          # verifica a reconstrução da pesquisa apenas pelo mapa 
+          # o resultado tem que ser o mesmo ao criar o mapa em tempo de execução
           pbmapa = PesquisaBR(criterios=self.criterios, mapa_texto = self.mapa_texto)            
           retorno = pbmapa.analisar_mapa_pesquisa() if pbmapa.erros == '' else None
           if pbmapa.erros!= '' or retorno != teste['retorno']:
@@ -1021,6 +1022,7 @@ class PesquisaBR():
              pbmapa.analisar_mapa_pesquisa()
              break
           # verifica o clone dos critérios
+          # o resultado tem que ser o mesmo
           pbclone = self.clone_criterios()
           pbclone.novo_mapa_texto(mapa_texto=self.mapa_texto)
           retorno = pbclone.retorno() if pbclone.erros == '' else None
@@ -1034,7 +1036,10 @@ class PesquisaBR():
              pbclone.analisar_mapa_pesquisa()
              break
 
-          #verifica o AND OR NOT
+          # verifica o AND OR NOT
+          # convertendo a pesquisa em AND OR NOT, caso a pesquisa toda retorne TRUE, o 
+          # critério AND OR NOT tem que retornar TRUE também
+          # AND OR NOT é usado para acelerar a pesquisa em bancos textuais como o MemSQL/SingleStore
           criterio_aon = re.sub(' AND ',' E ', str(self.criterios_and_or_not))
           criterio_aon = re.sub(' OR ',' OU ', criterio_aon)
           criterio_aon = re.sub(' NOT ',' NAO ', criterio_aon)
@@ -1131,9 +1136,10 @@ if __name__ == "__main__":
     pb.testes()
 
     print('####################################')
-    print('>> TESTE COMPLEMENTARES')
+    print('>> TESTE TESTES_COMPLETOS')
     print('------------------------------------')
 
     pb = PesquisaBR()
-    pb.testes(testes = TESTES_COMPLEMENTARES)
+    pb.testes(testes = TESTES_COMPLETOS, somar_internos=False)
+    #pb.testes(somar_internos=True)
 
