@@ -1,11 +1,15 @@
 # Pesquisa textual em documentos
-Essa é uma proposta de pesquisa textual implementada com recursos em python puro com o uso de dicionário de sinônimos e distância entre termos pesquisados. É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas resultados precisos. <br>
-Implementada em python para uso em pesquisa textual avançada com foco no Português, permitindo busca em campos textuais e critérios de proximidade textual. O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos. Ou análise em tempo real se textos correspondem a critérios pré estabelecidos (regras de texto para mudança de fluxo de trabalho).<br>
+Essa é uma proposta de pesquisa textual implementada com recursos em python puro com o uso de dicionário de sinônimos e distância entre termos pesquisados. <br>
+É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas resultados precisos. <br>
+Implementada em **python** para uso em pesquisa textual avançada com foco no **Português**, permitindo busca em campos textuais e critérios de proximidade textual.<br>
+O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL/SingleStore, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos. Ou análise em tempo real se textos correspondem a critérios pré estabelecidos (regras de texto para mudança de fluxo de trabalho).<br>
 Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar.<br>
+Uma aplicação muito útil dos critérios de pesquisa, alé de encontrar textos, é identificar rótulos que são aplicáveis a um texto ao testar um conjunto de regras pré-definidas com seus rótulos correspondentes, simulando um classificador multilabel só que no lugar do modelo, tem-se um conjunto de regras textuais. Daí pode-se identificar fluxos automáticos para sistemas, definir alertas, etc.
 
-<p>Estão disponíveis nesse repositório:</p>
+### Estão disponíveis nesse repositório:
 <ul>
   <li>Classe python <b>PesquisaBR()</b> que recebe um documento e um critério de pesquisa e retorna a avaliação.</li>
+  <li>Classe python <b>RegrasPesquisaBR()</b> que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo de IA.</li>
   <li>Testes da classe que permitem validar todos os critérios e funcionalidades implementadas</li>
   <li>Conversor de pesquisas com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL</li>
   <li>Classe <b>PesquisaBRMemSQL()</b>(https://github.com/luizanisio/PesquisaTextualBR/blob/master/PesquisaMemSQL.md): classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do MemSQL(https://www.memsql.com/). Agora o MemSQL chama-se SingleStore(https://www.singlestore.com/)</li>
@@ -30,6 +34,24 @@ RESUMO DA PESQUISA: retorno = True
  - mapa: {'a': {'t': [0], 'p': [0], 'c': ['']}, 'casa': {'t': [1], 'p': [0], 'c': ['']}, 'de': {'t': [2], 'p': [0], 'c': ['']}, 'papel': {'t': [3], 'p': [0], 'c': ['']}, 'e': {'t': [4], 'p': [0], 'c': ['']}, 'um': {'t': [5], 'p': [0], 'c': ['']}, 'seriado': {'t': [6], 'p': [0], 'c': ['']}, 'muito': {'t': [7], 'p': [0], 'c': ['']}, 'legal': {'t': [8], 'p': [0], 'c': ['']}}
 ```
 
+### Uso simples da classe de regras:
+```py
+regras = [{'grupo' : 'receitas_bolo', 'rotulo': 'Receita de Bolo', 'regra': 'receita ADJ10 bolo'},
+          {'grupo' : 'receitas_bolo', 'rotulo': 'Receita de Bolo', 'regra': 'aprenda ADJ5 fazer ADJ10 bolo'},
+          {'grupo' : 'receitas_pao', 'rotulo': 'Receita de Pão', 'regra': 'receita PROX15 pao'},
+          {'grupo' : 'grupo teste', 'rotulo': 'teste', 'regra': 'teste'}]
+# receita de bolo
+texto = 'nessa receita você vai aprender a fazer bolos incríveis'
+pbr = RegrasPesquisaBR(regras = regras, print_debug=False)
+rotulos = pbr.aplicar_regras(texto = texto)
+print(f'Rótulos encontrados para o texto: "{texto}" >> ', rotulos)
+```
+Console
+```bat
+Rótulos encontrados para o texto: "nessa receita você vai aprender a fazer bolos incríveis" >>  ['Receita de Bolo']
+```
+
+
 ### Testes básicos da classe
 Estão disponíveis diversos textos e pesquisas que são testados para garantir o funcionamento da classe durante o desenvolvimento.
 ```py
@@ -51,12 +73,6 @@ Teste: 2 - 'numero 123' prox3 interessante  ==> esperado True
 Teste: 3 - casa adj6 seriado  ==> esperado True
    AON => casa AND seriado
    ```
-
-### *** em breve...
-<ul>
-  <li>Classe python que analisa regras e retorna os rótulos aplicáveis ao documento informado.</li>
-  <li>Classe python que conecta ao MemSQL e roda uma pesquisa textual com o motor do MemSQL (usando a simplificação AND OR NOT dos critérios) e depois refina com os critérios avançados</li>
-</ul>
 
 ### Pesquisa textual avançada
 Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termos e outros operadores para refinamento de pesquisa. Esses tipos de operadores tornam-se importantes para refinar pesquisas em grande volume de dados, onde não é importante trazer muito resultado, mas um resultado o mais próximo possível do que é procurado. Ferramentas comuns de busca como <b>ElasticSearch</b> e o próprio <b>MemSQL</b> não trazem nativamente esses tipos de operadores. 
