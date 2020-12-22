@@ -8,7 +8,7 @@ Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas 
   <li>Classe python <b>PesquisaBR()</b> que recebe um documento e um critério de pesquisa e retorna a avaliação.</li>
   <li>Testes da classe que permitem validar todos os critérios e funcionalidades implementadas</li>
   <li>Conversor de pesquisas com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL</li>
-  <li>Classe <b>PesquisaBRMemSQL()</b>(https://github.com/luizanisio/PesquisaTextualBR/blob/master/PesquisaMemSQL.md): classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do MemSQL(https://www.memsql.com/)</li>
+  <li>Classe <b>PesquisaBRMemSQL()</b>(https://github.com/luizanisio/PesquisaTextualBR/blob/master/PesquisaMemSQL.md): classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do MemSQL(https://www.memsql.com/). Agora o MemSQL chama-se SingleStore(https://www.singlestore.com/)</li>
 </ul>
 
 ### Uso simples da classe:
