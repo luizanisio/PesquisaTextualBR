@@ -1,0 +1,4 @@
+{"regras": [{"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo"},
+              {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo"},
+              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao"},
+              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste"}] }
