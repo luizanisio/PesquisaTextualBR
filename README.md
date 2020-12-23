@@ -75,6 +75,7 @@ Teste: 3 - casa adj6 seriado  ==> esperado True
    ```
 
 ### Pesquisa textual avançada
+
 Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termos e outros operadores para refinamento de pesquisa. Esses tipos de operadores tornam-se importantes para refinar pesquisas em grande volume de dados, onde não é importante trazer muito resultado, mas um resultado o mais próximo possível do que é procurado. Ferramentas comuns de busca como <b>ElasticSearch</b> e o próprio <b>MemSQL</b> não trazem nativamente esses tipos de operadores. 
 <p>Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar. 
 <p> Esse tipo de pesquisa permite o uso de dicionário de sinônimos em qualquer língua, inclusive o uso de recursos fonéticos. O texto de entrada é pré-processado para evitar não encontrar termos com grafia incorreta de acentos ou termos no singular/plural, bem como números com pontuação ou sem. Por padrão o texto é pesquisado no singular, removendo pronomes oblíquos, mas é possível localizar o termo real usando aspas (exceto acentos que sempre são desconsiderados).
@@ -87,6 +88,7 @@ Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termo
 </ul>
 
 #### Conectores ou operadores de pesquisa
+
 Conectores ou operadores de pesquisa são termos especiais utilizados em sistemas de pesquisa para indicar a relação desejada entre os termos pesquisados. Por exemplo, se é desejado encontrar documentos com a palavra <i>casa</i> e a palavra <i>papel</i>, pode-se escrever o critério de pesquisa como <b>casa papel</b> ou pode-se escrever <b>casa E papel</b>. O operador <b>E</b> está subentendido quando nenhum operador é informado. Para usar termos que são iguais aos operadores, é necessário colocar o termo entre aspas. Ex.: <b>amor e ódio</b> deveria ser escrito como <b>amor "e" ódio</b> para garantir que os três termos existem no texto. Ou também <b>"amor e ódio"</b> para que os termos sejam exigidos nessa sequência, um seguido do outro.  
 <ul>
   <li> <b>E</b>: conector padrão, exige a existência do termo no documento</li>
@@ -102,23 +104,26 @@ Conectores ou operadores de pesquisa são termos especiais utilizados em sistema
 </ul>
 
 #### Curingas
+
 <ul>
   <li> <b>$</b>: permite o uso de partes do termo no critério de pesquisa. Por exemplo: cas$ vai encontrar casa, casinha, casamento...</li>  
   <li> <b>?</b>: permite a existência ou não te um caracter no lugar do símbolo "?". Por exemplo: cas? vai encontrar cas, casa, caso, case... Pode estar no meio do termo tamém: ca?a vai encontrar caa, casa, cata, cala ... </li>  
 </ul>
 
 #### Exemplo de configuração de sinônimos
+
 * ao encontrar um termo no texto analisado, os sinônimos são mapeados como se fossem esse termo
 ** sinônimos compostos são analisados apenas para termos entre aspas nos critérios de pesquisa
 <ul>
   <li> <b>Sinônimos</b>: {'alegre': ['feliz','sorridente'], 'feliz':['alegre','sorridente'], 'sorridente':['alegre','feliz'], 'casa':['apartamento'] } </li>
   <li> <b>Sinônimos compostos</b>: {'casa_de_papel':['la casa de papel','a casa de papel'], "inss" : ['instituto nacional de seguridade social'], 'instituto_nacional_de_seguridade_social':['inss']}</li>
-<ul>
+</ul>
 
 Com esse mapeamento, se o critério de pesquisa estiver escrito "alegre" é o mesmo que pesquisar (alegre ou feliz ou sorridente). Se estiver escrito "alegre" entre aspas, os sinônimos não serão pesquisados.
 Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento de expressões, siglas, etc. Se o critério de pesquisa estiver escrito "inss" é o mesmo que pesquisar (inss ou "instituto nacional de seguridade social"). Mas se no critério de pesquisa estiver escrito inss sem aspas, somente será pesquisada a palavra inss.
 
 #### Exemplo de textos, texto com campos
+
 * esses textos serão usados mais abaixo
 <ul>
   <li> <b>Texto único</b>: A casa de papel é um seriado muito interessante</li>
@@ -126,6 +131,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 </ul>
 
 #### Exemplo de pesquisas simples
+
 * o operador E é padrão para pesquisas sem operadores entre termos
 * ao pesquisar "papeis", a pesquisa vai localizar no texto o termo "papel", pois o texto estará singularizado e o critério de pesquisa também
 <ul>
@@ -140,6 +146,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 </ul>
 
 #### Exemplo de pesquisas em campos
+
 * operadores especiais alteram o comportamento da pesquisa. Ao colocar um termo no critério de pesquisa seguido de .nomo_campo., o critério será analisado apenas no campo informado.
 ** um conjunto de critérios pode ser analisado no campo colocando (termo1 E termo2).nome_campo.
 ** combinações mais complexas podem ser feitas em conjuntos de critérios (termo1.campo1. E termo2 E termo3).campo2. - operadores de campos internos serão avaliados no lugar dos externos quando existirem.
@@ -152,6 +159,7 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 </ul>
 
 #### Exemplo de pesquisas simples com sinônimos
+
 * palavras simples são analisadas como se fossem seus sinônimos. Os sinônimos simples são desativados em termos entre aspas.
 * os sinônimos compostos são analisados apenas em palavras entre aspas no critério de pesquisa
 <ul>
