@@ -164,8 +164,10 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 Exemplos disponíveis no arquivo <b>testes_exemplos.py</b> e <b>testes_exemplos_sem_db.py</b>
 Para uso da classe <b>PesquisaBRMemSQL</b> é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
 
-#### ... em breve
+#### Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
 
-Em breve vou disponibilizar um serviço simples em flask que recebe um texto e verifica os labels que são aplicáveis a ele por um conjunto de regras pré-estabelecido. <br>
-As regras podem estar em um banco de dados comum e serem carregadas de tempo em tempo para o serviço. A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
+Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.<br>
+O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
+A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
+O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
 
