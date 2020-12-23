@@ -60,6 +60,15 @@ def carregar_regras():
         REGRAS = []
     print(f'Número de regras carregadas: {len(REGRAS)}')
 
+def get_post(req:request):
+    res = (
+            dict(request.args)
+            or request.form.to_dict()
+            or request.get_json(force=True, silent=True)
+            or {}
+        )
+    return res
+
 @app.route('/health', methods=['GET'])
 def get_health():
     _criterios = 'casas ADJ2 papeis PROX10 legal PROX10 seriado'
@@ -83,8 +92,9 @@ def get_health():
 def analisar_regras():
     carregar_regras()
     global REGRAS
-    _texto = str(request.values.get("texto",""))
-    _debug = str(request.values.get("debug",""))
+    dados = get_post(request)
+    _texto = str(dados.get("texto",""))
+    _debug = str(dados.get("debug",""))
     if _debug:
         print(type(_texto),_texto)
     _criterios = 'teste PROX10 legal'
@@ -99,11 +109,12 @@ def analisar_regras():
 # retorna {'retorno': true/false }
 @app.route('/analisar_criterio', methods=['GET','POST'])
 def analisar_criterio():
-    _texto = str(request.values.get("texto",""))
-    _criterios = str(request.values.get("criterio",""))
-    _debug = str(request.values.get("debug",""))
+    dados = get_post(request)
+    _texto = str(dados.get("texto",""))
+    _criterios = str(dados.get("criterio",""))
+    _debug = str(dados.get("debug",""))
     if not _criterios:
-       _criterios = str(request.values.get("criterios",""))
+       _criterios = str(dados.get("criterios",""))
     if _debug:
         print('Texto: ', type(_texto),_texto)
         print('Critério: ', type(_criterios),_criterios)
