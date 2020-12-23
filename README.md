@@ -167,12 +167,12 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
   <li> <b>Sinônimos</b>: papel PROX2 apartamento ADJ10 seriado</li>
 </ul>
 
-#### Usando a classe Python
+### Usando a classe Python
 
 Exemplos disponíveis no arquivo <b>testes_exemplos.py</b> e <b>testes_exemplos_sem_db.py</b>
 Para uso da classe <b>PesquisaBRMemSQL</b> é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
 
-#### Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
+### Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
 
 Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.<br>
 O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
