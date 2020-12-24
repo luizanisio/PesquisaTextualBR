@@ -1138,6 +1138,7 @@ class RegrasPesquisaBR():
   # retorna o texto processado, os rótulos e as extrações (texto, rotulos, extracões), a regra identificada
   # o texto é retornado caso o detalhar seja true, para evitar retorno sem necessidade
   # a regra identificada é incluída no retorno no caso do detalhar=1/True
+  # dicionário: {'rotulos','extracoes','texto','regras'}
   def aplicar_regras(self, texto = None, detalhar=False):
       if (not self.regras) or (not texto):
          return []
@@ -1176,26 +1177,29 @@ class RegrasPesquisaBR():
              if detalhar: 
                 retorno_regras.append(r)
       if not detalhar:
-         return (None, retorno_rotulos, retorno_extracoes, None)
-      return (texto_processado, retorno_rotulos, retorno_extracoes, retorno_regras)
+         return {'rotulos':retorno_rotulos, 'extracoes': retorno_extracoes}
+      return {'rotulos':retorno_rotulos, 'extracoes': retorno_extracoes, 'texto': texto_processado, 'regras':retorno_regras}
 
   @staticmethod
   def testes(print_debug = False):
       print('RegrasPesquisaBR(): Testes das regras internas')
       _obj_teste = RegrasPesquisaBR(regras = RegrasPesquisaBR.__teste_regras__, print_debug=print_debug)
-      res = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__)
+      resdic = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__)
+      res = resdic['rotulos']
       if ('ok1' in res ) and ('ok2' in res) and len(res) == 2:
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
         print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
       # incluindo teste na pesquisa
-      res = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__ + ' com esse teste')
+      resdic = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__ + ' com esse teste')
+      res = resdic['rotulos']
       if ('ok1' in res ) and ('ok2' in res) and ('teste' in res) and len(res) == 3:
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
         print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
       # texto sem regras aplicáveis
-      res = _obj_teste.aplicar_regras('esse é um texto qualquer com a casa mas não tem nada de papel')
+      resdic = _obj_teste.aplicar_regras('esse é um texto qualquer com a casa mas não tem nada de papel')
+      res = resdic['rotulos']
       if len(res) == 0:
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
