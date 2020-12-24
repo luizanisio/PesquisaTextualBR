@@ -191,6 +191,7 @@ Retorno
 ```
 
 - POST: http://localhost:8000/analisar_regras
+- *o detalhar=1 nesse exeplo retorna a regra identificada por cada rótulo e o texto processado*
 ```json
 {"texto": "esse  texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0}
 ```
