@@ -3,6 +3,7 @@ import re
 from unicodedata import normalize
 import copy as cp
 import json
+import numpy as np
 
 ############################################
 ############################################
@@ -171,6 +172,7 @@ class PesquisaBR():
   RE_SINGULAR_IS = re.compile(r'(is)$')
   RE_SINGULAR_NS = re.compile(r'(ns)$')
   RE_SINGULAR_S = re.compile(r'(a|e|i|o|u)(s)$')
+  RE_SINGULAR_IGNORAR = {'dois','tres','seis','mes','tes'}
 
   RE_OPERADOR = re.compile(r'^com\d*$|^e$|^ou$|^nao$|^adjc?\d*$|^proxc?\d*$|^mesmo$')
   OPERADORES_COM_NUMERO = {'ADJ','ADJC','PROX','PROXC','COM'}
@@ -184,7 +186,8 @@ class PesquisaBR():
 	  # pronomes
     #_txt = self.RE_SINGULAR_PRONOMES.sub('',_txt)
     # plurais
-    
+    if termo in self.RE_SINGULAR_IGNORAR:
+      return termo
     _txt = self.RE_SINGULAR_PALAVRAS.sub('\\1',termo)
     _txt = self.RE_SINGULAR_OES.sub('ao',_txt)
     _txt = self.RE_SINGULAR_AIS.sub('al',_txt)
@@ -1132,18 +1135,25 @@ class RegrasPesquisaBR():
 
   # aplica as regras na ordem dos grupos, cada grupo só é testado até retornar TRUE
   # pois o rótulo é por grupo
-  def aplicar_regras(self, texto = None):
+  # retorna o texto processado, os rótulos e as extrações (texto, rotulos, extracões), a regra identificada
+  # o texto é retornado caso o detalhar seja true, para evitar retorno sem necessidade
+  # a regra identificada é incluída no retorno no caso do detalhar=1/True
+  def aplicar_regras(self, texto = None, detalhar=False):
       if (not self.regras) or (not texto):
          return []
       grupos_ok = []
       retorno_rotulos = []
+      retorno_extracoes = []
+      retorno_regras = []
       pbr = PesquisaBR(texto=texto)
+      texto_processado = ' '.join(pbr.tokens_texto)
       if self.print_debug:
          print(f'Testando {len(self.regras)} regras para o texto: {texto}')
       for r in self.regras:
           grupo = r.get('grupo','')
           regra = r.get('regra')
           rotulo = r.get('rotulo','')
+          extracao = str(r.get('extracao',''))
           # se o grupo já retornou TRUE, ignora ele
           # se a regra está vazia, ignora ela
           if (not regra) or (grupo in grupos_ok) or (rotulo in retorno_rotulos):
@@ -1156,7 +1166,18 @@ class RegrasPesquisaBR():
           if pbr.retorno():
              grupos_ok.append(grupo)
              retorno_rotulos.append(rotulo)
-      return retorno_rotulos
+             _ext = []
+             if extracao:
+                #print('Extração: ', f'{extracao}')
+                #print('Texto: ', texto_processado)
+                _ext = [_ for _ in list(np.ravel(re.findall(f'{extracao}',texto_processado))) if _]
+                #print('Extraído: ', f'{_ext}')
+             retorno_extracoes.append(_ext)
+             if detalhar: 
+                retorno_regras.append(r)
+      if not detalhar:
+         return (None, retorno_rotulos, retorno_extracoes, None)
+      return (texto_processado, retorno_rotulos, retorno_extracoes, retorno_regras)
 
   @staticmethod
   def testes(print_debug = False):
