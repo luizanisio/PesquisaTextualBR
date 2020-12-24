@@ -1,4 +1,5 @@
 {"regras": [{"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo"},
               {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo"},
-              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao"},
-              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste"}] }
+              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)"},
+              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)"},
+              {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "oficio\\W.*\\d+"}] }
