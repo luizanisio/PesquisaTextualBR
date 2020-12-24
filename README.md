@@ -180,3 +180,30 @@ O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem 
 A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
 O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
 
+### Uso simples do serviço:
+- POST: http://localhost:8000/analisar_criterio
+```json
+{"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": "1"}
+```
+Retorno
+```json
+{ "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, "texto": "esse e um texto legal" }
+```
+
+- POST: http://localhost:8000/analisar_regras
+```json
+{"texto": "esse  texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0}
+```
+Retorno
+```json
+{ "extracoes": [["oficio numero 5174"],[],["receita de pao"]], 
+  "rotulos": ["oficio","Receita de Bolo","Receita de PÃ£o"] }
+```
+Regras desse exemplo (arquivo regras.json):
+```json
+{"regras": [{"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo"},
+              {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo"},
+              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)"},
+              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)"},
+              {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "oficio\\W.*\\d+"}] }
+```
