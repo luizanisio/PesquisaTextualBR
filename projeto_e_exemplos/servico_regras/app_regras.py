@@ -45,7 +45,6 @@ def carregar_regras():
     # recarrega as regras a cada 5 minutos
     # é um exemplo pois poderia recarregar do banco de dados ou de algum microserviço
     if dthr_regras and (datetime.now()-dthr_regras).total_seconds()<300:
-        print(f'Regras em cache: {len(REGRAS)}', dthr_regras)
         return 
     dthr_regras = datetime.now()
     _regras = []
@@ -67,6 +66,7 @@ def get_post(req:request):
             or request.get_json(force=True, silent=True)
             or {}
         )
+    #print('Dados enviados: ', res)
     return res
 
 @app.route('/health', methods=['GET'])
@@ -94,16 +94,15 @@ def analisar_regras():
     global REGRAS
     dados = get_post(request)
     _texto = str(dados.get("texto",""))
-    _debug = str(dados.get("debug",""))
-    if _debug:
-        print(type(_texto),_texto)
+    _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _criterios = 'teste PROX10 legal'
     pbr = RegrasPesquisaBR(regras=[], print_debug=False)
     pbr.regras = REGRAS # não reprocessa a ordenação, só para diminuir o processamento
-    res = pbr.aplicar_regras(texto=_texto)
-    if _debug:
-        return jsonify({'retorno': res, 'regras': pbr.regras, 'texto': _texto })
-    return jsonify({'retorno': res})
+    res = pbr.aplicar_regras(texto=_texto, detalhar=_detalhar)
+    if _detalhar:
+        # o retorno detalhado é (texto processado, rotulos, extrações)
+        return jsonify({'rotulos': res[1], 'texto': res[0], 'extracoes': res[2], 'regras': res[3] })
+    return jsonify({'rotulos': res[1], 'extracoes': res[2] })
 
 # recebe {'texto': 'texto para ser analisado pelas regras', 'criterio':'critérios de pesquisa'}
 # retorna {'retorno': true/false }
@@ -112,15 +111,17 @@ def analisar_criterio():
     dados = get_post(request)
     _texto = str(dados.get("texto",""))
     _criterios = str(dados.get("criterio",""))
-    _debug = str(dados.get("debug",""))
+    _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     if not _criterios:
        _criterios = str(dados.get("criterios",""))
-    if _debug:
-        print('Texto: ', type(_texto),_texto)
-        print('Critério: ', type(_criterios),_criterios)
+    #print('Texto: ', type(_texto),_texto)
+    #print('Critério: ', type(_criterios),_criterios)
     pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
-    if _debug:
-       return jsonify({'retorno': pb.retorno(), 'criterios': pb.criterios, 'criterios_aon': pb.criterios_and_or_not, 'texto': pb.texto })
+    if _detalhar:
+       return jsonify({'retorno': pb.retorno(), 
+                       'criterios': pb.criterios, 
+                       'criterios_aon': pb.criterios_and_or_not, 
+                       'texto': ' '.join(pb.tokens_texto) })
     return jsonify({'retorno': pb.retorno()})
 
 
