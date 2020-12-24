@@ -99,10 +99,7 @@ def analisar_regras():
     pbr = RegrasPesquisaBR(regras=[], print_debug=False)
     pbr.regras = REGRAS # não reprocessa a ordenação, só para diminuir o processamento
     res = pbr.aplicar_regras(texto=_texto, detalhar=_detalhar)
-    if _detalhar:
-        # o retorno detalhado é (texto processado, rotulos, extrações)
-        return jsonify({'rotulos': res[1], 'texto': res[0], 'extracoes': res[2], 'regras': res[3] })
-    return jsonify({'rotulos': res[1], 'extracoes': res[2] })
+    return res
 
 # recebe {'texto': 'texto para ser analisado pelas regras', 'criterio':'critérios de pesquisa'}
 # retorna {'retorno': true/false }
