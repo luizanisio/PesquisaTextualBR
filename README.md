@@ -178,6 +178,8 @@ Para uso da classe <b>PesquisaBRMemSQL</b> é necessário ter instalado o <b>Mem
 Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.<br>
 O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
 A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
+Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra.<br>
+É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
 O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
 
 ### Uso simples do serviço:
