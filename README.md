@@ -191,7 +191,6 @@ Retorno
 ```
 
 - POST: http://localhost:8000/analisar_regras
-- *o detalhar=1 nesse exeplo retorna a regra identificada por cada rótulo e o texto processado*
 ```json
 {"texto": "esse  texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0}
 ```
@@ -200,11 +199,32 @@ Retorno
 { "extracoes": [["oficio numero 5174"],[],["receita de pao"]], 
   "rotulos": ["oficio","Receita de Bolo","Receita de PÃ£o"] }
 ```
-Regras desse exemplo (arquivo regras.json):
+
+- POST: http://localhost:8000/analisar_regras
+- o *detalhar=1* nesse exeplo retorna a regra identificada por cada rótulo e o texto processado*
+- a chave opcional *tags* pode ser usada para filtras e avaliar apenas regras que contenham uma das tags
+- a chave opcional *grupo* pode ser usada para filtrar e avaliar apenas regras de um determinado grupo
 ```json
-{"regras": [{"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo"},
-              {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo"},
-              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)"},
-              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)"},
-              {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "oficio\\W.*\\d+"}] }
+{"texto": "esse ofício n. 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0, "tags":"oficio"}
+```
+Retorno
+```json
+{ "extracoes": [ ["n 12","numero 5174"],  [],  ["receita de pao"] ],
+  "rotulos":   [ "oficio", "Receita de Bolo", "Receita de Pão"    ] }
+```
+
+Regras desse exemplo (arquivo regras.json):
+- as chaves tags, qtd_cabecalho e qtd_rodape são opcionais
+- *qtd_cabecalho*: a regra é aplicada no início do texto até o caracter da posição informada
+- *qtd_rodape*: a regra é aplicada no final do texto, do caracter da posição informada até o fim
+- *qtd_cabecalho* e *qtd_rodape*: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape
+```json
+{"regras": [
+   {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+   {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+   {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
+   {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+   {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "(?<=oficio )n.{1,10}\\d+(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
+           ]
+}
 ```
