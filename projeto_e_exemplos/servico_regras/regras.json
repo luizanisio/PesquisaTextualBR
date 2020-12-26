@@ -1,5 +1,9 @@
-{"regras": [{"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo"},
-              {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo"},
-              {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)"},
-              {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)"},
-              {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "oficio\\W.*\\d+"}] }
+{"regras": [
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "extracao": "", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+", "extracao": "(?<=oficio\\W)(?:n|numero|num|nro)?(?:\\s*\\d+)(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
+ ]
+}
