@@ -205,27 +205,30 @@ Retorno
 - a chave opcional *tags* pode ser usada para filtras e avaliar apenas regras que contenham uma das tags
 - a chave opcional *grupo* pode ser usada para filtrar e avaliar apenas regras de um determinado grupo
 ```json
-{ "texto": "esse ofício n. 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", 
-  "detalhar":0, "tags":"oficio"}
+{"texto": "esse ofício 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois são vários testes três com o oficio número 5.174", 
+ "detalhar":0, "tags":"oficio"}
 ```
 Retorno
 ```json
-{ "extracoes": [ ["n 12","numero 5174"],  [],  ["receita de pao"] ],
-  "rotulos":   [ "oficio", "Receita de Bolo", "Receita de Pão"    ] }
+{ "extracoes": [ [ "12", "numero 5174" ] ],
+    "rotulos": [ "oficio" ]  }
 ```
 
 Regras desse exemplo (arquivo regras.json):
 - as chaves tags, qtd_cabecalho e qtd_rodape são opcionais
+- *regra*: é a regra usando os operadores de pesquisa textual, ou um regex. No caso de regex, a regra deve começar com r: regex desejado
+- *rotulo*: é o rótulo do grupo que será retornado se a regra retornar true
 - *qtd_cabecalho*: a regra é aplicada no início do texto até o caracter da posição informada
 - *qtd_rodape*: a regra é aplicada no final do texto, do caracter da posição informada até o fim
 - *qtd_cabecalho* e *qtd_rodape*: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape
 ```json
 {"regras": [
-   {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
-   {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
-   {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
-   {"grupo" : "grupo teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
-   {"grupo" : "grupo oficio", "rotulo": "oficio", "regra": "oficio adj1 n$", "extracao": "(?<=oficio )n.{1,10}\\d+(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
-           ]
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "extracao": "", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio (n.{1,10})?\\d+", "extracao": "(?<=oficio\\W)(?:n|numero|num|nro)?(?:\\s*\\d+)(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
+ ]
 }
 ```
