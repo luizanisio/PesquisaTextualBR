@@ -1139,15 +1139,19 @@ class RegrasPesquisaBR():
   # o texto é retornado caso o detalhar seja true, para evitar retorno sem necessidade
   # a regra identificada é incluída no retorno no caso do detalhar=1/True
   # dicionário: {'rotulos','extracoes','texto','regras'}
+  # qtd_cabecalho e qtd_rodape serve para indicar que a regra será aplicada apenas no início, fim ou início e fim do texto
   def aplicar_regras(self, texto = None, detalhar=False):
       if (not self.regras) or (not texto):
-         return []
+         return {'rotulos':[], 'extracoes': []}
       grupos_ok = []
       retorno_rotulos = []
       retorno_extracoes = []
       retorno_regras = []
+      # cria um dicionário com objetos com texto mapeado para o caso de uso de cabeçahos e rodapés, para não ficar reprocessando o texto o tempo todo
+      # caso exista um objeto no dicionário com o texto já processado da mesma forma, usa ele.
       pbr = PesquisaBR(texto=texto)
       texto_processado = ' '.join(pbr.tokens_texto)
+      pbrs = {'c0r0': pbr} # objeto com o texto completo
       if self.print_debug:
          print(f'Testando {len(self.regras)} regras para o texto: {texto}')
       for r in self.regras:
@@ -1155,25 +1159,59 @@ class RegrasPesquisaBR():
           regra = r.get('regra')
           rotulo = r.get('rotulo','')
           extracao = str(r.get('extracao',''))
+          qtd_cabecalho = r.get('qtd_cabecalho',0)
+          qtd_rodape = r.get('qtd_rodape',0)
+          if qtd_cabecalho>len(texto_processado) or qtd_rodape>len(texto_processado) \
+             or (qtd_cabecalho == 0 and qtd_rodape ==0):
+             texto_processado_regra = texto_processado
+             qtd_cabecalho = 0
+             qtd_rodape = 0
+             r['texto_regra'] = texto_processado_regra
+          elif qtd_cabecalho>0 and qtd_rodape>0:
+             texto_processado_regra = texto_processado[:qtd_cabecalho] + ' ' + texto_processado[-qtd_rodape:]
+             r['texto_regra'] = texto_processado_regra
+          elif qtd_cabecalho>0:
+             texto_processado_regra = texto_processado[:qtd_cabecalho]
+             r['texto_regra'] = texto_processado_regra
+          elif qtd_rodape>0:
+             texto_processado_regra = texto_processado[-qtd_rodape:]
+             r['texto_regra'] = texto_processado_regra
+
           # se o grupo já retornou TRUE, ignora ele
           # se a regra está vazia, ignora ela
           if (not regra) or (grupo in grupos_ok) or (rotulo in retorno_rotulos):
              continue
-          # atualiza o critério para o objeto de pesquisa que já processou o texto
-          pbr.novo_criterio(regra)
-          if self.print_debug:
-             print(f'Testando grupo: {grupo} com rótulo: {rotulo} e regra: {regra}')
-             pbr.print_resumo()
-          if pbr.retorno():
+          regra_ok = False
+          # critério REGEX
+          if regra[:2] in {'r:','R:'}:
+             regra_ok = re.search(regra[2:],texto_processado_regra)
+          # critério textual
+          else:
+            # atualiza o critério para o objeto de pesquisa que já processou o texto
+            _pbr = pbrs.get(f'c{qtd_cabecalho}r{qtd_rodape}')
+            if not _pbr:
+              _pbr = PesquisaBR(texto=texto_processado_regra)
+              pbrs[f'c{qtd_cabecalho}r{qtd_rodape}'] = _pbr
+            # registra no objeto o critério de pesquisa
+            _pbr.novo_criterio(regra)
+            if self.print_debug:
+              print(f'Testando grupo: {grupo} com rótulo: {rotulo} e regra: {regra}')
+              _pbr.print_resumo()
+            regra_ok=_pbr.retorno()
+          # com a regra ok, registra o rótulo para retorno
+          if regra_ok:
              grupos_ok.append(grupo)
              retorno_rotulos.append(rotulo)
              _ext = []
+             # verifica se realiza extrações
              if extracao:
                 #print('Extração: ', f'{extracao}')
                 #print('Texto: ', texto_processado)
-                _ext = [_ for _ in list(np.ravel(re.findall(f'{extracao}',texto_processado))) if _]
-                #print('Extraído: ', f'{_ext}')
+                _ext = [_ for _ in list(np.ravel(re.findall(f'{extracao}',texto_processado_regra))) if _]
+                print('Extração: ', re.findall(f'{extracao}',texto_processado_regra))
+                print('Extraído: ', f'{_ext}')
              retorno_extracoes.append(_ext)
+             # verifica se é retorno detalhado e inclui a regra que incluiu o rótulo no retorno
              if detalhar: 
                 retorno_regras.append(r)
       if not detalhar:
