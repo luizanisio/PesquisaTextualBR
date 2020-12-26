@@ -205,7 +205,8 @@ Retorno
 - a chave opcional *tags* pode ser usada para filtras e avaliar apenas regras que contenham uma das tags
 - a chave opcional *grupo* pode ser usada para filtrar e avaliar apenas regras de um determinado grupo
 ```json
-{"texto": "esse ofício n. 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0, "tags":"oficio"}
+{ "texto": "esse ofício n. 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", 
+  "detalhar":0, "tags":"oficio"}
 ```
 Retorno
 ```json
