@@ -1126,8 +1126,15 @@ class RegrasPesquisaBR():
   __teste_regras__ = [{'grupo' : 'grupo 1', 'rotulo': 'ok1', 'regra': 'casa ADJ2 papel'},
                       {'grupo' : 'grupo 1', 'rotulo': 'ok1', 'regra': 'seriado ADJ2 "la casa de papel"'},
                       {'grupo' : 'grupo 2', 'rotulo': 'ok2', 'regra': '"a casa de papel"'},
-                      {'grupo' : 'grupo teste', 'rotulo': 'teste', 'regra': 'teste'}]
+                      {'grupo' : 'grupo teste', 'rotulo': 'teste', 'regra': 'teste'}
+                     ]
+  __teste_regras_2__ = [{'grupo' : 'grupo cabecalho', 'rotulo': 'cabecalho', 'regra': 'texto', 'qtd_cabecalho':10},
+                        {'grupo' : 'grupo rodape', 'rotulo': 'rodape', 'regra': 'rodapé', 'qtd_rodape':10},
+                        {'grupo' : 'grupo cab rodap', 'rotulo': 'cabrodap', 'regra': 'texto E teste','qtd_cabecalho':10, 'qtd_rodape':23},
+                        {'grupo' : 'grupo n cab rodap', 'rotulo': 'ncabrodap', 'regra': 'NÃO cabecalho','qtd_cabecalho':20, 'qtd_rodape':20}
+                       ]
   __texto_teste__ = 'o seriado a casa de papel é legal'
+  __texto_teste_2__ = 'texto com teste depois do cabecalho e teste antes do rodapé'
 
   def __init__(self, regras = [], print_debug = False):
     self.print_debug = print_debug
@@ -1230,6 +1237,7 @@ class RegrasPesquisaBR():
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
         print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+        raise Exception('RegrasPesquisaBR: Teste de regras com falha')
       # incluindo teste na pesquisa
       resdic = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste__ + ' com esse teste')
       res = resdic['rotulos']
@@ -1237,6 +1245,7 @@ class RegrasPesquisaBR():
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
         print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+        raise Exception('RegrasPesquisaBR: Teste de regras com falha')
       # texto sem regras aplicáveis
       resdic = _obj_teste.aplicar_regras('esse é um texto qualquer com a casa mas não tem nada de papel')
       res = resdic['rotulos']
@@ -1244,6 +1253,16 @@ class RegrasPesquisaBR():
         print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
       else:
         print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+        raise Exception('RegrasPesquisaBR: Teste de regras com falha')
+      # testes de cabeçalho e rodapé
+      _obj_teste = RegrasPesquisaBR(regras = RegrasPesquisaBR.__teste_regras_2__, print_debug=print_debug)
+      resdic = _obj_teste.aplicar_regras(RegrasPesquisaBR.__texto_teste_2__)
+      res = resdic['rotulos']
+      if len(res) == 4:
+        print('\tSUCESSO!  >> Rótulos encontrados: ', ', '.join(res))
+      else:
+        print('\tFALHA!  >> Rótulos encontrados: ', ', '.join(res))
+        raise Exception('RegrasPesquisaBR: Teste de regras com falha')
 
 ################################################################################
 ################################################################################
