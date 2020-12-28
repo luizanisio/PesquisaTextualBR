@@ -1176,6 +1176,8 @@ class RegrasPesquisaBR():
           elif qtd_rodape>0:
              texto_processado_regra = texto_processado[-qtd_rodape:]
              r['texto_regra'] = texto_processado_regra
+          else:
+             texto_processado_regra = texto_processado
 
           # se o grupo já retornou TRUE, ignora ele
           # se a regra está vazia, ignora ela
@@ -1208,8 +1210,8 @@ class RegrasPesquisaBR():
                 #print('Extração: ', f'{extracao}')
                 #print('Texto: ', texto_processado)
                 _ext = [_ for _ in list(np.ravel(re.findall(f'{extracao}',texto_processado_regra))) if _]
-                print('Extração: ', re.findall(f'{extracao}',texto_processado_regra))
-                print('Extraído: ', f'{_ext}')
+                #print('Extração: ', re.findall(f'{extracao}',texto_processado_regra))
+                #print('Extraído: ', f'{_ext}')
              retorno_extracoes.append(_ext)
              # verifica se é retorno detalhado e inclui a regra que incluiu o rótulo no retorno
              if detalhar: 
