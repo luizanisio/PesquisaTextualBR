@@ -7,6 +7,9 @@
 **Para usar:**
 - pip install pesquisabr-1.0.0.4.tar.gz
 
+**OU**
+- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.4.tar.gz
+
 ## O exemplo do servico_regras está funcional
 
 - O exemplo já usa o componente
