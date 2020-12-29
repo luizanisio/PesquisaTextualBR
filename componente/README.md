@@ -1,8 +1,15 @@
-# O componente pesquisabr.PesquisaBR está funcional, a classe para acesso ao MemSQL está em atualização
+# Reestruturando
 
+### O componente pesquisabr.PesquisaBR está funcional
+
+- a classe para acesso ao MemSQL está em atualização
+
+**Para usar:**
 - pip install pesquisabr-1.0.0.4.tar.gz
 
-## o exemplo do servico_regras também está funcional com o componente
+## O exemplo do servico_regras está funcional
+
+- O exemplo já usa o componente
 
 - python app_regras.py 
 - python app_regras_testes.py 
