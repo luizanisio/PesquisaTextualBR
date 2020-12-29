@@ -1,3 +1,7 @@
+## Reestruturação
+- Aproveitando as férias e estou reestruturando em um componente instalável, em breve estará disponibilizado
+- Estou ajustando também o uso com o memsql enquanto aplico os componentes em um projeto para produção
+
 # Pesquisa textual em documentos
 Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **python puro** com o uso de dicionário de **sinônimos** e **distância entre termos** pesquisados. <br>
 - É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas **resultados precisos**. <br>
