@@ -15,4 +15,4 @@
 - O exemplo já usa o componente
 
 - python app_regras.py 
-- python app_regras_testes.py 
+- python app_regras_testes.py *(testes com o serviço rodando em localhost)*
