@@ -1,6 +1,10 @@
-## Reestruturação
+<hr>
+
+### Reestruturação
 - Aproveitando as férias e estou reestruturando em um componente instalável, em breve estará disponibilizado
 - Estou ajustando também o uso com o memsql enquanto aplico os componentes em um projeto para produção
+- O componente já pode ser usado com o serviço de regras, basta baixar a pasta **componente**
+<hr>
 
 # Pesquisa textual em documentos
 Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **python puro** com o uso de dicionário de **sinônimos** e **distância entre termos** pesquisados. <br>
