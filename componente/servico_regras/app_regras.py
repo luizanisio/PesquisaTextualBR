@@ -162,19 +162,22 @@ def analisar_regras():
 @app.route('/analisar_criterio', methods=['GET','POST'])
 def analisar_criterio():
     dados = get_post(request)
-    _texto = str(dados.get("texto",""))
+    _texto = dados.get("texto","")
+    _texto = _texto if type(_texto) is dict else str(_texto)
     _criterios = str(dados.get("criterio",""))
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     if not _criterios:
        _criterios = str(dados.get("criterios",""))
-    #print('Texto: ', type(_texto),_texto)
-    #print('Critério: ', type(_criterios),_criterios)
     pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
     if _detalhar:
-       return jsonify({'retorno': pb.retorno(), 
-                       'criterios': pb.criterios, 
-                       'criterios_aon': pb.criterios_and_or_not, 
-                       'texto': ' '.join(pb.tokens_texto) })
+        if type(pb.tokens_texto) is dict:
+            _texto_processado = {k: ' '.join(v) for k, v in pb.tokens_texto.items()}
+        else:
+            _texto_processado = ' '.join(pb.tokens_texto)
+        return jsonify({'retorno': pb.retorno(), 
+                        'criterios': pb.criterios, 
+                        'criterios_aon': pb.criterios_and_or_not, 
+                        'texto': _texto_processado })
     return jsonify({'retorno': pb.retorno()})
 
 
