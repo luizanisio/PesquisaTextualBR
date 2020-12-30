@@ -42,6 +42,14 @@ class TestAppRegras(unittest.TestCase):
         print(r.text)
         self.assertDictEqual(recebido, esperado)
 
+    def teste_limpeza_cache(self):
+        r = requests.get('http://localhost:8000/cache')
+        r=r.json()
+        self.assertTrue(r.get('ok'))
+        r = requests.get('http://localhost:8000/health')
+        r=r.json()
+        self.assertTrue(r.get('ok'))
+
 if __name__ == '__main__':
     unittest.main(buffer=True)
 

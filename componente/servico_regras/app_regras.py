@@ -25,12 +25,6 @@ CONFIG = {}
 REGRAS = []
 dthr_regras = None
 
-# configuração do cache de regras - 5 minutos 
-from cachetools import cached, TTLCache
-from threading import RLock
-cache_filtros_regras = TTLCache(maxsize=2000, ttl=5 * 60) 
-lock = RLock()
-
 def carregar_config():
     global CONFIG
     _config = {}
@@ -45,6 +39,19 @@ def carregar_config():
        _config['tempo_regras'] = 5
     # atualização da configuração
     CONFIG = _config
+
+###################################################################
+# carrega as configurações e preparando o cache de carga das regras
+carregar_config()
+# configuração do cache de regras - 5 minutos 
+from cachetools import cache, cached, TTLCache, ttl
+from threading import RLock
+ttl_cache = CONFIG.get('tempo_regras',0)
+ttl_cache = 5* 60 if ttl_cache < 1 else ttl_cache
+print('Tempo de cache das regras: {ttl_cache}s')
+cache_filtros_regras = TTLCache(maxsize=2000, ttl=ttl_cache) 
+lock = RLock()
+
 
 REGEX_CORRIGE_TAGS = re.compile(r'[,;#\s]+')
 def carregar_regras():
@@ -122,6 +129,12 @@ def get_post(req:request):
     #print('Dados enviados: ', res)
     return res
 
+@app.route('/cache', methods=['GET'])
+def limpar_cache():
+    cache_filtros_regras.clear()
+    print('Limpando cache de regras')
+    return jsonify({'ok': True, 'msg': 'cache das regras reiniciado'})
+
 @app.route('/health', methods=['GET'])
 def get_health():
     _criterios = 'casas ADJ2 papeis PROX10 legal PROX10 seriado'
@@ -182,14 +195,13 @@ def analisar_criterio():
 
 
 if __name__ == "__main__":
-    # carrega as configurações
-    carregar_config()
     # carrega as regras
     carregar_regras()
 
-    print('#########################################')
-    print('Iniciando o serviço')
-    print('Configuações: ', json.dumps(CONFIG))
-    print('-----------------------------------------')
+    print( '#########################################')
+    print( 'Iniciando o serviço')
+    print( 'Configuações: ', json.dumps(CONFIG))
+    print(f' - tempo de cache: {ttl_cache}s')
+    print( '-----------------------------------------')
     app.run(host='0.0.0.0', debug=True,port=8000) 
 
