@@ -151,7 +151,6 @@ def get_health():
     print('\n===== HEALTH CHECK OK =====\n')
     return jsonify({'ok': True, 'criterios': pb.criterios, 'criterios_aon': pb.criterios_and_or_not, 'texto': pb.texto })
 
-
 # recebe {'texto': 'texto para ser analisado pelas regras'}
 # retorna {'retorno': true/false }
 @app.route('/analisar_regras', methods=['GET','POST'])

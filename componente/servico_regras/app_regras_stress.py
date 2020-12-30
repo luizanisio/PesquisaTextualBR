@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from flask.globals import request
 from pesquisabr.pesquisabr_testes import TESTES_COMPLETOS
 
 import requests
@@ -10,23 +11,52 @@ from datetime import datetime
 from pesquisabr.util import Util
 
 MULTIPLICADOR = 1
-N_THREADS = 50
+N_THREADS = cpu_count() * 2
 
 arq_falhas = './stress_falhas.txt'
 arq_resumo = './stress_resumo.txt'
 falhas = []
 dados_testes = []
 testes = []
-print (f'Utilizando {cpu_count()} cores')
+# prepara um texto com 10k para teste
+TAMANHO_TEXTO_GIGANTE = 10000
+texto_gigante_base = 'esse é um teste de texto que foi multiplicado para ficar gigante bla bla bla bla bla bla bla bla bla '
+texto_gigante = texto_gigante_base
+print (f'Utilizando {N_THREADS} threads')
 for i, d in enumerate(TESTES_COMPLETOS*MULTIPLICADOR): 
-    d["id"] = str(i)
     dados_testes.append(d)
+    if len(texto_gigante)< TAMANHO_TEXTO_GIGANTE:
+        texto_gigante += f'{(d["texto"])} '
+
+while len(texto_gigante) < TAMANHO_TEXTO_GIGANTE:
+    texto_gigante += texto_gigante_base
+# texto com 10k
+print(f'Texto gigante criado com {len(texto_gigante)} caracters')
+dados_testes.append({'texto':texto_gigante, 'criterio': 'teste E texto ADJ10 gigante com bla','retorno':True})    
+
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+def smart_request():
+    # https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/#retry-on-failure
+    retry_strategy = Retry(
+        total=5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        method_whitelist=["HEAD", "GET", "POST", "OPTIONS"],
+        backoff_factor=0.5
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    return http
 
 def realizar_teste(i):
     d = dados_testes[i]
     dados_post = {'texto': d['texto'], 'criterio': d['criterio'], 'detalhar': False}
     esperado = d['retorno']
-    r = requests.post('http://localhost:8000/analisar_criterio',json = dados_post)
+    _ini = datetime.now()
+    r = smart_request().post('http://localhost:8000/analisar_criterio',json = dados_post)
+    _tempo = round((datetime.now()-_ini).total_seconds(),2)
     recebido = r.json().get('retorno')
     if recebido == esperado:
         res = 'ok'
@@ -35,18 +65,36 @@ def realizar_teste(i):
         falhas.append(d)
         dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         with open(arq_falhas, "a") as f:
-            f.write(f'{dtstr} \t {json.dumps(d)} \n')
+            f.write(f'{dtstr} \t {json.dumps(d)} >> {_tempo}s\n')
     testes.append(res)
-    print(f'Teste {i} {res} >> ', Counter(testes))
+    print(f'Teste {i+1} {res} >> ', Counter(testes), f'{_tempo}s')
 
+def teste_inicial():
+    r = requests.get('http://localhost:8000/cache')
+    r=r.json()
+    assert r.get('ok'), 'Teste de limpeza de cache falhou'
+    r = requests.get('http://localhost:8000/health')
+    r=r.json()
+    assert r.get('ok'), 'Teste de health falhou'
+    print('Cache reiniciado e health testado')
 
 if __name__ == '__main__':
-    print(f'Processando {len(dados_testes)} testes')
-    ini = datetime.now()
-    dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-    Util.map_thread(realizar_teste, range(len(dados_testes)), n_threads = N_THREADS)
-    tempo = round((datetime.now()-ini).total_seconds(),2)
-    print('Resultado: ', Counter(testes), f' em {tempo}s')
-    dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-    with open(arq_resumo, "a") as f:
-         f.write(f'{dtstr} \t {Counter(testes)} >> {tempo}s \n')
+    try:
+        teste_inicial()
+        print(f'Processando {len(dados_testes)} testes')
+        ini = datetime.now()
+        tempo = None
+        dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        Util.map_thread(realizar_teste, range(len(dados_testes)), n_threads = N_THREADS)
+        tempo = round((datetime.now()-ini).total_seconds(),2)
+        print('Resultado: ', Counter(testes), f' em {tempo}s')
+        dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+    finally:
+        # no caso de erro, o tempo não é contado
+        tempo = tempo if tempo else round((datetime.now()-ini).total_seconds(),2)
+        qtd_testes = len(dados_testes)
+        erro = ''
+        if qtd_testes>len(testes):
+            erro = ' **** ERRO: TESTES INCONPLETOS'
+        with open(arq_resumo, "a") as f:
+            f.write(f'{dtstr} \t {Counter(testes)} de {qtd_testes} >> {tempo}s {erro}\n')
