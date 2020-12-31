@@ -15,7 +15,8 @@ from datetime import datetime, timedelta
 import re 
 
 # configuração de caminho para o componente
-from pesquisabr.pesquisabr import PesquisaBR, RegrasPesquisaBR
+from pesquisabr import PesquisaBR, RegrasPesquisaBR
+
 
 app = Flask(__name__)
 
