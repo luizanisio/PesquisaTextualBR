@@ -38,6 +38,9 @@ while len(texto_gigante) < TAMANHO_TEXTO_GIGANTE:
 print(f'Texto gigante criado com {len(texto_gigante)} caracters')
 dados_testes.append({'texto':texto_gigante, 'criterio': 'teste E texto ADJ10 gigante com bla','retorno':True})    
 
+# teste com regex
+dados_testes.append({"texto": "esse ofício 12", "criterio" : "r:esse\\W.*12$", "retorno" : True})
+
 # multiplica o teste 
 dados_testes *=  MULTIPLICADOR
 

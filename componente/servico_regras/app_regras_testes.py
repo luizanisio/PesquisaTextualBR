@@ -25,11 +25,21 @@ def smart_request():
 
 class TestAppRegras(unittest.TestCase):
 
+    def teste_criterios_regex(self):
+        dados = {"texto": "esse ofício 12", 
+                 "criterios" : "r:esse\\W.*12$",
+                 "detalhar" : 1}
+        r = smart_request().post('http://localhost:8000/analisar_criterio',json = dados)
+        esperado = { "criterios": "esse\\W.*12$",
+                     "retorno": True,
+                     "texto": "esse oficio 12" }
+        self.assertDictEqual(r.json(), esperado)
+
     def teste_regras(self):
         dados = {"texto": "esse ofício 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois são vários testes três com o oficio número 5.174", 
                  "detalhar":0, 
                  "tags":"teste"}
-        r = smart_request().post('http://localhost:8000/analisar_regras',data = dados)
+        r = smart_request().post('http://localhost:8000/analisar_regras',json = dados)
         esperado = { "extracoes": [ [ "12", "numero 5174" ], [], [ "456", " um " ] ], 
                      "rotulos": [ "oficio", "teste regex", "teste" ] }
         self.assertDictEqual(r.json(), esperado)

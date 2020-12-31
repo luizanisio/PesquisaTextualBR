@@ -17,7 +17,6 @@ import re
 # configuração de caminho para o componente
 from pesquisabr import PesquisaBR, RegrasPesquisaBR
 
-
 app = Flask(__name__)
 
 ARQ_CONFIG = './config.json'
@@ -181,6 +180,17 @@ def analisar_criterio():
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     if not _criterios:
        _criterios = str(dados.get("criterios",""))
+    # critério REGEX
+    if _criterios[:2] in {'r:','R:'}:
+        pb = PesquisaBR(texto=_texto, criterios='', print_debug=False)
+        _texto_processado = ' '.join(pb.tokens_texto)
+        regra_ok = re.search(_criterios[2:],_texto_processado)
+        if _detalhar:
+            return jsonify({'retorno': bool(regra_ok), 
+                            'criterios': str(_criterios[2:]), 
+                            'texto': _texto_processado })
+        return jsonify({'retorno': bool(regra_ok)})
+    # critério textual
     pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
     if _detalhar:
         if type(pb.tokens_texto) is dict:
