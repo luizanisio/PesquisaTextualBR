@@ -63,25 +63,9 @@ Rótulos encontrados para o texto: "nessa receita você vai aprender a fazer bol
 
 ### Testes básicos da classe
 Estão disponíveis diversos textos e pesquisas que são testados para garantir o funcionamento da classe durante o desenvolvimento.
-```py
-pb.testes()
-```
-
-Console (onde AON é a simplificação da pesquisa para AND OR NOR)
 ```bat
----------------------------------------
-Teste: 0 - texto 123 uu aeiouaaocaeiouaaoc  ==> esperado True
-   AON => texto AND 123 AND uu AND aeiouaaocaeiouaaoc
----------------------------------------
-Teste: 1 - casa adj2 papel  ==> esperado True
-   AON => casa AND papel
----------------------------------------
-Teste: 2 - 'numero 123' prox3 interessante  ==> esperado True
-   AON => "numero 123" AND interessante
----------------------------------------
-Teste: 3 - casa adj6 seriado  ==> esperado True
-   AON => casa AND seriado
-   ```
+python pesquisabr_testes.py
+```
 
 ### Pesquisa textual avançada
 
