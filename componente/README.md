@@ -5,10 +5,10 @@
 - a classe para acesso ao MemSQL está em atualização
 
 **Para usar:**
-- pip install pesquisabr-1.0.0.7.tar.gz
+- pip install pesquisabr-1.0.0.8.tar.gz
 
 **OU**
-- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.7.tar.gz
+- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.8.tar.gz
 
 ## O exemplo do servico_regras está funcional
 
