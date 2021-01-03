@@ -75,7 +75,9 @@ def carregar_regras():
             r['qtd_cabecalho'] = r.get('qtd_cabecalho',0)
             r['qtd_rodape'] = r.get('qtd_rodape',0)
             # se a regra for um regex, valida ele 
-            if regex_valido(r.get('regra'), r.get('rotulo')) and regex_valido('r:'+r.get('extracao',''), r.get('rotulo')):
+            if regex_valido(r.get('regra'), r.get('rotulo')) \
+                and regex_valido('r:'+r.get('extracao',''), r.get('rotulo')) \
+                and regra_valida(r.get('regra'), r.get('rotulo')):
                _regras_tags.append(r)
         REGRAS = _regras_tags
     else:
@@ -88,12 +90,26 @@ def regex_valido(txt_regex, rotulo):
         return True
     try:
         re.compile(str(txt_regex))
-        print(f'REGEX OK: rótulo "{rotulo}" com o texto de regex: {txt_regex}')
+        print(f'REGEX OK: rótulo "{rotulo}" - regex: {txt_regex}')
         return True
     except re.error:
         pass 
-    print(f'REGEX inválido: rótulo "{rotulo}" com o texto de regex: {txt_regex}')
+    print(f'**ERRO: REGEX inválido: "{rotulo}"')
+    print(f'        texto de regex: {txt_regex}')
     return False
+
+# verifica se a regra é válida e ignora ela caso tenha algum erro na construção
+def regra_valida(txt_regra, rotulo):
+    if (not txt_regra) or (txt_regra[:2] in {'r:','R:'}):
+        return True
+    pb = PesquisaBR(texto='', criterios=txt_regra)
+    if pb.erros:
+        print(f'**ERRO: REGRA inválida: "{rotulo}"')
+        print(f'        texto de regra: {txt_regra}')
+        print(f'                 erro : {pb.erros}')
+        return False
+    print(f'REGRA OK: rótulo "{rotulo}" com o texto de regra: {txt_regra}')
+    return True
 
 # retorna apenas as regras de um grupo específico e/ou que contém alguma das tags informadas
 # tags_lista é uma lista de tags do tipo "tag1 tag2 tag3"
@@ -137,10 +153,11 @@ def limpar_cache():
 
 @app.route('/health', methods=['GET'])
 def get_health():
+    global REGRAS
     _criterios = 'casas ADJ2 papeis PROX10 legal PROX10 seriado'
     _texto = 'a casa de papel é um seriado muito legal'
     pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
-    if not pb.retorno():
+    if (pb.erros) or (not pb.retorno()):
        print('\n\n')
        print('=========================================================')
        print('=    ERRO NO CRITÉRIO DE PESQUISA DO HEALTH CHECK       =')
@@ -148,7 +165,7 @@ def get_health():
        print('=========================================================')
        print('\n\n')
        raise Exception(f'Health check - ERRO na avaliação do critério de pesquisa')
-    print('\n===== HEALTH CHECK OK =====\n')
+    print(f'\n===== HEALTH CHECK OK ({len(REGRAS)} regras carregadas) =====\n')
     return jsonify({'ok': True, 'criterios': pb.criterios, 'criterios_aon': pb.criterios_and_or_not, 'texto': pb.texto })
 
 # recebe {'texto': 'texto para ser analisado pelas regras'}
@@ -192,6 +209,10 @@ def analisar_criterio():
         return jsonify({'retorno': bool(regra_ok)})
     # critério textual
     pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
+    if pb.erros:
+        return jsonify({'retorno': None, 
+                        'erros': pb.erros, 
+                        'criterios': pb.criterios })
     if _detalhar:
         if type(pb.tokens_texto) is dict:
             _texto_processado = {k: ' '.join(v) for k, v in pb.tokens_texto.items()}
