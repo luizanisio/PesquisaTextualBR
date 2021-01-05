@@ -15,4 +15,14 @@
 - O exemplo já usa o componente
 
 - python app_regras.py 
-- python app_regras_testes.py *(testes com o serviço rodando em localhost)*
+
+## Página com formulário para usar as funcionalidades 
+
+- localhost:8000/
+- localhost:8000/testes_criterios
+- localhost:8000/testes_regras
+
+## Testes do serviço em localhost:8000
+
+- python app_regras_testes.py
+- python app_regras_stress.py
