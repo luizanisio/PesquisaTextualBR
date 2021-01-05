@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+	{% block head %}
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		{% block styles %}
+			<!-- Bootstrap CSS -->
+				{{ bootstrap.load_css() }}
+		  <style type="text/css">
+			.shadow-textarea textarea.form-control::placeholder {
+				font-weight: 300;
+			}
+			.shadow-textarea textarea.form-control {
+				padding-left: 0.8rem;
+			}
+			.nav>li>a {
+				background-color: #aaa;
+				color: #777;
+			}
+			.nav .nav-link.active {
+				color: black;
+				background-color: #eee;
+			}
+		  </style>
+		{% endblock %}
+	{% endblock %}
+<title>{{ title}}</title>
+</head>
+<body>
+{% block content %}
+  <h3>PesquisaBR - testes do serviço</h3>
+<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Documentação sobre o componente de pesquisa textual" target="https://github.com/luizanisio/PesquisaTextualBR">
+  PesquisaBR
+</button>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link {{ ativo_criterios }}" href="{{ url_for('testar_criterios') }}"><b>Teste de aplicação de critérios de pesquisa</b></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ ativo_regras }}" href="{{ url_for('testar_regras') }}"><b>Teste de aplicação de regras</b></a>
+  </li>
+</ul>
+{% endblock content %}

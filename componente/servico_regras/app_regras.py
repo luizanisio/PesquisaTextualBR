@@ -4,20 +4,21 @@
 # teste para análise de critérios
 # http://localhost:8000/analisar_criterio?texto=esse%20texto%20legal&criterio=texto&debug=1
 
-# debug=qualquer coisa vai ativar o retorno com mais informações e print de debug
+from flask import Flask, jsonify, request, render_template, render_template_string, redirect
 
-import time
-from flask import Flask, jsonify, request
-from multiprocessing import Process, Value, Queue
+from flask_bootstrap import Bootstrap
+from jinja2 import TemplateNotFound
+
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 import re 
 
 # configuração de caminho para o componente
 from pesquisabr import PesquisaBR, RegrasPesquisaBR
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='./templates')
+bootstrap  = Bootstrap(app)
 
 ARQ_CONFIG = './config.json'
 ARQ_REGRAS = './regras.json'   # arquivo texto no formato [{regra}, {regra}, {regra}]
@@ -224,6 +225,87 @@ def analisar_criterio():
                         'texto': _texto_processado })
     return jsonify({'retorno': pb.retorno()})
 
+#############################################################################
+#############################################################################
+## formulários de teste das regras e critérios
+@app.route('/testar_regras',methods=['GET','POST'])
+def testar_regras():
+    try:
+        title = "PesquisaBR: Análise de regras"
+        dados = get_post(request)
+        texto_analise = str(dados.get("texto_analise",""))
+        texto_processado = ''
+        rotulos_retornados = ''
+        tags = str(dados.get("tags",""))
+        grupo = str(dados.get("grupo",""))
+        qtd_regras = 0
+        _tempo = ''
+        lista_rotulos = []
+        if texto_analise:
+            carregar_regras()
+            global REGRAS
+            pb = PesquisaBR(texto=texto_analise)
+            texto_processado = ' '.join(pb.tokens_texto)
+            _ini = datetime.now()
+            pbr = RegrasPesquisaBR(regras=[], print_debug=False)
+            pbr.regras = regras_filtradas(tags_lista=tags, grupo=grupo) 
+            qtd_regras = len(pbr.regras)
+            res = pbr.aplicar_regras(texto=texto_analise, detalhar=True)
+            _tempo = round((datetime.now()-_ini).total_seconds(),3)
+            _tempo = f'{_tempo:.3f} s'
+            rotulos_retornados = list(res.get('rotulos',[]))
+
+        return render_template("aplicar_regras.html", 
+                texto_analise = texto_analise, 
+                texto_processado = texto_processado,
+                rotulos_retornados = rotulos_retornados,
+                qtd_regras = qtd_regras,
+                tempo = _tempo,
+                ativo_regras='active',
+                title=title)
+    except TemplateNotFound as e:
+        return render_template_string(f'Página não encontrada: {e.message}')
+
+@app.route('/')
+@app.route('/testar')
+@app.route('/testes')
+@app.route('/teste')
+@app.route('/testar_criterios',methods=['GET','POST'])
+def testar_criterios():
+    try:
+        title = "PesquisaBR: Análise de criterios"
+        dados = get_post(request)
+        texto_analise = str(dados.get("texto_analise",""))
+        texto_criterio = str(dados.get("texto_criterio",""))
+        criterio_ok = ''
+        texto_processado = ''
+        criterio_processado = ''
+        _tempo = ''
+        if texto_analise or texto_criterio:
+            _ini = datetime.now()
+            pb = PesquisaBR(texto=texto_analise, criterios=texto_criterio)
+            if texto_analise:
+                texto_processado = ' '.join(pb.tokens_texto)
+            if texto_criterio:
+               criterio_processado = pb.criterios
+            if texto_analise and texto_criterio:
+               criterio_ok = 'SIM' if pb.retorno() else 'NAO'
+            _tempo = round((datetime.now()-_ini).total_seconds(),3)
+            _tempo = f'{_tempo:.3f} s'
+        return render_template("aplicar_criterio.html", 
+                texto_analise = texto_analise, 
+                texto_criterio = texto_criterio, 
+                criterio_ok = criterio_ok,
+                texto_processado = texto_processado,
+                criterio_processado = criterio_processado,
+                tempo = _tempo,
+                ativo_criterios='active',
+                title=title)
+    except TemplateNotFound as e:
+        return render_template_string(f'Página não encontrada: {e.message}')
+
+#############################################################################
+#############################################################################
 
 if __name__ == "__main__":
     # carrega as regras
