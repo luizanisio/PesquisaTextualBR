@@ -22,17 +22,15 @@
 				color: black;
 				background-color: #eee;
 			}
-		  </style>
+          </style>
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 		{% endblock %}
 	{% endblock %}
 <title>{{ title}}</title>
 </head>
 <body>
 {% block content %}
-  <h3>PesquisaBR - testes do serviço</h3>
-<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Documentação sobre o componente de pesquisa textual" target="https://github.com/luizanisio/PesquisaTextualBR">
-  PesquisaBR
-</button>
+<a class="btn btn-secondary" href="https://github.com/luizanisio/PesquisaTextualBR" title="Documentação sobre o componente de pesquisa textual"><i class="far fa-lightbulb"></i> PesquisaBR</i></a>
 
 <ul class="nav nav-tabs">
   <li class="nav-item">
@@ -42,4 +40,6 @@
     <a class="nav-link {{ ativo_regras }}" href="{{ url_for('testar_regras') }}"><b>Teste de aplicação de regras</b></a>
   </li>
 </ul>
+
+
 {% endblock content %}
