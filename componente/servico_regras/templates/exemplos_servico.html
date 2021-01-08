@@ -4,7 +4,7 @@
 {{ super() }}
 	<!-- Form -->
 	<div class="card">
-    	<div class="card-header">Avaliação de critério de pesquisa</div>
+    	<div class="card-header text-info font-weight-bold">Avaliação de critério de pesquisa</div>
 		<div class="card-body">
             <b>POST:</b> /analisar_criterio
             <div class="card bg-light"><code>
@@ -16,7 +16,7 @@
             </code></div>
         </div>
 
-        <div class="card-header">Avaliação de regras</div>
+        <div class="card-header text-info font-weight-bold">Avaliação de regras</div>
 		<div class="card-body">
             <b>POST:</b> /analisar_regras
             <div class="card bg-light"><code>
@@ -30,7 +30,7 @@
             </code></div>
         </div>
 
-        <div class="card-header">Avaliação de regras com filtros de tags</div>
+        <div class="card-header text-info font-weight-bold">Avaliação de regras com filtros de tags</div>
 		<div class="card-body">
             <b>POST:</b> /analisar_regras
             <div class="card bg-light"><code>
@@ -45,7 +45,19 @@
             </code></div>
         </div>
 
-        <div class="card-header">Regras do exemplo (arquivo regras.json)</div>
+        <div class="card-header text-info font-weight-bold">Limpar o cache e recarregar as regras</div>
+		<div class="card-body">
+            <b>GET:</b> /cache
+            <br><b>Retorno</b>
+            <div class="card bg-light"><code>
+                {  "msg": "cache das regras reiniciado, 61 regras recarregadas e 0 ignoradas por erro de construção", 
+                   "ok": true
+                  }
+            </code></div>
+            <p><i>O cache é mantido por 5 minutos.</i></p>
+        </div>
+
+        <div class="card-header text-info font-weight-bold">Regras do exemplo (arquivo regras.json)</div>
 		<div class="card-body">
             <i>* as chaves tags, qtd_cabecalho, qtd_rodape e extracao são opcionais</i>
             <ul>

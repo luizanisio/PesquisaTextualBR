@@ -24,6 +24,7 @@ ARQ_CONFIG = './config.json'
 ARQ_REGRAS = './regras.json'   # arquivo texto no formato [{regra}, {regra}, {regra}]
 CONFIG = {}
 REGRAS = []
+REGRAS_ERROS = 0
 dthr_regras = None
 
 def carregar_config():
@@ -49,20 +50,21 @@ from cachetools import cache, cached, TTLCache, ttl
 from threading import RLock
 ttl_cache = CONFIG.get('tempo_regras',0)
 ttl_cache = 5* 60 if ttl_cache < 1 else ttl_cache
-print('Tempo de cache das regras: {ttl_cache}s')
+print(f'Tempo de cache das regras: {ttl_cache}s')
 cache_filtros_regras = TTLCache(maxsize=2000, ttl=ttl_cache) 
 lock = RLock()
 
 
 REGEX_CORRIGE_TAGS = re.compile(r'[,;#\s]+')
 def carregar_regras():
-    global REGRAS, dthr_regras
+    global REGRAS, dthr_regras, REGRAS_ERROS
     # recarrega as regras a cada 5 minutos
     # é um exemplo pois poderia recarregar do banco de dados ou de algum microserviço
     if dthr_regras and (datetime.now()-dthr_regras).total_seconds()<300:
         return 
     dthr_regras = datetime.now()
     _regras = []
+    invalidas = 0
     if os.path.isfile(ARQ_REGRAS):
         with open(ARQ_REGRAS,mode='r') as f:
             _regras = f.read()
@@ -80,10 +82,17 @@ def carregar_regras():
                 and regex_valido('r:'+r.get('extracao',''), r.get('rotulo')) \
                 and regra_valida(r.get('regra'), r.get('rotulo')):
                _regras_tags.append(r)
+            else:
+                invalidas += 1
         REGRAS = _regras_tags
+        REGRAS_ERROS = invalidas
     else:
         REGRAS = []
+        REGRAS_ERROS = 0
     print(f'Número de regras carregadas: {len(REGRAS)}')
+    if invalidas>0:
+        print(f' * número de regras ignoradas por erro: {invalidas}')
+
 
 # retorna true para regex válido em regras ou extrações
 def regex_valido(txt_regex, rotulo):
@@ -150,7 +159,10 @@ def get_post(req:request):
 def limpar_cache():
     cache_filtros_regras.clear()
     print('Limpando cache de regras')
-    return jsonify({'ok': True, 'msg': 'cache das regras reiniciado'})
+    carregar_regras()
+    global REGRAS, REGRAS_ERROS
+    return jsonify({'ok': True, 'msg': f'cache das regras reiniciado, {len(REGRAS)} regras recarregadas e {REGRAS_ERROS} ignoradas por erro de construção.'})
+
 
 @app.route('/health', methods=['GET'])
 def get_health():
