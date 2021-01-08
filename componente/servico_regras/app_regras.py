@@ -233,6 +233,7 @@ def testar_regras():
     try:
         title = "PesquisaBR: Análise de regras"
         dados = get_post(request)
+        #print(dados)
         texto_analise = str(dados.get("texto_analise",""))
         texto_processado = ''
         rotulos_retornados = ''
@@ -261,6 +262,8 @@ def testar_regras():
                 rotulos_retornados = rotulos_retornados,
                 qtd_regras = qtd_regras,
                 tempo = _tempo,
+                grupo = grupo,
+                tags = tags,
                 ativo_regras='active',
                 title=title)
     except TemplateNotFound as e:

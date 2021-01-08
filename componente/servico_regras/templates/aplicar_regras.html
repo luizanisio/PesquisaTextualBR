@@ -14,6 +14,16 @@
 					<div class="form-group shadow-textarea">
 					  <textarea class="form-control z-depth-1" name="texto_analise" id="texto_analise" rows="4" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto_analise }}</textarea>
 					</div>
+					<div class="input-group input-group-sm mb-3">
+						<div class="input-group-prepend">
+						  <span class="input-group-text" id="inputGroup-sizing-sm">Tags</span>
+						</div>
+						<input type="text" name="tags" id="tags" placeholder="Tags para filtro das regras, exemplo: bolos paes" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="{{ tags }}">
+						<div class="input-group-prepend">
+						  <span class="input-group-text" id="inputGroup-sizing-sm">Grupo</span>
+						</div>
+						<input type="text" name="grupo" id="grupo" placeholder="Grupo único para filtro, exemplo: receitas_bolo" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="{{ grupo }}">
+					  </div>					
 							
 					<!-- Analisar -->
 					<input type="submit" class="btn btn-primary" value="Analisar regras">
