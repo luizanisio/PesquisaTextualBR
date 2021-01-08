@@ -304,6 +304,12 @@ def testar_criterios():
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')
 
+@app.route('/exemplos',methods=['GET'])
+def exemplos():
+    return render_template("exemplos_servico.html", 
+                title = "PesquisaBR: Exemplos de uso do serviço",
+                ativo_exemplos='active')
+
 #############################################################################
 #############################################################################
 

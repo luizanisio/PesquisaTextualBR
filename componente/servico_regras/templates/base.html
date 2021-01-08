@@ -15,11 +15,11 @@
 				padding-left: 0.8rem;
 			}
 			.nav>li>a {
-				background-color: #aaa;
-				color: #777;
+				background-color: rgb(255, 255, 255);
+				color: rgb(1, 0, 56);
 			}
 			.nav .nav-link.active {
-				color: black;
+				color: rgb(14, 0, 211);
 				background-color: #eee;
 			}
           </style>
@@ -38,6 +38,9 @@
   </li>
   <li class="nav-item">
     <a class="nav-link {{ ativo_regras }}" href="{{ url_for('testar_regras') }}"><b>Teste de aplicação de regras</b></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ ativo_exemplos }}" href="{{ url_for('exemplos') }}"><b>Usando o serviço</b></a>
   </li>
 </ul>
 
