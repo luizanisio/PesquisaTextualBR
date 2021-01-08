@@ -210,12 +210,13 @@ Retorno
 ```
 
 Regras desse exemplo (arquivo regras.json):
-- as chaves tags, qtd_cabecalho e qtd_rodape são opcionais
+- as chaves tags, qtd_cabecalho, qtd_rodape e extracao são opcionais
 - *regra*: é a regra usando os operadores de pesquisa textual, ou um regex. No caso de regex, a regra deve começar com r: regex desejado
 - *rotulo*: é o rótulo do grupo que será retornado se a regra retornar true
 - *qtd_cabecalho*: a regra é aplicada no início do texto até o caracter da posição informada
 - *qtd_rodape*: a regra é aplicada no final do texto, do caracter da posição informada até o fim
 - *qtd_cabecalho* e *qtd_rodape*: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape
+- *extracao*: é um regex usado para extrair informações do texto se a regra retornar true
 ```json
 {"regras": [
     {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
