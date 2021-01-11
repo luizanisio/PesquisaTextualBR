@@ -1,0 +1,9 @@
+{"exemplos": [
+    {"texto": "O seriado A Casa de Papel tem sido muito legal", "criterios": "casa ADJ2 papel"},
+    {"texto": "O Fabuloso destino de Amelie Poulain. Amelie uma jovem do interior que se muda para Paris e logo comeca a trabalhar em um cafe. Num belo dia, ela encontra uma caixinha dentro de seu apartamento e decide procurar o dono. A partir dai, sua perspectiva de vida muda radicalmente.", 
+     "criterios": "paris destinos fabulosos"},
+    {"texto": "Uma unidade custa R$ 1123,57. Duas unidades sai com desconto por R$ 2240,73 e na Black friday cada unidade sai por apenas R$ 130,00. Isso no dia 01/02/2003", "criterios": "'01/02/2003' 1.123,57"},
+    {"texto": "Receita 1 - Esse exemplo contem uma receita de bolo", "criterios": "receita bolo"},
+    {"texto": "Receita 2 - Esse exemplo contem uma receita de pao", "criterios": "receita pao"},
+    {"texto": "Oficio n. 345 de 01/02/2021", "criterios": "'oficio n' OU 'oficion numero'"}
+]}

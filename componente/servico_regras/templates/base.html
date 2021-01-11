@@ -42,7 +42,24 @@
   <li class="nav-item">
     <a class="nav-link {{ ativo_exemplos }}" href="{{ url_for('exemplos') }}"><b>Usando o serviço</b></a>
   </li>
+
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Exemplos</a>
+    <div class="dropdown-menu">
+		{% for e in exemplos_criterios %}		
+   		   <a class="dropdown-item" href="{{ url_for('testar_criterios', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
+		{% endfor %}		
+		{% for e in exemplos_regras %}		
+   		   <a class="dropdown-item" href="{{ url_for('testar_regras', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
+		{% endfor %}		
+    </div>
+  </li>
+
 </ul>
 
-
 {% endblock content %}
+
+{% block scripts %}
+    <!-- Bootstrap JS -->
+	{{ bootstrap.load_js() }}
+{% endblock %}

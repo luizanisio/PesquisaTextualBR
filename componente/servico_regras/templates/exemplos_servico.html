@@ -8,11 +8,13 @@
 		<div class="card-body">
             <b>POST:</b> /analisar_criterio
             <div class="card bg-light"><code>
-                {"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": "1"}
+                {"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": 1, "grifar": 1}
             </code></div>
             <b>Retorno</b>
             <div class="card bg-light"><code>
-                { "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, "texto": "esse e um texto legal" }
+                { "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, 
+                  "texto": "esse e um texto legal",
+                  "texto_grifado": "retorna o texto com tags de highlight nos termos pesquisados" }
             </code></div>
         </div>
 

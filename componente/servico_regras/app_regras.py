@@ -4,7 +4,7 @@
 # teste para análise de critérios
 # http://localhost:8000/analisar_criterio?texto=esse%20texto%20legal&criterio=texto&debug=1
 
-from flask import Flask, jsonify, request, render_template, render_template_string, redirect
+from flask import Flask, jsonify, request, render_template, render_template_string, redirect, Markup
 
 from flask_bootstrap import Bootstrap
 from jinja2 import TemplateNotFound
@@ -22,9 +22,11 @@ bootstrap  = Bootstrap(app)
 
 ARQ_CONFIG = './config.json'
 ARQ_REGRAS = './regras.json'   # arquivo texto no formato [{regra}, {regra}, {regra}]
+ARQ_EXEMPLOS = './exemplos.json'
 CONFIG = {}
 REGRAS = []
 REGRAS_ERROS = 0
+EXEMPLOS = []
 dthr_regras = None
 
 def carregar_config():
@@ -41,6 +43,25 @@ def carregar_config():
        _config['tempo_regras'] = 5
     # atualização da configuração
     CONFIG = _config
+
+def carregar_exemplos():
+    global EXEMPLOS
+    _exemplos = []
+    if os.path.isfile(ARQ_EXEMPLOS):
+       with open(ARQ_EXEMPLOS,mode='r') as f:
+           _exemplos = f.read().replace('\n',' ').strip()
+           if _exemplos and _exemplos[0]=='{' and _exemplos[-1]=='}':
+              _exemplos = json.loads(_exemplos)
+              _exemplos = _exemplos.get('exemplos',[])
+    # atualização dos exemplos
+    EXEMPLOS = []
+    for i, _ in enumerate(_exemplos):
+        if _.get('texto') or _.get('criterios'):
+            _['rotulo'] = _.get('texto')[:15] + '...'
+            _['n'] = i
+            EXEMPLOS.append(_)
+
+    
 
 ###################################################################
 # carrega as configurações e preparando o cache de carga das regras
@@ -208,6 +229,7 @@ def analisar_criterio():
     _texto = _texto if type(_texto) is dict else str(_texto)
     _criterios = str(dados.get("criterio",""))
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
+    _grifar = str(dados.get("grifar","")) not in ("","0","False")
     if not _criterios:
        _criterios = str(dados.get("criterios",""))
     # critério REGEX
@@ -226,16 +248,20 @@ def analisar_criterio():
         return jsonify({'retorno': None, 
                         'erros': pb.erros, 
                         'criterios': pb.criterios })
+    res = {'retorno': pb.retorno()}
+
     if _detalhar:
         if type(pb.tokens_texto) is dict:
             _texto_processado = {k: ' '.join(v) for k, v in pb.tokens_texto.items()}
         else:
             _texto_processado = ' '.join(pb.tokens_texto)
-        return jsonify({'retorno': pb.retorno(), 
-                        'criterios': pb.criterios, 
-                        'criterios_aon': pb.criterios_and_or_not, 
-                        'texto': _texto_processado })
-    return jsonify({'retorno': pb.retorno()})
+        res.update({'criterios': pb.criterios, 
+                    'criterios_aon': pb.criterios_and_or_not, 
+                    'texto': _texto_processado })
+    if _grifar:
+        _texto_grifado = pb.grifar_criterios(_texto).replace('\n','<br>')
+        res['texto_grifado'] = _texto_grifado
+    return jsonify(res)
 
 #############################################################################
 #############################################################################
@@ -248,12 +274,16 @@ def testar_regras():
         #print(dados)
         texto_analise = str(dados.get("texto_analise",""))
         texto_processado = ''
+        carregar_exemplo = int(dados.get("exemplo",-1))
+        if carregar_exemplo>=0 and len(EXEMPLOS)> carregar_exemplo:
+            exemplo = EXEMPLOS[carregar_exemplo]
+            texto_analise = exemplo['texto'] if exemplo.get('texto') else texto_analise
         rotulos_retornados = ''
         tags = str(dados.get("tags",""))
         grupo = str(dados.get("grupo",""))
         qtd_regras = 0
         _tempo = ''
-        lista_rotulos = []
+        rotulos_retornados = []
         if texto_analise:
             carregar_regras()
             global REGRAS
@@ -277,7 +307,8 @@ def testar_regras():
                 grupo = grupo,
                 tags = tags,
                 ativo_regras='active',
-                title=title)
+                title=title,
+                exemplos_regras = EXEMPLOS)
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')
 
@@ -288,12 +319,19 @@ def testar_regras():
 @app.route('/testar_criterios',methods=['GET','POST'])
 def testar_criterios():
     try:
+        global EXEMPLOS
         title = "PesquisaBR: Análise de criterios"
         dados = get_post(request)
         texto_analise = str(dados.get("texto_analise",""))
         texto_criterio = str(dados.get("texto_criterio",""))
+        carregar_exemplo = int(dados.get("exemplo",-1))
+        if carregar_exemplo>=0 and len(EXEMPLOS)> carregar_exemplo:
+            exemplo = EXEMPLOS[carregar_exemplo]
+            texto_analise = exemplo['texto'] if exemplo.get('texto') else texto_analise
+            texto_criterio = exemplo['criterios'] if exemplo.get('criterios') else texto_criterio
         criterio_ok = ''
         texto_processado = ''
+        texto_grifado = ''
         criterio_processado = ''
         _tempo = ''
         if texto_analise or texto_criterio:
@@ -305,6 +343,7 @@ def testar_criterios():
                criterio_processado = pb.criterios
             if texto_analise and texto_criterio:
                criterio_ok = 'SIM' if pb.retorno() else 'NAO'
+            texto_grifado = Markup(pb.grifar_criterios(texto=texto_analise))
             _tempo = round((datetime.now()-_ini).total_seconds(),3)
             _tempo = f'{_tempo:.3f} s'
         return render_template("aplicar_criterio.html", 
@@ -312,10 +351,12 @@ def testar_criterios():
                 texto_criterio = texto_criterio, 
                 criterio_ok = criterio_ok,
                 texto_processado = texto_processado,
+                texto_grifado = texto_grifado,
                 criterio_processado = criterio_processado,
                 tempo = _tempo,
                 ativo_criterios='active',
-                title=title)
+                title=title,
+                exemplos_criterios = EXEMPLOS)
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')
 
@@ -331,6 +372,7 @@ def exemplos():
 if __name__ == "__main__":
     # carrega as regras
     carregar_regras()
+    carregar_exemplos()
 
     print( '#########################################')
     print( 'Iniciando o serviço')

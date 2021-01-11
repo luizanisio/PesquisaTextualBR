@@ -45,6 +45,17 @@
 			</div>		
 		{% endif %}
 
+		{% if texto_grifado %}
+			<div class="card">
+			<div class="card-header">Texto com termos pesquisados em destaque</div>
+			<div class="card-body">
+			<div class="form-group shadow-textarea text-left">
+				{{ texto_grifado }}
+			</div>
+			</div>
+			</div>
+		{% endif %}		
+
 		{% if texto_processado %}
 			<div class="card">
 			<div class="card-header">Texto processado para análise</div>
@@ -55,10 +66,9 @@
 			</div>
 			</div>
 		{% endif %}		
-
+	
 	  </div>
 
 	</div>
-
 
 {% endblock content %}
