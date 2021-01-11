@@ -178,16 +178,19 @@ O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto 
 ### Uso simples do serviço:
 - POST: http://localhost:8000/analisar_criterio
 ```json
-{"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": "1"}
+{"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": 1, "grifar":1}
 ```
 Retorno
 ```json
-{ "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, "texto": "esse e um texto legal" }
+{ "criterios": "texto PROX10 legal", 
+  "criterios_aon": "texto AND legal", "retorno": true, 
+  "texto": "esse e um texto legal", 
+  "texto_grifado": "esse e um <mark>texto</mark> <mark>legal</mark>" }
 ```
 
 - POST: http://localhost:8000/analisar_regras
 ```json
-{"texto": "esse  texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar":0}
+{"texto": "esse  texto tem umas receitas de pão e de bolos legais 123 456 um dois três com o oficio número 5.174", "detalhar": 0 }
 ```
 Retorno
 ```json
