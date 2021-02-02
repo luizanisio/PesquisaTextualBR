@@ -174,6 +174,7 @@ A responsabilidade do serviço é rotular o texto recebido, comportando-se como 
 Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra.<br>
 É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
 O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
+
 Também é possível incluir critérios especiais nas regras que servem para ignorar trechos de textos, sendo eles:
 - remover(aspas)  --> remover trechos entre aspas do texto antes de verificar os critérios definidos na regra 
 - remover(um texto qualquer)  --> remove o texto entre parênteses do texto antes de verificar os critérios definidos na regra
