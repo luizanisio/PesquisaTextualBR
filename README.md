@@ -174,6 +174,15 @@ A responsabilidade do serviço é rotular o texto recebido, comportando-se como 
 Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra.<br>
 É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
 O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
+Também é possível incluir critérios especiais nas regras que servem para ignorar trechos de textos, sendo eles:
+- remover(aspas)  --> remover trechos entre aspas do texto antes de verificar os critérios definidos na regra 
+- remover(um texto qualquer)  --> remove o texto entre parênteses do texto antes de verificar os critérios definidos na regra
+
+O trecho incluído entre os parênteses será processado e comparado com o texto recebido após ser processado também. Ou seja, se for usado o critério **remover(esse texto)**, ele vai remover do texto recebido os conjuntos: *esse texto*, *esses textos*, *esse textos*, *esses texto*.
+Os operadores especiais de remoção de texto funcionam apenas nas regras, no componente **RegrasPesquisaBR**, não são analisados ao avaliar critérios diretamente no componente **PesquisaBR**. E a análise de regras foi otimizada para reprocessar o mínimo possível os textos ao serem submetidos a várias regras com ou sem remoção de texto, cabeçalho ou rodapé.
+**Exemplos de regras:**
+- casa adj2 papel remover(aspas) remover(casa do papel)
+- oficio adj5 remetido remover(de oficio)
 
 ### Uso simples do serviço:
 - POST: http://localhost:8000/analisar_criterio
