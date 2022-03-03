@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ super() }}
+	<!-- Form -->
+	<form class="text-center" style="color: #757575;" action="{{ url_for('testar_regras') }}" method="post">
+	<div class="card">
+	  <!--Card content-->
+	  <div class="card-body px-lg-5 pt-0">
+	    <div class="card">
+			<div class="card-header">Texto a ser analisado</div>
+			<div class="card-body">
+				
+					<div class="form-group shadow-textarea">
+					  <textarea class="form-control z-depth-1" name="texto_analise" id="texto_analise" rows="4" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto_analise }}</textarea>
+					</div>
+					<div class="input-group input-group-sm mb-3">
+						<div class="input-group-prepend">
+						  <span class="input-group-text" id="inputGroup-sizing-sm">Tags</span>
+						</div>
+						<input type="text" name="tags" id="tags" placeholder="Tags para filtro das regras, exemplo: bolos paes" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="{{ tags }}">
+						<div class="input-group-prepend">
+						  <span class="input-group-text" id="inputGroup-sizing-sm">Grupo</span>
+						</div>
+						<input type="text" name="grupo" id="grupo" placeholder="Grupo único para filtro, exemplo: receitas_bolo" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="{{ grupo }}">
+					  </div>					
+							
+					<!-- Analisar -->
+					<input type="submit" class="btn btn-primary" value="Analisar regras">
+
+				</div>
+		</div>
+		</form>
+		<!-- Form -->
+
+			<div class="alert alert-success" role="alert">
+			  <b>Rótulos retornados pelas {{ qtd_regras }} regras analisadas:</b> 
+				{% for r in rotulos_retornados %}
+					<button type="button" class="btn btn-outline-info">{{ r }}</button>
+				{% endfor %}
+			</div>
+	
+		{% if tempo %}
+			<div class="alert alert-info" role="alert">
+			  Tempo de processamento: {{ tempo }}
+			</div>		
+		{% endif %}
+
+		{% if texto_processado %}
+			<div class="card">
+			<div class="card-header">Texto processado para análise</div>
+			<div class="card-body">
+			<div class="form-group shadow-textarea">
+			  <textarea readonly class="form-control z-depth-1" id="textoAnalise" rows="3" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto_processado }}</textarea>
+			</div>
+			</div>
+			</div>
+		{% endif %}		
+
+	  </div>
+
+	</div>
+{% endblock content %}
