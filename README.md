@@ -14,7 +14,7 @@ Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **p
 - [**Serviço avaliador de regras**](./servico_regras): Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.<br>
 - [**Testes da classe**](./componente) que permitem validar todos os critérios e funcionalidades implementadas<br>
 - <b>Conversor de pesquisas</b> com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL<br>
-- Classe experimental [**PesquisaBRMemSQL**](./PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/)<br>
+- Classe experimental [**PesquisaBRMemSQL**](./testes_memsql/PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/)<br>
 
 - Manual com os [**operadores de pesquisa**](#conectores-ou-operadores-de-pesquisa)
 
