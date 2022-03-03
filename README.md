@@ -1,12 +1,3 @@
-<hr>
-
-### Reestruturação (fev/2021)
-- Aproveitando as férias e estou reestruturando em um componente instalável, em breve estará disponibilizado
-- Estou ajustando também o uso com o memsql enquanto aplico os componentes em um projeto para produção
-- O componente já pode ser usado com o serviço de regras, basta baixar a pasta **componente**
-- https://github.com/luizanisio/PesquisaTextualBR/tree/master/componente
-<hr>
-
 # Pesquisa textual em documentos
 Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **python puro** com o uso de dicionário de **sinônimos** e **distância entre termos** pesquisados. <br>
 - É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas **resultados precisos**. <br>
@@ -14,16 +5,18 @@ Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **p
 - O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL/SingleStore, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos. Ou análise em tempo real se textos correspondem a critérios pré estabelecidos (regras de texto para mudança de fluxo de trabalho).<br>
 - Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar.<br>
 - Uma aplicação muito útil dos critérios de pesquisa, alé de encontrar textos, é identificar **rótulos** que são aplicáveis a um texto ao testar um conjunto de regras pré-definidas com seus rótulos correspondentes, simulando um **classificador multilabel** só que no lugar do modelo, tem-se um conjunto de regras textuais. Daí pode-se identificar fluxos automáticos para sistemas, definir alertas, etc.
+- O componente já pode ser usado com o serviço de regras, basta baixar a pasta [**componente**](./componente) e baixar o exemplo do serviço na pasta [**servico_regras**](./servico_regras)
 
 ### Estão disponíveis nesse repositório:
-<ul>
-  <li>Classe python <b>PesquisaBR()</b> que recebe um documento e um critério de pesquisa e retorna a avaliação.</li>
-  <li>Classe python <b>RegrasPesquisaBR()</b> que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo de IA.</li>
-  <li><b>Serviço avaliador de regras</b>: Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.</li>
-  <li><b>Testes da classe</b> que permitem validar todos os critérios e funcionalidades implementadas</li>
-  <li><b>Conversor de pesquisas</b> com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL</li>
-  <li>Classe <b>PesquisaBRMemSQL()</b>(https://github.com/luizanisio/PesquisaTextualBR/blob/master/PesquisaMemSQL.md): classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do MemSQL(https://www.memsql.com/). Agora o MemSQL chama-se SingleStore(https://www.singlestore.com/)</li>
-</ul>
+
+- Classe python [**PesquisaBR**](./componente) que recebe um documento e um critério de pesquisa e retorna a avaliação.<br>
+- Classe python [**RegrasPesquisaBR**](./componente) que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo de IA.<br>
+- [**Serviço avaliador de regras**](./servico_regras): Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.<br>
+- [**Testes da classe**](./componente) que permitem validar todos os critérios e funcionalidades implementadas<br>
+- <b>Conversor de pesquisas</b> com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL<br>
+- Classe experimental [**PesquisaBRMemSQL**](./PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/)<br>
+
+- Manual com os [**operadores de pesquisa**](#conectores-ou-operadores-de-pesquisa)
 
 ### Uso simples da classe:
 
@@ -61,7 +54,6 @@ Console
 Rótulos encontrados para o texto: "nessa receita você vai aprender a fazer bolos incríveis" >>  ['Receita de Bolo']
 ```
 
-
 ### Testes básicos da classe
 Estão disponíveis diversos textos e pesquisas que são testados para garantir o funcionamento da classe durante o desenvolvimento.
 ```bat
@@ -81,7 +73,7 @@ Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termo
   <li> redução a um <b>pseudosingular</b> ou <b>singular estimado</b>: não é um português perfeito, mas uma singularização para a máquina localizar termos com maior flexibilidade</li>
 </ul>
 
-#### Conectores ou operadores de pesquisa
+### Conectores ou operadores de pesquisa
 
 Conectores ou operadores de pesquisa são termos especiais utilizados em sistemas de pesquisa para indicar a relação desejada entre os termos pesquisados. Por exemplo, se é desejado encontrar documentos com a palavra <i>casa</i> e a palavra <i>papel</i>, pode-se escrever o critério de pesquisa como <b>casa papel</b> ou pode-se escrever <b>casa E papel</b>. O operador <b>E</b> está subentendido quando nenhum operador é informado. Para usar termos que são iguais aos operadores, é necessário colocar o termo entre aspas. Ex.: <b>amor e ódio</b> deveria ser escrito como <b>amor "e" ódio</b> para garantir que os três termos existem no texto. Ou também <b>"amor e ódio"</b> para que os termos sejam exigidos nessa sequência, um seguido do outro.  
 <ul>
@@ -97,14 +89,38 @@ Conectores ou operadores de pesquisa são termos especiais utilizados em sistema
   <li> <b>MESMO</b>: os documentos podem ser indexados com um tipo único, ou com tipos independentes como, por exemplo: resumo, dados textuais complementares e o texto original. O operador MESMO permite que o documento seja encontrado apenas se os termos pesquisados estiverem em um mesmo tipo do documento. Sem o operador MESMO, o texto será localizado se tiver um termo em um tipo (resumo por exemplo) e outro termo em outro tipo (índice remissivo, por exemplo). O operador MESMO funciona apenas como substituição do operador <b>E</b>, pois os operdores ADJ, ADJC, PROX, PROXC e COM subentendem o uso do operador MESMO por usarem recrusos de distância entre termos. Ex.: | casa MESMO papel | vai localizar textos que contenham "casa" E "papel" no mesmo tipo de documento, caso o termo "casa" esteja no resumo e "papel" esteja no índice, o texto não será localizado.</li>  
 </ul>
 
-#### Curingas
+### Curingas
 
 <ul>
   <li> <b>$</b>: permite o uso de partes do termo no critério de pesquisa. Por exemplo: cas$ vai encontrar casa, casinha, casamento...</li>  
   <li> <b>?</b>: permite a existência ou não te um caracter no lugar do símbolo "?". Por exemplo: cas? vai encontrar cas, casa, caso, case... Pode estar no meio do termo tamém: ca?a vai encontrar caa, casa, cata, cala ... </li>  
 </ul>
 
-#### Exemplo de configuração de sinônimos
+### Operador especial remover(....)
+
+Esse operador foi criado para remover trechos do texto antes da análise da regra, para o caso de existirem trechos conhecidos que podem resultar em faso positivos para a regra, como cabeçalhos, citações, dentre outros. Pode-se usar quantos `remover(...)` forem necessários
+
+Como usar o operador `remover(texto)`:
+- `$` ou * - de 0 a 100 caracteres quaisquer
+- `?` - um caractere de letra ou número opcional
+- `&` - um caractere de letra ou número obrigatório
+- `#` - um a 10 caracteres que não sejam letra nem número (pontuação, início ou final de texto, espaço, etc)
+- `*#` - caracteres até um símbolo (pontuação, início ou final de texto, espaço, etc)
+- `*##` - caracteres até uma quebra de linha
+- `%` - aspas, parênteses, chaves ou colchetes (citações/explicações em geral)
+- `"` - aspas normal
+
+Exemplos de uso do remover:
+- <b>remover(aspas)</b>: remove todo o conteúdo do texto entre aspas ou parênteses, com o objetivo de remoção de citações<br>
+- <b>remover(termo1 termo2 termo3)</b>: remove o trecho do texto `termo1 termo2 termo3` conforme está escrito dentro dos parênteses do remover(...)<br>
+- <b>remover(termo&)</b>: remove qualquer trecho que contenha termo seguido de um número ou letra obrigatória<br>
+- <b>remover(termo?)</b>: remove qualquer trecho que contenha termo podendo ou não estar seguido de um número ou letra<br>
+
+Exemplos de uso dentro dos critérios de pesquisa:
+- `casa adj2 papel remover(termo1) remover(teste)'
+- Ao ser aplicado o critério no texto `o seriado casa termo1 de teste papel', a avaliação será verdadeira já que os termos `termo1` e `teste` serão removidos antes da análise.
+
+### Exemplo de configuração de sinônimos
 
 * ao encontrar um termo no texto analisado, os sinônimos são mapeados como se fossem esse termo
 ** sinônimos compostos são analisados apenas para termos entre aspas nos critérios de pesquisa
