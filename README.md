@@ -191,14 +191,8 @@ O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem 
 A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
 Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra.<br>
 É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
-O serviço de exemplo está na subpasta: **servico_regras** da pasta do projeto (https://github.com/luizanisio/PesquisaTextualBR/tree/master/projeto_e_exemplos/servico_regras).
+O serviço de exemplo está na subpasta: [**servico_regras**](./servico_regras).
 
-Também é possível incluir critérios especiais nas regras que servem para ignorar trechos de textos, sendo eles:
-- remover(aspas)  --> remover trechos entre aspas do texto antes de verificar os critérios definidos na regra 
-- remover(um texto qualquer)  --> remove o texto entre parênteses do texto antes de verificar os critérios definidos na regra
-
-O trecho incluído entre os parênteses será processado e comparado com o texto recebido após ser processado também. Ou seja, se for usado o critério **remover(esse texto)**, ele vai remover do texto recebido os conjuntos: *esse texto*, *esses textos*, *esse textos*, *esses texto*.
-Os operadores especiais de remoção de texto funcionam apenas nas regras, no componente **RegrasPesquisaBR**, não são analisados ao avaliar critérios diretamente no componente **PesquisaBR**. E a análise de regras foi otimizada para reprocessar o mínimo possível os textos ao serem submetidos a várias regras com ou sem remoção de texto, cabeçalho ou rodapé.
 **Exemplos de regras:**
 - casa adj2 papel remover(aspas) remover(casa do papel)
 - oficio adj5 remetido remover(de oficio)
@@ -252,10 +246,14 @@ Regras desse exemplo (arquivo regras.json):
 {"regras": [
     {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
     {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
-    {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
+    {"grupo" : "receitas_pao", "rotulo": "Receita de Pao", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
     {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
     {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "extracao": "", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
-    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio (n.{1,10})?\\d+", "extracao": "(?<=oficio\\W)(?:n|numero|num|nro)?(?:\\s*\\d+)(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
+    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+", "extracao": "(?<=oficio\\W)(?:n|numero|num|nro)?(?:\\s*\\d+)(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20},
+    {"grupo" : "grupo_erro", "rotulo": "teste erro regra", "regra": "regra nao (nao" },
+    {"grupo" : "grupo_erro", "rotulo": "teste erro regex", "regra": "r: (?)" },
+    {"grupo" : "grupo_aspas_termo", "rotulo": "teste aspas termo", "regra": "usando nao testando remover('testando')" },
+    {"grupo" : "grupo_aspas", "rotulo": "teste_aspas", "regra": "teste remover(aspas)" }
  ]
 }
 ```
