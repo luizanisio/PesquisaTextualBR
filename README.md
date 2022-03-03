@@ -193,6 +193,8 @@ Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passan
 É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
 O serviço de exemplo está na subpasta: [**servico_regras**](./servico_regras).
 
+![tela do serviço de exemplo](./servico_regras/tela01.png?raw=true "tela do serviço de exemplo")
+
 **Exemplos de regras:**
 - casa adj2 papel remover(aspas) remover(casa do papel)
 - oficio adj5 remetido remover(de oficio)
