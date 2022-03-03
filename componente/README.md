@@ -1,19 +1,16 @@
-# Reestruturando
-
 ### O componente pesquisabr.PesquisaBR está funcional
 
-- a classe para acesso ao MemSQL está em atualização
+- a construção da classe para uso do componente no MemSQL/SingleStore está pausada
 
 **Para usar:**
-- pip install pesquisabr-1.0.0.15.tar.gz
+- pip install pesquisabr-1.0.0.16.tar.gz
 
 **OU**
-- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.15.tar.gz
+- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.16.tar.gz
 
 ## O exemplo do servico_regras está funcional
 
-- O exemplo já usa o componente
-
+- instale o componente
 - python app_regras.py 
 
 ## Página com formulário para usar as funcionalidades 
