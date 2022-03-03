@@ -110,13 +110,15 @@ Como usar o operador `remover(texto)`:
 - `%` - aspas, parênteses, chaves ou colchetes (citações/explicações em geral)
 - `"` - aspas normal
 
-Exemplos de uso do remover:
+<b>Exemplos de uso do remover:</b>
 - <b>remover(aspas)</b>: remove todo o conteúdo do texto entre aspas ou parênteses, com o objetivo de remoção de citações<br>
 - <b>remover(termo1 termo2 termo3)</b>: remove o trecho do texto `termo1 termo2 termo3` conforme está escrito dentro dos parênteses do remover(...)<br>
 - <b>remover(termo&)</b>: remove qualquer trecho que contenha termo seguido de um número ou letra obrigatória<br>
 - <b>remover(termo?)</b>: remove qualquer trecho que contenha termo podendo ou não estar seguido de um número ou letra<br>
+- <b>remover(contab*#)</b>: remove todo o texto iniciado por `contab` até encontrar o final da palavra<br>
+- <b>remover(conforme exemplos*##)</b>: remove todo o texto iniciado por `conforme exemplos` até encontrar uma quebra de linha<br>
 
-Exemplos de uso dentro dos critérios de pesquisa:
+<b>Exemplos de uso dentro dos critérios de pesquisa:</b>
 - `casa adj2 papel remover(termo1) remover(teste)'
 - Ao ser aplicado o critério no texto `o seriado casa termo1 de teste papel', a avaliação será verdadeira já que os termos `termo1` e `teste` serão removidos antes da análise.
 
