@@ -11,7 +11,7 @@ Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **p
 
 - Classe python [**PesquisaBR**](./componente) que recebe um documento e um critério de pesquisa e retorna a avaliação.<br>
 - Classe python [**RegrasPesquisaBR**](./componente) que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo de IA.<br>
-- [**Serviço avaliador de regras**](./servico_regras): Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.<br>
+- [**Serviço avaliador de regras**](#servi%C3%A7o-para-avaliar-textos-e-retornar-os-r%C3%B3tulos-deles-com-base-em-regras-pr%C3%A9-definidas): Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.<br>
 - [**Testes da classe**](./componente) que permitem validar todos os critérios e funcionalidades implementadas<br>
 - <b>Conversor de pesquisas</b> com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL<br>
 - Classe experimental [**PesquisaBRMemSQL**](./testes_memsql/PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/)<br>
