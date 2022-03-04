@@ -1,24 +1,24 @@
 # Pesquisa textual em documentos
-Essa é uma proposta de <b>pesquisa textual</b> implementada com recursos em **python puro** com o uso de dicionário de **sinônimos** e **distância entre termos** pesquisados. <br>
+Essa é uma proposta de [**pesquisa textual**](#a-pesquisa-textual-avan%C3%A7ada) implementada em **python puro** com o uso de dicionário de **sinônimos** e **distância entre termos** pesquisados. <br>
 - É uma pesquisa que tenta ir além do que pesquisas comuns fazem, pois não tem o objetivo de trazer grandes volumes de resultados, mas **resultados precisos**. <br>
 - Implementada em **python** para uso em pesquisa textual avançada com foco no **Português**, permitindo busca em campos textuais e critérios de proximidade textual.<br>
-- O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL/SingleStore, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos. Ou análise em tempo real se textos correspondem a critérios pré estabelecidos (regras de texto para mudança de fluxo de trabalho).<br>
+- O objetivo é refinar pesquisas textuais com frameworks comuns de mercado (MemSQL/SingleStore, ElasticSearch) em volume muito grande de dados, ou pode ser usada para pesquisa completa em textos carregados de arquivos ou em memória. Pode-se também realizar uma análise em tempo real avaliando se determinados critérios são atendidos dentro do texto (regras de texto para mudança de fluxo de trabalho).<br>
 - Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar.<br>
 - Uma aplicação muito útil dos critérios de pesquisa, alé de encontrar textos, é identificar **rótulos** que são aplicáveis a um texto ao testar um conjunto de regras pré-definidas com seus rótulos correspondentes, simulando um **classificador multilabel** só que no lugar do modelo, tem-se um conjunto de regras textuais. Daí pode-se identificar fluxos automáticos para sistemas, definir alertas, etc.
-- O componente já pode ser usado com o serviço de regras, basta baixar a pasta [**componente**](./componente) e baixar o exemplo do serviço na pasta [**servico_regras**](./servico_regras)
+- O componente já pode ser usado com o [serviço de regras](#servi%C3%A7o-para-avaliar-textos-e-retornar-os-r%C3%B3tulos-deles-com-base-em-regras-pr%C3%A9-definidas), basta baixar a pasta [**componente**](./componente) e instalar o componente, e baixar o exemplo do serviço na pasta [**servico_regras**](./servico_regras)
 
-### Estão disponíveis nesse repositório:
+## Estão disponíveis nesse repositório:
 
-- Classe python [**PesquisaBR**](./componente) que recebe um documento e um critério de pesquisa e retorna a avaliação.<br>
-- Classe python [**RegrasPesquisaBR**](./componente) que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo de IA.<br>
+- Classe python [**PesquisaBR**](./componente) que recebe um documento e um critério de pesquisa e retorna o resultado da avaliação.<br>
+- Classe python [**RegrasPesquisaBR**](./componente) que recebe um conjunto de regras e seus rótulos e aplica as regras em um documento, identificando que rótulos são aplicáveis a ele. Simula um modelo multilabel mas com regras no lugar de um modelo treinado.<br>
 - [**Serviço avaliador de regras**](#servi%C3%A7o-para-avaliar-textos-e-retornar-os-r%C3%B3tulos-deles-com-base-em-regras-pr%C3%A9-definidas): Um exemplo simples de serviço que simula um classificador multilabel que funciona por regras no lugar de um modelo treinado.<br>
-- [**Testes da classe**](./componente) que permitem validar todos os critérios e funcionalidades implementadas<br>
-- <b>Conversor de pesquisas</b> com critérios avançados para critérios simples AND OR NOT aceitos pelo MemSQL<br>
-- Classe experimental [**PesquisaBRMemSQL**](./testes_memsql/PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/)<br>
+- [**Testes da classe**](./componente) código que permitem validar todos os critérios e funcionalidades implementadas<br>
+- <b>Conversor de pesquisas</b> método que converte critérios avançados para critérios simples `AND` `OR` `NOT` aceitos pelo MemSQL<br>
+- Classe experimental [**PesquisaBRMemSQL**](./testes_memsql/PesquisaMemSQL.md) : classe que permite combinar a análise de pesquisa da classe PesquisaBR com o poder de pesquisa textual nativo do [MemSQL](https://www.memsql.com/). Agora o MemSQL chama-se [SingleStore](https://www.singlestore.com/). Veja também a classe [**PesquisaElasticFacil**](https://github.com/luizanisio/PesquisaElasticFacil) que converte os critérios avançados de proximidade de termos em pesquisa nativa do ElasticSearch.<br>
 
 - Manual com os [**operadores de pesquisa**](#conectores-ou-operadores-de-pesquisa)
 
-### Uso simples da classe:
+## Uso simples da classe:
 
 ```py
 pb = PesquisaBR(texto = 'A casa de papel é um seriado muito legal', criterios='casa adj2 papel adj5 seriado')
@@ -37,7 +37,7 @@ RESUMO DA PESQUISA: retorno = True
  - mapa: {'a': {'t': [0], 'p': [0], 'c': ['']}, 'casa': {'t': [1], 'p': [0], 'c': ['']}, 'de': {'t': [2], 'p': [0], 'c': ['']}, 'papel': {'t': [3], 'p': [0], 'c': ['']}, 'e': {'t': [4], 'p': [0], 'c': ['']}, 'um': {'t': [5], 'p': [0], 'c': ['']}, 'seriado': {'t': [6], 'p': [0], 'c': ['']}, 'muito': {'t': [7], 'p': [0], 'c': ['']}, 'legal': {'t': [8], 'p': [0], 'c': ['']}}
 ```
 
-### Uso simples da classe de regras:
+## Uso simples da classe de regras:
 ```py
 regras = [{'grupo' : 'receitas_bolo', 'rotulo': 'Receita de Bolo', 'regra': 'receita ADJ10 bolo'},
           {'grupo' : 'receitas_bolo', 'rotulo': 'Receita de Bolo', 'regra': 'aprenda ADJ5 fazer ADJ10 bolo'},
@@ -60,9 +60,9 @@ Estão disponíveis diversos textos e pesquisas que são testados para garantir 
 python pesquisabr_testes.py
 ```
 
-### Pesquisa textual avançada
+## Sobre a pesquisa textual avançada
 
-Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termos e outros operadores para refinamento de pesquisa. Esses tipos de operadores tornam-se importantes para refinar pesquisas em grande volume de dados, onde não é importante trazer muito resultado, mas um resultado o mais próximo possível do que é procurado. Ferramentas comuns de busca como <b>ElasticSearch</b> e o próprio <b>MemSQL</b> não trazem nativamente esses tipos de operadores. 
+Implementei aqui um conjunto de operadores de pesquisa por proximidade dos termos e outros operadores para refinamento de pesquisa. Esses tipos de operadores tornam-se importantes para refinar pesquisas em grande volume de dados, onde não é importante trazer muito resultado, mas um resultado o mais próximo possível do que é procurado. Ferramentas comuns de busca como <b>ElasticSearch</b> e o próprio <b>MemSQL</b> não trazem nativamente esses tipos de operadores. O ElasticSearch tem o operador `slop` que trabalha com proximidade de termos, a classe [**PesquisaElasticFacil**](https://github.com/luizanisio/PesquisaElasticFacil) permite converter parte dos critérios de pesquisa em pesquisas nativas do elastic.
 <p>Essa ideia não é nova, conheci ao longo dos últimos 20 anos vários sistemas que faziam algo parecido. Não há pretensão em competir com qualquer um desses produtos, mas ter algo simples e operacional para quem tiver interesse em personalizar uma busca textual da forma que precisar. 
 <p> Esse tipo de pesquisa permite o uso de dicionário de sinônimos em qualquer língua, inclusive o uso de recursos fonéticos. O texto de entrada é pré-processado para evitar não encontrar termos com grafia incorreta de acentos ou termos no singular/plural, bem como números com pontuação ou sem. Por padrão o texto é pesquisado no singular, removendo pronomes oblíquos, mas é possível localizar o termo real usando aspas (exceto acentos que sempre são desconsiderados).
 <p> A pesquisa também permite localizar termos pelo dicionário de sinônimos. Ao pesquisar a palavra "genitor", o sistema pesquisa também "pai". A tabela de sinônimos é flexível e facilmente atualizável, permitindo incluir termos em outras línguas se desejado. O uso de sinônimos pode ser ativado ou desativado a cada pesquisa. Ao pesquisar termos entre aspas, o sinônimo é desativado para o termo ou conjunto de termos entre aspas enquanto os outros termos podem ser pesquisados com o uso dos sinônimos.
@@ -93,12 +93,12 @@ Conectores ou operadores de pesquisa são termos especiais utilizados em sistema
 
 <ul>
   <li> <b>$</b>: permite o uso de partes do termo no critério de pesquisa. Por exemplo: cas$ vai encontrar casa, casinha, casamento...</li>  
-  <li> <b>?</b>: permite a existência ou não te um caracter no lugar do símbolo "?". Por exemplo: cas? vai encontrar cas, casa, caso, case... Pode estar no meio do termo tamém: ca?a vai encontrar caa, casa, cata, cala ... </li>  
+  <li> <b>?</b>: permite a existência ou não de um caracter no lugar do símbolo "?". Por exemplo: cas? vai encontrar cas, casa, caso, case... Pode estar no meio do termo tamém: ca?a vai encontrar caa, casa, cata, cala ... </li>  
 </ul>
 
 ### Operador especial remover(....)
 
-Esse operador foi criado para remover trechos do texto antes da análise da regra, para o caso de existirem trechos conhecidos que podem resultar em faso positivos para a regra, como cabeçalhos, citações, dentre outros. Pode-se usar quantos `remover(...)` forem necessários
+Esse operador foi criado para remover trechos do texto antes da análise da regra, para o caso de existirem trechos conhecidos que podem resultar em faso positivo para a regra, como cabeçalhos, citações, dentre outros. Pode-se usar quantos `remover(...)` forem necessários dentro do critério de pesquisa.<br>
 
 Como usar o operador `remover(texto)`:
 - `$` ou * - de 0 a 100 caracteres quaisquer
@@ -120,7 +120,7 @@ Como usar o operador `remover(texto)`:
 
 <b>Exemplos de uso dentro dos critérios de pesquisa:</b>
 - `casa adj2 papel remover(termo1) remover(teste)'
-- Ao ser aplicado o critério no texto `o seriado casa termo1 de teste papel', a avaliação será verdadeira já que os termos `termo1` e `teste` serão removidos antes da análise.
+- Ao ser aplicado o critério no texto `o seriado casa termo1 de teste papel`, a avaliação será verdadeira já que os termos `termo1` e `teste` serão removidos antes da análise.
 
 ### Exemplo de configuração de sinônimos
 
@@ -131,10 +131,10 @@ Como usar o operador `remover(texto)`:
   <li> <b>Sinônimos compostos</b>: {'casa_de_papel':['la casa de papel','a casa de papel'], "inss" : ['instituto nacional de seguridade social'], 'instituto_nacional_de_seguridade_social':['inss']}</li>
 </ul>
 
-Com esse mapeamento, se o critério de pesquisa estiver escrito "alegre" é o mesmo que pesquisar (alegre ou feliz ou sorridente). Se estiver escrito "alegre" entre aspas, os sinônimos não serão pesquisados.
-Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento de expressões, siglas, etc. Se o critério de pesquisa estiver escrito "inss" é o mesmo que pesquisar (inss ou "instituto nacional de seguridade social"). Mas se no critério de pesquisa estiver escrito inss sem aspas, somente será pesquisada a palavra inss.
+Com esse mapeamento, se o critério de pesquisa estiver escrito `alegre` é o mesmo que pesquisar (alegre ou feliz ou sorridente). Se estiver escrito "alegre" entre aspas, os sinônimos não serão pesquisados.
+Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento de expressões, siglas, etc. Se o critério de pesquisa estiver escrito `"inss"` é o mesmo que pesquisar (inss ou "instituto nacional de seguridade social"). Mas se no critério de pesquisa estiver escrito `inss` sem aspas, somente será pesquisada a palavra `inss` ou sinônimos simples dela .
 
-#### Exemplo de textos, texto com campos
+#### Exemplo de texto e texto com campos
 
 * esses textos serão usados mais abaixo
 <ul>
@@ -179,12 +179,12 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
   <li> <b>Sinônimos</b>: papel PROX2 apartamento ADJ10 seriado</li>
 </ul>
 
-### Usando a classe Python
+## Usando a classe Python
 
 Exemplos disponíveis no arquivo <b>testes_exemplos.py</b> e <b>testes_exemplos_sem_db.py</b>
-Para uso da classe <b>PesquisaBRMemSQL</b> é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
+Para uso da classe [PesquisaBRMemSQL](./testes_memsql) (experimental) é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels: <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
 
-### Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
+## Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
 
 Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.<br>
 O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
@@ -199,7 +199,7 @@ O serviço de exemplo está na subpasta: [**servico_regras**](./servico_regras).
 - casa adj2 papel remover(aspas) remover(casa do papel)
 - oficio adj5 remetido remover(de oficio)
 
-### Uso simples do serviço:
+### Uso simples do serviço de exemplo:
 - POST: http://localhost:8000/analisar_criterio
 ```json
 {"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": 1, "grifar":1}
@@ -236,7 +236,7 @@ Retorno
     "rotulos": [ "oficio" ]  }
 ```
 
-Regras desse exemplo (arquivo regras.json):
+**Regras desse exemplo (arquivo regras.json):**
 - as chaves tags, qtd_cabecalho, qtd_rodape e extracao são opcionais
 - *regra*: é a regra usando os operadores de pesquisa textual, ou um regex. No caso de regex, a regra deve começar com r: regex desejado
 - *rotulo*: é o rótulo do grupo que será retornado se a regra retornar true
