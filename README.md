@@ -219,7 +219,7 @@ Retorno
 Retorno
 ```json
 { "extracoes": [["oficio numero 5174"],[],["receita de pao"]], 
-  "rotulos": ["oficio","Receita de Bolo","Receita de PÃ£o"] }
+  "rotulos": ["oficio","Receita de Bolo","Receita de Pão"] }
 ```
 
 - POST: http://localhost:8000/analisar_regras
