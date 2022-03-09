@@ -2,13 +2,14 @@
 Serviço simples que permite testar um conjunto de regras pré-definidas com seus rótulos correspondentes, simulando um **classificador multilabel** só que no lugar do modelo, tem-se um conjunto de regras textuais. Daí pode-se identificar fluxos automáticos para sistemas, definir alertas, etc.
 - O componente pode ser usado baixando a pasta [**componente**](./componente) e instalando o componente, depois baixando o exemplo do serviço na pasta [**servico_regras**](./servico_regras)<br>
 
-Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.<br>
-O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.<br>
-A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
-Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra ou outros tipos de filtros.<br>
-É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
-No caso de regex, existem expressões prontas para facilitar o uso como CPF, CNPJ e podem ser personalizadas. Para usar uma expressão pronta, basta criar a regra *r:<CPF>|<CNPJ>* por exemplo. O conjunto de expressões prontas está em UtilExtracaoRe().PRONTOS {"CPF" : "...", ...}<br>
-O serviço de exemplo está na subpasta: [**servico_regras**](./servico_regras).
+- Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.
+- O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
+- A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.
+- Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra ou outros tipos de filtros.
+- É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+*
+- No caso de regex, existem expressões prontas para facilitar o uso como CPF, CNPJ e podem ser personalizadas. Para usar uma expressão pronta, basta criar a regra *r:<CPF>|<CNPJ>* por exemplo. O conjunto de expressões prontas está em UtilExtracaoRe().PRONTOS {"CPF" : "...", ...}
+
+- O serviço de exemplo está nesta pasta, basta baixá-lo.
 
 - exemplo da tela de critérios
 ![tela do serviço de exemplo - critérios](./imgs/tela_srv01.png?raw=true "tela do serviço de exemplo - critérios")
