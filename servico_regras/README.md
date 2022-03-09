@@ -99,6 +99,7 @@ Retorno
 - Abra o arquivo `app_config.py` 
     - Identifique no final do arquivo as configurações disponibilizadas
     - aponte o objeto `obj_regras_model` para o objeto desejado para carga de regras e conversão de dados de saída
+    - crie novos padrões prontos de regex para serem aproveitados nas regras, como o exemplo abaixo para OAB.
 ```python
 ###################################################################################
 # configurando novos padrões prontos de regex
