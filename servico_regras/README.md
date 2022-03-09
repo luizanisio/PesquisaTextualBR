@@ -74,6 +74,7 @@ Retorno
 - *qtd_cabecalho*: a regra é aplicada no início do texto até o caracter da posição informada
 - *qtd_rodape*: a regra é aplicada no final do texto, do caracter da posição informada até o fim
 - *qtd_cabecalho* e *qtd_rodape*: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape
+- *ordem* é opcional, as regras são carregadas ordenadas pelo nome do grupo e depois por esse campo se existir. A ordenação afeta o retorno de rótulos únicos de grupos com o parâmetro `primeiro_do_grupo: True`, fazendo com que as outras regras do grupo sejam ignoradas quando a primeira for verdadeira, retornando apenas um rótulo por grupo.
 ```json
 {"regras": [
     {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "receita"},
