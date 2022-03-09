@@ -6,12 +6,15 @@
 - pip install pesquisabr-1.0.0.16.tar.gz
 
 **OU**
-- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.16.tar.gz
+- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.0.17.tar.gz
 
 ## O exemplo do servico_regras está funcional
 
 - instale o componente
-- python app_regras.py 
+- baixe a pasta (servico_regras/app)[../servico_regras/app]
+  - python app_regras.py 
+- teste o serviço com
+  - python app_regras_testes.py 
 
 ## Página com formulário para usar as funcionalidades 
 
