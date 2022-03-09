@@ -1,0 +1,4 @@
+cachetools
+Flask==1.1.2
+bootstrap-flask==1.5.1
+pdfplumber

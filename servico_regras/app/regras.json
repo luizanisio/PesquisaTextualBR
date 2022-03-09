@@ -1,0 +1,16 @@
+{"regras": [
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "receita"},
+    {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "receita"},
+    {"grupo" : "receitas_pao", "rotulo": "Receita de Pao", "regra": "receita PROX15 pao", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "receita"},
+    {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+", "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20, "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_erro", "rotulo": "teste erro regra", "regra": "regra nao (nao" , "filtro_tipo" : "erro"},
+    {"grupo" : "grupo_erro", "rotulo": "teste erro regex", "regra": "r: (?)" , "filtro_tipo" : "erro"},
+    {"grupo" : "grupo_aspas_termo", "rotulo": "teste aspas termo", "regra": "usando nao testando remover('testando')" , "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_aspas", "rotulo": "teste_aspas", "regra": "teste remover(aspas)" , "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_multi", "rotulo": "multi2", "regra": "R:multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 1},
+    {"grupo" : "grupo_multi", "rotulo": "multi1", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 0},
+    {"grupo" : "grupo_multi", "rotulo": "multi3", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 3}
+ ]
+}

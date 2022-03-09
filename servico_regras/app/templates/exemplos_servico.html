@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ super() }}
+	<!-- Form -->
+	<div class="card">
+    	<div class="card-header text-info font-weight-bold">Avaliação de critério de pesquisa</div>
+		<div class="card-body">
+            <b>POST:</b> /api/ia-regras/analisar_criterio
+            <div class="card bg-light text-info font-weight-bold"><code>
+                {"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": "1", "grifar": 1}
+            </code></div>
+            <b>Retorno</b>
+            <div class="card bg-light"><code>
+                { "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, 
+                  "texto": "esse e um texto legal",
+                  "texto_grifado": "retorna o texto com tags de highlight nos termos pesquisados" }
+            </code></div>
+            <b>Tipos de regras:</b>
+            <div class="card bg-light">
+                BRS: usando operadores E, OU, NÃO, ADJ, COM, PROX<code>texto PROX10 legal</code>
+                REGEX: expressões regulares usando<code>R:texto.*{1,20}legal</code>
+                LIKE: expressões com curingas % e _ do like<code>L:%texto%legal%</code>
+            </div>
+        </div>
+
+        <div class="card-header text-info font-weight-bold">Avaliação de regras</div>
+		<div class="card-body">
+            <b>POST:</b> /api/ia-regras/analisar_regras
+            <div class="card bg-light"><code>
+                {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo."} 
+            </code></div>
+            <b>Retorno</b>
+            <div class="card bg-light"><code>
+                {  "regras": [
+                        {
+                            "desc_regra": "Decreto de Sigilo",
+                            "seq_alvo": 2,
+                            "seq_grupo_regra": 5,
+                            "seq_regra": 58
+                        },
+                        {
+                            "desc_regra": "Condenção Executado",
+                            "seq_alvo": 2,
+                            "seq_grupo_regra": 10,
+                            "seq_regra": 91
+                        }] }
+            </code></div>
+        </div>
+
+        <div class="card-header text-info font-weight-bold">Avaliação de regras com filtros de tags</div>
+		<div class="card-body">
+            <b>POST:</b> /api/ia-regras/analisar_regras
+            <div class="card bg-light"><code>
+                {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo."
+                 "seq_grupo_regra": 5, 
+                 "seq_local" : 671,
+                 "primeiro_do_grupo" : True}
+            </code></div>
+            <b>Retorno</b>
+            <div class="card bg-light"><code>
+                {  "regras": [
+                        {
+                            "desc_regra": "Decreto de Sigilo",
+                            "seq_alvo": 2,
+                            "seq_grupo_regra": 5,
+                            "seq_regra": 58
+                        }] }
+            </code></div>
+        </div>
+
+        <div class="card-header text-info font-weight-bold">Limpar o cache e recarregar as regras</div>
+		<div class="card-body">
+            <b>GET:</b> /api/ia-regras/cache
+            <br><b>Retorno</b>
+            <div class="card bg-light"><code>
+                {  "msg": "cache das regras reiniciado, 61 regras recarregadas e 0 ignoradas por erro de construção", 
+                   "ok": true, "erro": false
+                  }
+            </code></div>
+            <p><i>O cache é mantido por 5 minutos.</i></p>
+        </div>
+        <div class="card-header text-info font-weight-bold">Regras do exemplo (arquivo regras.json)</div>
+		<div class="card-body">
+            <i>* as chaves tags, qtd_cabecalho e qtd_rodape são opcionais</i>
+            <ul>
+            <li><b>regra</b>: é a regra usando os operadores de pesquisa textual, ou um regex. No caso de regex, a regra deve começar com r: regex desejado</li>
+            <li><b>rotulo</b>: é o rótulo do grupo que será retornado se a regra retornar true</li>
+            <li><b>qtd_cabecalho</b>: a regra é aplicada no início do texto até o caracter da posição informada</li>
+            <li><b>qtd_rodape</b>: a regra é aplicada no final do texto, do caracter da posição informada até o fim</li>
+            <li><b>qtd_cabecalho</b> e *qtd_rodape</b>: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape</li>
+            </ul>
+            <div class="card bg-light"><pre><code>{"regras": [
+                {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "receita ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0 },
+                {"grupo" : "receitas_bolo", "rotulo": "Receita de Bolo", "regra": "aprenda ADJ5 fazer ADJ10 bolo", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},
+                {"grupo" : "receitas_pao", "rotulo": "Receita de Pão", "regra": "receita PROX15 pao", "extracao": "(receita.*pao)|(pao.*receita)", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0},
+                {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "extracao": "(\\d+)(\\Wum\\W|\\Wdois\\W|\\Wtres\\W)", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+                {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "extracao": "", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0},
+                {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio (n.{1,10})?\\d+", "extracao": "(?<=oficio\\W)(?:n|numero|num|nro)?(?:\\s*\\d+)(?=$|\\W)" , "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20}
+             ]}
+            </code></pre></div>
+        <p><i>Outras chaves podem ser adicionadas e usadas como filtro no serviço</i></p>
+    </div>
+
+	</div>
+{% endblock content %}
