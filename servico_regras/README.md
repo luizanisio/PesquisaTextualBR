@@ -93,3 +93,65 @@ Retorno
  ]
 }
 ```
+
+## Configurando o serviço
+- Você pode ter uma base de dados em algum BD com as regras e o serviço carregar as regras dessa base. É mantido um cache de 5min para o serviço não ficar carregando as regras o tempo todo o que inviabilizaria um volume grande de acessos ao serviço.
+- Abra o arquivo `app_config.py` 
+    - Identifique no final do arquivo as configurações disponibilizadas
+    - aponte o objeto `obj_regras_model` para o objeto desejado para carga de regras e conversão de dados de saída
+```python
+###################################################################################
+# configurando novos padrões prontos de regex
+from pesquisabr import UtilExtracaoRe
+novos_prontos = {'OAB' : r'\b([a-z]{2}[\.\-,; ]?\d{2,7}|\d{2,7}[\.\-,; ]?[a-z]{2})\b'}
+UtilExtracaoRe.PRONTOS.update(novos_prontos)
+
+###################################################################################
+# define o tipo de objeto de regras que será carregado
+# pode-se criar um tipo personalizado carregando do banco ou de onde for necessário
+from regras_model import RegrasModelArquivo
+obj_regras_model = RegrasModelArquivo()
+```    
+
+- Abra o arquivo `regras_model.py`
+    - verifique a classe `RegrasModelBase` que é usada para carregar as regras e converter os dados de saída do serviço, podendo ser personalizada conforme necessário
+```python
+class RegrasModelBase():
+    # sobrescrever esse método para retornar uma lista de regras 
+    # pode carregar do banco, do disco, de outro serviço, etc
+    # [{"grupo" : "nome_grupo", "rotulo": "rotulo1", "regra": "critérios da regra", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},]
+    # incluir algum filtro com a chave filtro_tipo facilita testes na tela exemplo do serviço
+    def get_regras_db(self):
+        return []
+
+    # pode-se transforar os dados de saída do serviço com base em alguma
+    # regra específica do contexto da aplicação
+    # pode-se tratar a chave regras com as regras aplicadas, a chave rótulos, etc
+    def conversao_retorno(self, retorno: dict):
+        pass 
+...
+    
+class RegrasModelArquivo(RegrasModelBase):
+    ARQ_REGRAS = './regras.json'   # arquivo texto no formato [{regra}, {regra}, {regra}]
+    def get_regras_db(self):
+        regras = []
+        if os.path.isfile(self.ARQ_REGRAS):
+            with open(self.ARQ_REGRAS,mode='r') as f:
+                regras = f.read()
+            regras = json.loads(regras.strip()) 
+        regras = regras.get('regras',[])
+        return RegrasPesquisaBR.ordenar_regras(regras)
+
+    # converte os dados retornados pelo controller 
+    def conversao_retorno(self, retorno: dict):
+        # exemplo para injetar uma chave com os grupos retornados
+        # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
+        if 'regras' in retorno:
+           regras = retorno['regras']
+           grupos = []
+           for r in regras:
+               if r.get('grupo') and r.get('grupo') not in grupos:
+                  grupos.append(r.get('grupo'))
+           retorno['grupos'] = grupos
+    
+```    
