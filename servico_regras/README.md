@@ -1,6 +1,6 @@
 ## Serviço para avaliar textos e retornar os rótulos deles com base em regras pré-definidas
 Serviço simples que permite testar um conjunto de regras pré-definidas com seus rótulos correspondentes, simulando um **classificador multilabel** só que no lugar do modelo, tem-se um conjunto de regras textuais. Daí pode-se identificar fluxos automáticos para sistemas, definir alertas, etc.
-- O componente pode ser usado baixando a pasta [**componente**](./componente) e instalando o componente, depois baixando o exemplo do serviço na pasta [**servico_regras**](./servico_regras)<br>
+- O componente pode ser usado baixando a pasta [**componente**](./componente) e instalando o componente, depois baixando o exemplo do serviço na pasta [**app**](./app)<br>
 
 - Esse é um serviço simples de exemplo do uso da classe de avaliação de regras para gerar um classificador multilabel por regras.
 - O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem estar em um banco de dados que o serviço carrega ao subir, ou em um arquivo texto mesmo. Depois basta chamar o serviço passando o texto que ele retorna os rótulos aplicáveis com base nas regras carregadas.
