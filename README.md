@@ -190,7 +190,7 @@ O arquivo *regras.json* contém uma lista de regras de exemplo. As regras podem 
 A responsabilidade do serviço é rotular o texto recebido, comportando-se como um classificador multilabel por regras.<br>
 Opcionalmente pode-se informar ao serviço que regras devem ser testadas, passando uma **tag** ou conjunto de tags ou o nome do grupo da regra ou outros tipos de filtros.<br>
 É possível usar **regex** no lugar dos critérios textuais para regras mais refinadas. Para isso, basta registrar a regra com **r:** no início da regra. Ex.: *r:oficio \\d+* <br>
-No caso de regex, existem expressões prontas para facilitar o uso como CPF, CNPJ e podem ser personalizadas. Para usar uma expressão pronta, basta criar a regra *r:<CPF>|<CNPJ>* por exemplo.<br>
+No caso de regex, existem expressões prontas para facilitar o uso como CPF, CNPJ e podem ser personalizadas. Para usar uma expressão pronta, basta criar a regra *r:<CPF>|<CNPJ>* por exemplo. O conjunto de expressões prontas está em UtilExtracaoRe().PRONTOS {"CPF" : "...", ...}<br>
 O serviço de exemplo está na subpasta: [**servico_regras**](./servico_regras).
 
 ![tela do serviço de exemplo](./servico_regras/tela01.png?raw=true "tela do serviço de exemplo")
