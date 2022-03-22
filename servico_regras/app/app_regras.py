@@ -12,7 +12,7 @@ from jinja2 import TemplateNotFound
 
 import os
 import json
-from app_config import CONFIG, TEMPO_CACHE_SEGUNDOS
+from app_config import CONFIG, TEMPO_CACHE_SEGUNDOS, PATH_API
 
 ###################################################################
 # controller
@@ -23,9 +23,6 @@ EM_DEBUG = os.path.isfile('debug.txt')
 
 app = Flask(__name__, template_folder='./templates')
 bootstrap  = Bootstrap(app)
-
-#PATH_API = '/api/ia-regras/'
-PATH_API = '/'
 
 ###################################################################
 # converte request ou dados para dict 
@@ -59,7 +56,6 @@ def get_health():
 def srv_analisar_regras():
     dados = get_post(request)
     retorno = analisar_regras(dados)
-    retorno.pop('texto_analise', None)
     return jsonify( retorno )
 
 ###################################################################
@@ -69,7 +65,7 @@ def srv_analisar_regras():
 def srv_analisar_criterio():
     dados = get_post(request)
     retorno = analisar_criterios(dados)
-    return jsonify(retorno)
+    return jsonify( retorno )
 
 #############################################################################
 #############################################################################
@@ -82,14 +78,23 @@ def testar_regras():
         dados = get_post(request)
         dados['primeiro_do_grupo'] = 'primeiro_do_grupo' in dados
         dados['detalhar'] = True
+        dados['extrair'] = True
         # recebe um filtro da tela para filtrar as regras, remove o filtro se não for preenchido
         dados['filtro_tipo'] = dados.get('filtro_tipo','').strip()
         if not dados['filtro_tipo']:
            dados.pop('filtro_tipo', None)
-        retorno = analisar_regras(dados)
+        if dados.get('texto') or dados.get('exemplo'):
+            retorno = analisar_regras(dados, front_end=True)
+        else:
+            retorno = {}
+
+        # TODO componente extracoes para extracao            
+        contem_trechos_extraidos = any(retorno.get('extracoes', []))
+        trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracoes', [])]
+        trechos_extraidos = '<br>'.join(trechos_extraidos)
+        
         # retorna apenas as descrições dos rótulos
         rotulos_retornados = [r.get('rotulo','-') for r in retorno.get('regras', [])]
-
         return render_template("aplicar_regras.html", 
                 texto = str(retorno.get('texto_analise','')),
                 texto_processado = str(retorno.get('texto','')),
@@ -102,6 +107,8 @@ def testar_regras():
                 ativo_regras='active',
                 title=title,
                 filtro_tipo=dados.get('filtro_tipo',''),
+                trechos_extraidos = Markup(trechos_extraidos),
+                contem_trechos_extraidos = contem_trechos_extraidos,
                 exemplos_regras = get_exemplo())
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')
@@ -124,12 +131,15 @@ def testar_criterios():
         dados['detalhar'] = True
         dados['grifar'] = True
         dados['extrair'] = True
-        retorno = analisar_criterios(dados)
+        if dados.get('texto') or dados.get('criterios') or dados.get('exemplo'):
+            retorno = analisar_criterios(dados, front_end=True)
+        else:
+            retorno = {}
         exemplos_com_criterios = [_ for _ in get_exemplo() if _.get('criterios')]
-        contem_trechos_extraidos = any(retorno.get('extracoes', []))
-        trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracoes', [])]
+        contem_trechos_extraidos = any(retorno.get('extracao', []))
+        trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracao', [])]
         trechos_extraidos = '<br>'.join(trechos_extraidos)
-        
+
         return render_template("aplicar_criterio.html",
                 texto = str(retorno.get('texto_analise','')),
                 criterios = str(retorno.get('criterios_analise','')),

@@ -16,7 +16,7 @@ LOCK_FILTRO_REGRAS = RLock()
 class RegrasModelBase():
     # sobrescrever esse método para retornar uma lista de regras 
     # pode carregar do banco, do disco, de outro serviço, etc
-    # [{"grupo" : "nome_grupo", "rotulo": "rotulo1", "regra": "critérios da regra", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},]
+    # [{"grupo" : "nome_grupo", "rotulo": "rotulo1", "regra": "critérios da regra", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0, "ordem": 0},]
     # incluir algum filtro com a chave filtro_tipo facilita testes na tela exemplo do serviço
     def get_regras_db(self):
         return []
@@ -46,6 +46,10 @@ class RegrasModelBase():
             r['qtd_rodape'] = r.get('qtd_rodape', 0)
             r['grupo'] = str(r.get('grupo','-'))
             r['tags'] = regras_corrigir_tags(r.get('tags',''))
+            # para permitir ordenação
+            r['ordem'] = int(r.get('num_ordem')) if type(r.get('num_ordem')) is int or str(r.get('num_ordem')).isdigit() else 0
+            if 'filtro_tipo' in r:
+                r['filtro_tipo'] = str(r.get('filtro_tipo',''))
             # se a regra for um regex, valida ele 
             # print('Verificando: ', r.get('regra'), f'{r.get("seq_regra")} - {r.get("desc_regra")}')
             if r.get('regra','')[:2].upper() == 'R:':
@@ -58,7 +62,7 @@ class RegrasModelBase():
                     _regras_ok.append(r)
                 else:
                     _regras_erro.append(r)
-        self.REGRAS_CARREGADAS = _regras_ok
+        self.REGRAS_CARREGADAS = RegrasPesquisaBR.ordenar_regras(_regras_ok)
         self.REGRAS_ERRO = _regras_erro
         print(f'Número de regras carregadas: {len(self.REGRAS_CARREGADAS)}')
         if any(self.REGRAS_ERRO):

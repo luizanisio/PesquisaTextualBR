@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask.globals import request
-from pesquisabr import PesquisaBRTestes
+from pesquisabr.pesquisabr_relacao_testes import PesquisaBRTestes
+from app_config import PATH_API
 
 import requests
 from collections import Counter
@@ -49,7 +50,7 @@ def realizar_teste(i):
     dados_post = {'texto': d['texto'], 'criterio': d['criterio'], 'detalhar': False}
     esperado = d['retorno']
     _ini = datetime.now()
-    r = smart_request().post('http://localhost:8000/analisar_criterio',json = dados_post)
+    r = smart_request().post(f'{PATH_API}analisar_criterio',json = dados_post)
     _tempo = round((datetime.now()-_ini).total_seconds(),2)
     recebido = r.json().get('retorno')
     if recebido == esperado:
@@ -64,10 +65,10 @@ def realizar_teste(i):
     print(f'Teste {i+1}/{len(dados_testes)} {res} >> ', Counter(testes), f'{_tempo}s')
 
 def teste_inicial():
-    r = requests.get('http://localhost:8000/cache')
+    r = requests.get(f'{PATH_API}cache')
     r=r.json()
     assert r.get('ok'), 'Teste de limpeza de cache falhou'
-    r = requests.get('http://localhost:8000/health')
+    r = requests.get(f'{PATH_API}health')
     r=r.json()
     assert r.get('ok'), 'Teste de health falhou'
     print('Cache reiniciado e health testado')
