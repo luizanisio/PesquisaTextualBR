@@ -9,6 +9,11 @@ def regras_corrigir_tags_re(tags_lista):
 def regras_corrigir_tags(tags_lista):
     return '' if not tags_lista else ' ' + REGEX_CORRIGE_TAGS.sub(' ', str(tags_lista)).strip() + ' '
 
+def lista_regras_corrigir_tags(regras):
+    for r in regras:
+        r['tags'] = regras_corrigir_tags(r.get('tags'))
+    return regras
+
 # compila a lista de tags para pesquisa
 def regras_regex_tags(tags_pesquisa: str):
     if not tags_pesquisa:

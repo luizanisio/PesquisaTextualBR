@@ -1,14 +1,14 @@
 ###################################################################
 # componente de pesquisa
+from copy import deepcopy
 from pesquisabr import PesquisaBR, RegrasPesquisaBR
-from pesquisabr import UtilExtracaoRe
 
-novos_prontos = {'OAB' : r'\b([a-z]{2}[\.\-,; ]?\d{2,7}|\d{2,7}[\.\-,; ]?[a-z]{2})\b'}
-UtilExtracaoRe.PRONTOS.update(novos_prontos)
+
 ###################################################################
 from app_config import obj_regras_model
 ###################################################################
-from regras_controller import regras_filtradas, get_msg_resumo_regras, get_exemplo
+from regras_controller import regras_filtradas, regras_filtradas_cache, get_msg_resumo_regras, get_exemplo
+from regras_util import lista_regras_corrigir_tags
 
 ###################################################################
 ###################################################################
@@ -37,7 +37,9 @@ def get_dados_health():
 #          filtros são as chaves do json de entrada do POST do serviço que não tem relação com as regras
 CHAVES_NAO_FILTROS = {'texto', 'regra', 'detalhar',
                       'extrair','grifar','tags',
-                      'primeiro_do_grupo', 'exemplo'}
+                      'primeiro_do_grupo', 'exemplo', 
+                      'analisar-criterios', 'analisar-regras',
+                      'regras_externas'}
 def get_chaves_filtros(dados):
     return {c: v for c, v in dados.items() if c.lower() not in CHAVES_NAO_FILTROS}
 
@@ -46,7 +48,45 @@ def get_chaves_filtros(dados):
 # pacote de dados para analisar regras carregadas
 # chaves_filtros é um dict com chave:valor para filtrar 
 # as regras que contenham o mesmo conjunto preenchido 
-def analisar_regras(dados):
+def analisar_regras(dados, front_end = False):
+    # para o caso de lista de textos
+    if type(dados.get('texto')) is list:
+       res = {}
+       pagina = 0
+       for txt in dados.get('texto'):
+           pagina += 1
+           if txt.strip():
+              _dados = deepcopy(dados)
+              _dados['texto'] = txt
+              _dados = analisar_regras(_dados, front_end=front_end)
+              # inclui a página nas extrações e regras - iniciando de 1
+              _extracoes = _dados.get('extracoes',[])
+              for ex in _extracoes:
+                  ex['pagina'] = pagina
+              _regras = _dados.get('regras',[])
+              for rg in _regras:
+                  rg['pagina'] = pagina
+              # dados numéricos - soma os resultados
+              res['qtd_regras'] = res.get('qtd_regras',0) + _dados.get('qtd_regras',0)
+              res['tempo'] = res.get('tempo',0) + _dados.get('tempo',0)
+              # listas - concatena os resultados
+              if 'extracoes' in _dados:
+                 res['extracoes'] = res.get('extracoes',[]) + _extracoes
+              if 'regras' in _dados:
+                 res['regras'] = res.get('regras',[]) + _regras
+              if 'rotulos' in _dados:
+                 res['rotulos'] = res.get('rotulos',[]) + _dados['rotulos']
+              # textos - cria uma lista das respostas
+              if 'texto' in _dados or 'texto' in res:
+                 res['texto'] = res.get('texto',[]) + [_dados.get('texto','')]
+              if 'texto_analise' in _dados or 'texto_analise' in res:
+                 res['texto_analise'] = res.get('texto_analise',[]) + [_dados.get('texto_analise')]
+              if 'texto_regex' in _dados:
+                 res['texto_regex'] = res.get('texto_regex',[]) + [_dados.get('texto_regex','')]
+       res['front-end'] = front_end
+       res['analisar-regras'] = True
+       return res
+
     _texto = dados.get("texto","")
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")
@@ -62,11 +102,25 @@ def analisar_regras(dados):
     # não envia as regras como parâmetro para o construtor para não reprocessar a ordenação, 
     # só para diminuir o tempo de processamento
     # filtra as regras com uma das tags e com todos os filtros preenchidos nas chaves
+    # caso receba regras para análise, envia elas para os filtros mas sem cache
     chaves_filtros = get_chaves_filtros(dados)
-    pbr.regras = regras_filtradas(_tags, chaves_filtros = tuple(chaves_filtros.items()))
+    if 'regras_externas' in dados:
+        # para o caso de regras externas, é necessário padronizar as tags e ordenar as regras
+        regras_externas = lista_regras_corrigir_tags( pbr.ordenar_regras( dados.get('regras_externas') ) )
+        #print('Regras externas rca: ', dados.get('regras_externas'))
+        #print('Regras externas padronizadas: ', regras_externas)
+        #print('Chaves: ', chaves_filtros)
+        #print('tags: ', _tags)
+        pbr.regras = regras_filtradas(_tags, chaves_filtros = tuple(chaves_filtros.items()), 
+                                      regras_externas = regras_externas )
+    else:
+        pbr.regras = regras_filtradas_cache(_tags, chaves_filtros = tuple(chaves_filtros.items()))
     res = pbr.aplicar_regras(texto=_texto, detalhar=_detalhar, primeiro_do_grupo = _primeiro_do_grupo, extrair= _extrair)
     if _detalhar:
        res['texto_analise'] = _texto
+    # para o conversor       
+    res['front-end'] = front_end
+    res['analisar-regras'] = True
     obj_regras_model.conversao_retorno(res)
     return res
 
@@ -76,9 +130,9 @@ def analisar_regras(dados):
 # texto_analise é o texto original
 # criterios_analise é o texto original de critérios ou os critérios processados
 # criterios_ok = SIM / NÃO se os critérios foram atendidos
-def analisar_criterios(dados):
+def analisar_criterios(dados, front_end = False):
     _texto = dados.get("texto","")
-    _texto = _texto if type(_texto) is dict else str(_texto)
+    _texto = _texto if type(_texto) is dict or type(_texto) is list else str(_texto)
     _criterios = str(dados.get("criterios","")) or str(dados.get("criterio",""))
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _grifar = str(dados.get("grifar","")) not in ("","0","False")
@@ -96,6 +150,11 @@ def analisar_criterios(dados):
                                               grifar= _grifar)
     if _detalhar:
        res['texto_analise'] = _texto
+    # para o conversor       
+    res['front-end'] = front_end
+    res['analisar-criterios'] = True
+
+    obj_regras_model.conversao_retorno(res)
     return res
 
 def analisar_criterio_remover_trechos(texto, criterios):

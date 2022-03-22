@@ -26,22 +26,29 @@ EXEMPLOS = []
 
 ###################################################################
 # retorna apenas as regras contenham alguma das tags informadas
+# caso receba regras_externas, usa as regras enviadas
 # tags_lista é uma lista de tags do tipo "tag1 tag2 tag3"
 # com isso, se tiver uma das tags já é aceito no filtro
 # o cache evita refazer diversos filtros repetidamente
 # cabecalho e rodapé serve para recortar o texto e analisar apenas o início, fim ou início e fim dele
 # chaves_filtros é tupla para virar chave por conta do cache não aceitar dict
 @cached(cache_filtros_regras, lock=lock)
-def regras_filtradas(tags_desejadas = None, chaves_filtros = None):
+def regras_filtradas_cache(tags_desejadas = None, chaves_filtros = None):
+    return regras_filtradas(tags_desejadas=tags_desejadas, chaves_filtros=chaves_filtros)
+
+def regras_filtradas(tags_desejadas = None, chaves_filtros = None, regras_externas = None):
+    _regras_analise =  regras_externas if type(regras_externas) is list else obj_regras_model.get_regras_carregadas_db()
+    #print('Regras externas rf: ', regras_externas)
+    #print('Regras análise: ', _regras_analise)
     if (not tags_desejadas) and (chaves_filtros is None):
-        #print(f'>>> Regras não filtradas: {len(REGRAS_CARREGADAS)}')
-        return obj_regras_model.get_regras_carregadas_db()
+        #print(f'>>> Regras não filtradas: {len(_regras_analise)}')
+        return _regras_analise
     res = []
     re_tags_desejadas = regras_regex_tags(tags_desejadas)
     chaves_filtros = {} if chaves_filtros is None else {c:str(v) for c,v in chaves_filtros if v}
-    # print('Filtros tags: ', tags_desejadas, re_tags_desejadas)
-    # print('Filtros: ', chaves_filtros)
-    for regra in obj_regras_model.get_regras_carregadas_db():
+    #print('Filtros tags: ', tags_desejadas, re_tags_desejadas)
+    #print('Filtros: ', chaves_filtros)
+    for regra in _regras_analise:
         # verifica se todas as chaves são verdadeiras
         chaves_ok = re_tags_desejadas is None or regras_contem_tags(re_tags_desejadas, regra.get('tags',''))
         for chave, valor in chaves_filtros.items():
