@@ -54,6 +54,25 @@ Console
 Rótulos encontrados para o texto: "nessa receita você vai aprender a fazer bolos incríveis" >>  ['Receita de Bolo']
 ```
 
+## Extraindo dados
+```py
+dados = RegrasPesquisaBR.aplicar_criterios(texto = "esse teste é simples 123,45 123.123 simples",
+                                           detalhar =1, extrair = 1, grifar = 1, 
+                                           criterios = "r:(esse)|(teste)|(simples)")
+print(dados)
+```
+Console
+```bat
+{ "criterios":"(esse)|(teste)|(simples)",
+  "criterios_analise":"r:(esse)|(teste)|(simples)",
+  "extracao":[{"fim":4,"inicio":0,"texto":"esse"},{"fim":10,"inicio":5,"texto":"teste"},
+              {"fim":20,"inicio":13,"texto":"simples"},{"fim":43,"inicio":36,"texto":"simples"}],   
+  "retorno": True,
+  "texto": "esse teste e simples 123,45 123.123 simples",
+  "texto_grifado": "<mark>esse</mark> <mark>teste</mark> e <mark>simples</mark> 123,45 123.123 <mark>simples</mark>"
+}
+```
+
 ### Testes básicos da classe
 Estão disponíveis diversos textos e pesquisas que são testados para garantir o funcionamento da classe durante o desenvolvimento.
 ```bat
