@@ -115,12 +115,12 @@ obj_regras_model = RegrasModelArquivo()
 ```    
 
 - Abra o arquivo `regras_model.py`
-    - verifique a classe `RegrasModelBase` que é usada para carregar as regras e converter os dados de saída do serviço, podendo ser personalizada conforme necessário
+    - verifique a classe `RegrasModelBase` que é usada para carregar as regras e converter os dados de entrada e/ou saída do serviço, podendo ser personalizadas conforme necessário
 ```python
 class RegrasModelBase():
     # sobrescrever esse método para retornar uma lista de regras 
     # pode carregar do banco, do disco, de outro serviço, etc
-    # [{"grupo" : "nome_grupo", "rotulo": "rotulo1", "regra": "critérios da regra", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0},]
+    # [{"grupo" : "nome_grupo", "rotulo": "rotulo1", "regra": "critérios da regra", "tags": "receita bolo", "qtd_cabecalho":0, "qtd_rodape":0, "ordem": 0},]
     # incluir algum filtro com a chave filtro_tipo facilita testes na tela exemplo do serviço
     def get_regras_db(self):
         return []
@@ -130,8 +130,16 @@ class RegrasModelBase():
     # pode-se tratar a chave regras com as regras aplicadas, a chave rótulos, etc
     def conversao_retorno(self, retorno: dict):
         pass 
+
+    # pode-se transforar os dados de entrada no serviço com base em alguma
+    # regra específica do contexto da aplicação
+    # pode-se converter dados ou incluir outras regras de negócio específicas
+    # front_end, analisar_regras, analisar_criterios indicam o contexto dos dados de entrada
+    def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
+        pass 
 ...
     
+# Exemplo de personalização da classe     
 class RegrasModelArquivo(RegrasModelBase):
     ARQ_REGRAS = './regras.json'   # arquivo texto no formato [{regra}, {regra}, {regra}]
     def get_regras_db(self):
@@ -145,6 +153,12 @@ class RegrasModelArquivo(RegrasModelBase):
 
     # converte os dados retornados pelo controller 
     def conversao_retorno(self, retorno: dict):
+        # para manter a compatibilidade com os testes básicos do serviço
+        # os testes preenchem uma chave 'rodando-testes' para 
+        # que essa informação possa ser usada no controle de conversão
+        if 'rodando-testes' in retorno:
+            print('Em teste - ignorando conversão de retorno')
+            return
         # exemplo para injetar uma chave com os grupos retornados
         # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
         if 'regras' in retorno:
@@ -154,5 +168,29 @@ class RegrasModelArquivo(RegrasModelBase):
                if r.get('grupo') and r.get('grupo') not in grupos:
                   grupos.append(r.get('grupo'))
            retorno['grupos'] = grupos
-    
+
+    # converte os dados de entrada para o serviço
+    def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
+        # para manter a compatibilidade com os testes básicos do serviço
+        if 'rodando-testes' in dados:
+            print('Em teste - ignorando conversão de entrada')
+            return
+        # front-end de exemplo do serviço, para não ser impactado pela conversão de saída
+        if front_end or analisar_criterios:
+            return
+        # exemplo para converter uma chave em tags de pesquisa
+        # ou retirar dados desnecessários dos resultados
+        # ou tratar dados antes de devolver 
+        # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
+        if analisar_regras:
+            if 'valor_filtro' in dados:
+               dados['tags'] = f"{dados.get('tags','')} {dados['valor_filtro']}".strip()
+               dados.pop('valor_filtro')
+            # remove as chaves sem valor de filtro - chaves enviadas como null por exemplo
+            # para não serem filtradas nas chaves das regras
+            for chave in list(dados.keys()):
+                if dados[chave] is None:
+                   dados.pop(chave)
+            # força o resultado sempre detalhado
+            dados['detalhar'] = 1    
 ```    
