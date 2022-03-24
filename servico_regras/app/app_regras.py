@@ -12,7 +12,9 @@ from jinja2 import TemplateNotFound
 
 import os
 import json
+
 from app_config import CONFIG, TEMPO_CACHE_SEGUNDOS, PATH_API
+from regras_controller_pdf import UtilExtrairTextoPDF
 
 ###################################################################
 # controller
@@ -76,7 +78,10 @@ def testar_regras():
     try:
         title = "PesquisaBR: Análise de regras"
         dados = get_post(request)
+        dados['texto'] = UtilExtrairTextoPDF.analisar_request_pdf(request, dados.get('texto',''), 'pdf')
+        _tem_marcador_paginas, dados['texto'] = get_paginas_marcador(dados['texto'])
         dados['primeiro_do_grupo'] = 'primeiro_do_grupo' in dados
+        pedido_limpar_cache = dados.pop('limpar_cache','')
         dados['detalhar'] = True
         dados['extrair'] = True
         # recebe um filtro da tela para filtrar as regras, remove o filtro se não for preenchido
@@ -95,6 +100,19 @@ def testar_regras():
         
         # retorna apenas as descrições dos rótulos
         rotulos_retornados = [r.get('rotulo','-') for r in retorno.get('regras', [])]
+
+        # corrige o marcador de páginas se existir
+        if _tem_marcador_paginas:
+           if 'texto_analise' in retorno:
+               retorno['texto_analise'] = __MARCADOR_PAGINA__.join(retorno['texto_analise'])
+           if 'texto' in retorno:
+             retorno['texto'] = __MARCADOR_PAGINA__.join(retorno['texto'])
+           if 'texto_regex' in retorno:
+             retorno['texto_regex'] = __MARCADOR_PAGINA__.join(retorno['texto_regex'])
+
+        #limpar cache
+        if pedido_limpar_cache:
+            limpar_cache_regras()
         return render_template("aplicar_regras.html", 
                 texto = str(retorno.get('texto_analise','')),
                 texto_processado = str(retorno.get('texto','')),
@@ -131,7 +149,10 @@ def testar_criterios():
         dados['detalhar'] = True
         dados['grifar'] = True
         dados['extrair'] = True
-        if dados.get('texto') or dados.get('criterios') or dados.get('exemplo'):
+        dados['texto'] = UtilExtrairTextoPDF.analisar_request_pdf(request, dados.get('texto',''), 'pdf')
+        _tem_marcador_paginas, dados['texto'] = get_paginas_marcador(dados.get("texto",""))
+
+        if dados['texto'] or dados.get('criterios') or dados.get('exemplo'):
             retorno = analisar_criterios(dados, front_end=True)
         else:
             retorno = {}
@@ -139,6 +160,14 @@ def testar_criterios():
         contem_trechos_extraidos = any(retorno.get('extracao', []))
         trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracao', [])]
         trechos_extraidos = '<br>'.join(trechos_extraidos)
+
+        if _tem_marcador_paginas:
+           if 'texto_analise' in retorno:
+               retorno['texto_analise'] = __MARCADOR_PAGINA__.join(retorno['texto_analise'])
+           if 'texto_grifado' in retorno:
+               retorno['texto_grifado'] = '<hr>'.join(retorno['texto_grifado'])
+           if 'texto' in retorno:
+               retorno['texto'] = __MARCADOR_PAGINA__.join(retorno['texto'])
 
         return render_template("aplicar_criterio.html",
                 texto = str(retorno.get('texto_analise','')),
@@ -166,6 +195,17 @@ def exemplos():
     return render_template("exemplos_servico.html", 
                 title = "PesquisaBR: Exemplos de uso do serviço",
                 ativo_exemplos='active')
+
+###################################################################
+# retorna o texto quebrado pelas páginas ou como foi recebido
+# o marcador foi criado para interagir com arquivos PDF e textos com marcação de páginas
+# na interface de testes. Os serviços podem mandar listas de textos para indicar as páginas,
+# não precisam de marcadores
+__MARCADOR_PAGINA__ ='<<pg>>'
+def get_paginas_marcador(texto):
+    if type(texto) is str and texto.find(__MARCADOR_PAGINA__) > 0:
+        return True, texto.split(__MARCADOR_PAGINA__)
+    return False, texto
 
 #############################################################################
 #############################################################################
