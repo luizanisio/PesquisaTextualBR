@@ -44,6 +44,7 @@ CHAVES_NAO_FILTROS = {'texto', 'regra', 'detalhar',
 def get_chaves_filtros(dados):
     return {c: v for c, v in dados.items() if c.lower() not in CHAVES_NAO_FILTROS}
 
+
 ###################################################################
 ###################################################################
 # pacote de dados para analisar regras carregadas
@@ -52,10 +53,11 @@ def get_chaves_filtros(dados):
 def analisar_regras(dados, front_end = False):
     obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_regras = True)
     # para o caso de lista de textos
-    if type(dados.get('texto')) is list:
+    _texto = dados.get('texto', '')
+    if type(_texto) is list:
        res = {}
        pagina = 0
-       for txt in dados.get('texto'):
+       for txt in _texto:
            pagina += 1
            if txt.strip():
               _dados = deepcopy(dados)
@@ -154,7 +156,7 @@ def analisar_criterios(dados, front_end = False):
                                               detalhar= _detalhar, 
                                               grifar= _grifar)
     if _detalhar:
-       res['texto_analise'] = _texto
+       res['texto_analise'] = _texto 
     # para o conversor       
     res['front-end'] = front_end
     res['analisar-criterios'] = True
@@ -192,5 +194,4 @@ def analisar_criterio_remover_trechos(texto, criterios):
     if _texto_removido or _criterios_removido:
         return _texto_removido, _criterios_removido
     return _texto, criterios
-
 

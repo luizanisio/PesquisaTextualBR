@@ -1,7 +1,5 @@
 import os
 import json
-from datetime import datetime
-import re
 
 ###################################################################
 from regras_util import regras_contem_tags, regras_regex_tags
