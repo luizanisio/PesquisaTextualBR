@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-from flask.globals import request
-from pesquisabr.pesquisabr_relacao_testes import PesquisaBRTestes
-from app_config import PATH_API
+from pesquisabr import PesquisaBRTestes
+from app_config import PATH_URL_API
+from app_regras_testes import smart_request_get_post
 
-import requests
 from collections import Counter
 import json
 
 from multiprocessing import Pool, cpu_count, Manager
 from datetime import datetime
 from pesquisabr.util import Util
-
-from app_regras_testes import smart_request
 
 MULTIPLICADOR = 10
 N_THREADS = 30 # cpu_count() * 2
@@ -50,9 +47,9 @@ def realizar_teste(i):
     dados_post = {'texto': d['texto'], 'criterio': d['criterio'], 'detalhar': False}
     esperado = d['retorno']
     _ini = datetime.now()
-    r = smart_request().post(f'{PATH_API}analisar_criterio',json = dados_post)
+    r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json = dados_post)
     _tempo = round((datetime.now()-_ini).total_seconds(),2)
-    recebido = r.json().get('retorno')
+    recebido = r.get('retorno')
     if recebido == esperado:
         res = 'ok'
     else:
@@ -65,20 +62,22 @@ def realizar_teste(i):
     print(f'Teste {i+1}/{len(dados_testes)} {res} >> ', Counter(testes), f'{_tempo}s')
 
 def teste_inicial():
-    r = requests.get(f'{PATH_API}cache')
-    r=r.json()
+    r = smart_request_get_post(f'{PATH_URL_API}cache')
     assert r.get('ok'), 'Teste de limpeza de cache falhou'
-    r = requests.get(f'{PATH_API}health')
-    r=r.json()
+    r = smart_request_get_post(f'{PATH_URL_API}health')
     assert r.get('ok'), 'Teste de health falhou'
     print('Cache reiniciado e health testado')
 
 if __name__ == '__main__':
+    print('##########################################################################')
+    print('Iniciando os testes de stress na URL: ', PATH_URL_API)
+    print('==========================================================================')
+
     try:
         teste_inicial()
         print(f'Processando {len(dados_testes)} testes')
-        ini = datetime.now()
         tempo = None
+        ini = datetime.now()
         dtstr = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         Util.map_thread(realizar_teste, range(len(dados_testes)), n_threads = N_THREADS)
         tempo = round((datetime.now()-ini).total_seconds(),2)

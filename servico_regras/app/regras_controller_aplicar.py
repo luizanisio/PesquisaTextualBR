@@ -35,11 +35,12 @@ def get_dados_health():
 
 # exemplo: chaves_filtros = {'ano_regra' : 2001, 'tipo_regra': 'tipo1'}
 #          filtros são as chaves do json de entrada do POST do serviço que não tem relação com as regras
+# algumas chaves são de uso interno, então são ignoradas como filtros
 CHAVES_NAO_FILTROS = {'texto', 'regra', 'detalhar',
                       'extrair','grifar','tags',
                       'primeiro_do_grupo', 'exemplo', 
                       'analisar-criterios', 'analisar-regras',
-                      'regras_externas'}
+                      'regras_externas', 'rodando-testes'}
 def get_chaves_filtros(dados):
     return {c: v for c, v in dados.items() if c.lower() not in CHAVES_NAO_FILTROS}
 
@@ -49,6 +50,7 @@ def get_chaves_filtros(dados):
 # chaves_filtros é um dict com chave:valor para filtrar 
 # as regras que contenham o mesmo conjunto preenchido 
 def analisar_regras(dados, front_end = False):
+    obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_regras = True)
     # para o caso de lista de textos
     if type(dados.get('texto')) is list:
        res = {}
@@ -121,6 +123,8 @@ def analisar_regras(dados, front_end = False):
     # para o conversor       
     res['front-end'] = front_end
     res['analisar-regras'] = True
+    if dados.get('rodando-testes'):
+       res['rodando-testes'] = True
     obj_regras_model.conversao_retorno(res)
     return res
 
@@ -131,6 +135,7 @@ def analisar_regras(dados, front_end = False):
 # criterios_analise é o texto original de critérios ou os critérios processados
 # criterios_ok = SIM / NÃO se os critérios foram atendidos
 def analisar_criterios(dados, front_end = False):
+    obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_criterios = True)
     _texto = dados.get("texto","")
     _texto = _texto if type(_texto) is dict or type(_texto) is list else str(_texto)
     _criterios = str(dados.get("criterios","")) or str(dados.get("criterio",""))
@@ -153,7 +158,8 @@ def analisar_criterios(dados, front_end = False):
     # para o conversor       
     res['front-end'] = front_end
     res['analisar-criterios'] = True
-
+    if dados.get('rodando-testes'):
+       res['rodando-testes'] = True
     obj_regras_model.conversao_retorno(res)
     return res
 

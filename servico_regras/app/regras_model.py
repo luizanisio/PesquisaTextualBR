@@ -27,6 +27,13 @@ class RegrasModelBase():
     def conversao_retorno(self, retorno: dict):
         pass 
 
+    # pode-se transforar os dados de entrada no serviço com base em alguma
+    # regra específica do contexto da aplicação
+    # pode-se converter dados ou incluir outras regras de negócio específicas
+    # front_end, analisar_regras, analisar_criterios indicam o contexto dos dados de entrada
+    def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
+        pass 
+
     def __init__(self):
         self.REGRAS_ERRO = []
         self.REGRAS_CARREGADAS = []
@@ -92,6 +99,10 @@ class RegrasModelArquivo(RegrasModelBase):
 
     # converte os dados retornados pelo controller 
     def conversao_retorno(self, retorno: dict):
+        # para manter a compatibilidade com os testes básicos do serviço
+        if 'rodando-testes' in retorno:
+            print('Em teste - ignorando conversão de retorno')
+            return
         return
         # exemplo para injetar uma chave com os grupos retornados
         # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
@@ -102,3 +113,27 @@ class RegrasModelArquivo(RegrasModelBase):
                if r.get('grupo') and r.get('grupo') not in grupos:
                   grupos.append(r.get('grupo'))
            retorno['grupos'] = grupos
+
+    # converte os dados de entrada para o serviço
+    def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
+        # para manter a compatibilidade com os testes básicos do serviço
+        if 'rodando-testes' in dados:
+            print('Em teste - ignorando conversão de entrada')
+            return
+        if front_end or analisar_criterios:
+            return
+        # exemplo para converter uma chave em tags de pesquisa
+        # ou retirar dados desnecessários dos resultados
+        # ou tratar dados antes de devolver 
+        # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
+        if analisar_regras:
+            if 'valor_filtro' in dados:
+               dados['tags'] = f"{dados.get('tags','')} {dados['valor_filtro']}".strip()
+               dados.pop('valor_filtro')
+            # remove as chaves sem valor de filtro - chaves enviadas como null por exemplo
+            # para não serem filtradas nas chaves das regras
+            for chave in list(dados.keys()):
+                if dados[chave] is None:
+                   dados.pop(chave)
+            # força o resultado sempre detalhado
+            dados['detalhar'] = 1
