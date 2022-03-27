@@ -181,6 +181,62 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         esperado.pop('texto_analise', None)
         self.assertDictEqual(r, esperado)
 
+    def teste_criterio_list_pesquisa(self):
+        dados = {"texto": ["a casa de papel é um seriado bem interessante numero123", "segundo texto da casa sem papel"], 
+                 "criterio": "casa adj2 papel sem adj papel", "detalhar": 1, "grifar" : 1}
+        r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
+        r = self.limpa_request(r, manter=['texto_analise'])
+        esperado = {"criterios": "casa ADJ2 papel E sem ADJ1 papel",
+                    "criterios_aon": "casa AND papel AND sem AND papel",
+                    "retorno": True,
+                    "texto": ["a casa de papel e um seriado bem interessante numero 123",
+                              "segundo texto da casa sem papel"],
+                    "texto_analise": ["a casa de papel é um seriado bem interessante numero123",
+                                      "segundo texto da casa sem papel"],
+                    "texto_grifado": ["a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante numero123",
+                                      "segundo texto da <mark>casa</mark> <mark>sem</mark> <mark>papel</mark>"]
+                }
+        # facilita a visualização do erro separar em duas análises
+        self.assertEqual(r['texto'], esperado['texto'])
+        self.assertEqual(r['texto_analise'], esperado['texto_analise'])
+        self.assertEqual(r['texto_grifado'], esperado['texto_grifado'])
+        r.pop('texto', None)
+        esperado.pop('texto', None)
+        r.pop('texto_analise', None)
+        esperado.pop('texto_analise', None)
+        self.assertDictEqual(r, esperado)
+
+    def teste_criterio_dict_pesquisa(self):
+        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante numero123", "b": "segundo texto da casa sem papel"}, 
+                 "criterio": "casa adj2 papel sem adj papel", "detalhar": 1, "grifar" : 1}
+        r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
+        r = self.limpa_request(r, manter=['texto_analise','criterios_analise'])
+        esperado = { "criterios": "casa ADJ2 papel E sem ADJ1 papel",
+                     "criterios_analise": "casa adj2 papel sem adj papel",
+                     "criterios_aon": "casa AND papel AND sem AND papel",
+                     "texto": {
+                         "A": "a casa de papel e um seriado bem interessante numero 123",
+                         "B": "segundo texto da casa sem papel" },
+                     "texto_analise": {
+                         "a": "a casa de papel é um seriado bem interessante numero123",
+                         "b": "segundo texto da casa sem papel" },
+                     "texto_grifado": {
+                         "a": "a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante numero123",
+                         "b": "segundo texto da <mark>casa</mark> <mark>sem</mark> <mark>papel</mark>" },
+                     "retorno": True
+                    }
+        # facilita a visualização do erro separar em duas análises
+        self.assertEqual(r['texto'], esperado['texto'])
+        self.assertEqual(r['texto_analise'], esperado['texto_analise'])
+        self.assertEqual(r['texto_grifado'], esperado['texto_grifado'])
+        r.pop('texto', None)
+        esperado.pop('texto', None)
+        r.pop('texto_analise', None)
+        esperado.pop('texto_analise', None)
+        r.pop('texto_grifado', None)
+        esperado.pop('texto_grifado', None)
+        self.assertDictEqual(r, esperado)
+
     def teste_limpeza_cache(self):
         r = smart_request_get_post(f'{PATH_URL_API}cache')
         self.assertTrue(r.get('ok'))

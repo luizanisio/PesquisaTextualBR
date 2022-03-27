@@ -44,7 +44,6 @@ CHAVES_NAO_FILTROS = {'texto', 'regra', 'detalhar',
 def get_chaves_filtros(dados):
     return {c: v for c, v in dados.items() if c.lower() not in CHAVES_NAO_FILTROS}
 
-
 ###################################################################
 ###################################################################
 # pacote de dados para analisar regras carregadas
@@ -52,7 +51,7 @@ def get_chaves_filtros(dados):
 # as regras que contenham o mesmo conjunto preenchido 
 def analisar_regras(dados, front_end = False):
     obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_regras = True)
-    # para o caso de lista de textos
+    # para o caso de lista de textos, o tratamento é diferente pois a pesquisa trata apenas de dicionários
     _texto = dados.get('texto', '')
     if type(_texto) is list:
        res = {}
@@ -96,11 +95,6 @@ def analisar_regras(dados, front_end = False):
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")
     _tags = str(dados.get("tags",""))
     _primeiro_do_grupo = bool(dados.get("primeiro_do_grupo"))
-    _carregar_exemplo = int(dados.get("exemplo",-1))
-    if _carregar_exemplo>=0:
-        exemplo = get_exemplo(_carregar_exemplo)
-        if exemplo:
-            _texto = exemplo['texto'] if exemplo.get('texto') else _texto
 
     pbr = RegrasPesquisaBR(regras=[], print_debug=False)
     # não envia as regras como parâmetro para o construtor para não reprocessar a ordenação, 
@@ -131,6 +125,16 @@ def analisar_regras(dados, front_end = False):
     return res
 
 ###################################################################
+def carregar_exemplo_solicitado(dados, criterios = True):
+    _carregar_exemplo = int(dados.get("exemplo",-1))
+    if _carregar_exemplo>=0:
+        exemplo = get_exemplo(_carregar_exemplo)
+        if exemplo:
+            dados['texto'] = exemplo['texto'] if exemplo.get('texto') else dados.get('texto','')
+            if criterios:
+               dados['criterios'] = exemplo['criterios'] if exemplo.get('criterios') else dados.get('criterios','')
+
+###################################################################
 ###################################################################
 # pacote de dados para analisar um texto e o critérios informados
 # texto_analise é o texto original
@@ -144,17 +148,13 @@ def analisar_criterios(dados, front_end = False):
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _grifar = str(dados.get("grifar","")) not in ("","0","False")
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")
-    _carregar_exemplo = int(dados.get("exemplo",-1))
-    if _carregar_exemplo>=0:
-        exemplo = get_exemplo(_carregar_exemplo)
-        if exemplo:
-            _texto = exemplo['texto'] if exemplo.get('texto') else _texto
-            _criterios = exemplo['criterios'] if exemplo.get('criterios') else _criterios
+
+    # tratamento de lista pois o PesquisaBr não trata lista
     res = RegrasPesquisaBR.aplicar_criterios(texto = _texto, 
-                                              criterios= _criterios,
-                                              extrair= _extrair, 
-                                              detalhar= _detalhar, 
-                                              grifar= _grifar)
+                                            criterios= _criterios,
+                                            extrair= _extrair, 
+                                            detalhar= _detalhar, 
+                                            grifar= _grifar)
     if _detalhar:
        res['texto_analise'] = _texto 
     # para o conversor       

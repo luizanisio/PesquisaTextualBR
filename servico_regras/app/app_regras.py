@@ -19,7 +19,7 @@ from regras_controller_pdf import UtilExtrairTextoPDF
 ###################################################################
 # controller
 from regras_controller import carregar_exemplos, get_exemplo, limpar_cache_regras
-from regras_controller_aplicar import analisar_criterios, get_dados_health, analisar_regras, analisar_criterio_remover_trechos
+from regras_controller_aplicar import analisar_criterios, get_dados_health, analisar_regras, carregar_exemplo_solicitado
 
 EM_DEBUG = os.path.isfile('debug.txt')
 
@@ -78,6 +78,7 @@ def testar_regras():
     try:
         title = "PesquisaBR: Análise de regras"
         dados = get_post(request)
+        carregar_exemplo_solicitado(dados, False)
         dados['texto'] = UtilExtrairTextoPDF.analisar_request_pdf(request, dados.get('texto',''), 'pdf')
         _tem_marcador_paginas, dados['texto'] = get_paginas_marcador(dados['texto'])
         dados['primeiro_do_grupo'] = 'primeiro_do_grupo' in dados
@@ -149,6 +150,7 @@ def testar_criterios():
         dados['detalhar'] = True
         dados['grifar'] = True
         dados['extrair'] = True
+        carregar_exemplo_solicitado(dados, True)
         dados['texto'] = UtilExtrairTextoPDF.analisar_request_pdf(request, dados.get('texto',''), 'pdf')
         _tem_marcador_paginas, dados['texto'] = get_paginas_marcador(dados.get("texto",""))
 
@@ -162,12 +164,12 @@ def testar_criterios():
         trechos_extraidos = '<br>'.join(trechos_extraidos)
 
         if _tem_marcador_paginas:
-           if 'texto_analise' in retorno:
-               retorno['texto_analise'] = __MARCADOR_PAGINA__.join(retorno['texto_analise'])
-           if 'texto_grifado' in retorno:
-               retorno['texto_grifado'] = '<hr>'.join(retorno['texto_grifado'])
-           if 'texto' in retorno:
-               retorno['texto'] = __MARCADOR_PAGINA__.join(retorno['texto'])
+            if 'texto_analise' in retorno:
+                retorno['texto_analise'] = __MARCADOR_PAGINA__.join(retorno['texto_analise'])
+            if 'texto_grifado' in retorno:
+                retorno['texto_grifado'] = '<hr>'.join(retorno['texto_grifado'])
+            if 'texto' in retorno:
+                retorno['texto'] = __MARCADOR_PAGINA__.join(retorno['texto'])
 
         return render_template("aplicar_criterio.html",
                 texto = str(retorno.get('texto_analise','')),
