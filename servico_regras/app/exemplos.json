@@ -1,6 +1,4 @@
 {"exemplos": [
-    {"texto": "Determino a anulacao da certidao de transito em julgado", "criterios": "('determinar' ou 'determino') E (anula$ ou 'torn$ sem efeito') adjc2 'certidao' adjc10 'transito' adjc2 'julgado'"},
-    {"texto": "Descreve-se assim as contrarrazoes do recurso extraordinario aqui apresentado.", "criterios": "contra$ 'recurso extra$' proxc5 apresentado"},
     {"texto": "Teste de dois paragrafos.<br>Para usar a avaliacao de termos entre paragrafos.", "criterios": "(teste COM2 avaliacao) E (teste prox7 avalia??o)NAO (teste proxc10 avaliacao)"},
     {"texto": "Avaliacao complexa de termos e parenteses. Esse teste tem varios criterios concatenados e agrupados..", "criterios": "((avaliacao termo) adj2 parenteses) com2 teste prox5 parentese 'crite$ concate$'"},
     {"texto": "Remocao de aspas e trechos - 'Teste de remocao esse trecho nao sera analisado'", "criterios": "remocao nao (sera adj analisado) remover(aspas)"},
@@ -11,8 +9,6 @@
     {"texto": "Receita 1 - Esse exemplo contem uma receita de bolo", "criterios": "receita bolo"},
     {"texto": "Receita 2 - Esse exemplo contem uma receita de pao", "criterios": "receita pao"},
     {"texto": "Oficio n. 345 de 01/02/2021", "criterios": "'oficio n' OU 'oficion numero'"},
-    {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo"},
-    {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo. Tambem devolvo ao ministro relator e defiro todas as notas taquigraficas e como tambem condeno tudo isso a executado"},
     {"texto": "'teste entre aspas' exemplo", "criterios": "exemplo e teste remover(aspas)"},
     {"texto": "esse e um teste de texto de teto te to com remocao usando curingas", "criterios": "teto E te E to NAO teste NAO texto remover(te&t&)"},
     {"texto": "casa termo1 termo2 termo3 termo4 termo100 de termo5 termo6 termo77 papel", "criterios": "casa adj2 papel remover(termo&??)"},
