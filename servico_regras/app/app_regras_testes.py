@@ -3,7 +3,7 @@ import unittest
 
 # https://www.datacamp.com/community/tutorials/making-http-requests-in-python?utm_source=adwords_ppc&utm_campaignid=1455363063&utm_adgroupid=65083631748&utm_device=c&utm_keyword=&utm_matchtype=b&utm_network=g&utm_adpostion=&utm_creative=278443377095&utm_targetid=aud-299261629574:dsa-429603003980&utm_loc_interest_ms=&utm_loc_physical_ms=1001541&gclid=CjwKCAiAxKv_BRBdEiwAyd40N_nVtlAEzbZkyYk-7fWaGjt6giO0CWYEeaKKa2bGoes1E4xUXQGDwhoCtNcQAvD_BwE
 
-from pesquisabr import PesquisaBRTestes
+from pesquisabr import PesquisaBRTestes, TESTES_GRIFAR
 from app_config import PATH_URL_API
 # cria um smart_request mais resiliente a falhas pois o teste pode sobrecarregar o serviço
 import requests
@@ -347,6 +347,25 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
             r.pop('texto_grifado', None)
             esperado.pop('texto_grifado', None)
             self.assertDictEqual(r, esperado)        
+
+    def testes_grifar(self):
+        for i, teste in enumerate(TESTES_GRIFAR):
+            with self.subTest(f'Retorno grifar PesquisaBR {i+1}'):
+                 dados = {"texto": teste.get('texto',''),
+                          "detalhar": 1, "extrair" : 1, "grifar" : 1, 
+                          "criterios" : teste.get('criterio','')}
+            r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json = dados)
+            r = self.limpa_request_front(r)
+            esperado = self.corrige_quebras(teste.get("texto_grifado",''))
+            r = self.corrige_quebras(r.get('texto_grifado',''))
+            self.assertDictEqual({'r': r}, {'r': esperado} )  
+
+    def corrige_quebras(self, texto):
+        if type(texto) is dict:
+            return {c: self.corrige_quebras(v) for c, v in texto.items()}
+        if type(texto) is list:
+            return [self.corrige_quebras(t) for t in texto]
+        return texto.replace('\n','<br>').strip()
 
 REGRAS_TESTES = [
     {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
