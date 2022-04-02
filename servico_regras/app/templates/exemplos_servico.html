@@ -80,6 +80,16 @@
             </code></div>
             <p><i>O cache é mantido por 5 minutos.</i></p>
         </div>
+
+        <div class="card-header text-info font-weight-bold">Identificação das regras com erro</div>
+		<div class="card-body">
+            <b>GET:</b> /api/ia-regras/regras_erro
+            <br><b>Retorno</b>
+            <div class="card bg-light"><code>
+                [{"erro":"Parênteses aberto e não fechado","filtro_tipo":"erro","grupo":"grupo_erro","ordem":0,"qtd_cabecalho":0,"qtd_rodape":0,"regra":"regra nao (nao","rotulo":"teste erro regra","tags":""},{"erro":"unknown extension ?) at position 2","filtro_tipo":"erro","grupo":"grupo_erro","ordem":0,"qtd_cabecalho":0,"qtd_rodape":0,"regra":"r: (?)","rotulo":"teste erro regex","tags":""}]
+            </code></div>
+        </div>
+
         <div class="card-header text-info font-weight-bold">Regras do exemplo (arquivo regras.json)</div>
 		<div class="card-body">
             <i>* as chaves tags, qtd_cabecalho e qtd_rodape são opcionais</i>

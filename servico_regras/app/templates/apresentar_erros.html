@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ super() }}
+	<!-- Form -->
+	<div class="card">
+    	<div class="card-header text-info font-weight-bold">Regras com erro</div>
+        {% for erro in erros %}
+        <div class="card w-75">
+            <div class="card-body">
+              {% if erro.grupo %}
+              <h5 class="card-title alert alert-primary" role="alert"><b>Grupo:</b> {{erro.grupo}}</h5>
+              {% endif %}
+              <p class="card-text"><b>Rótulo:</b> {{erro.rotulo}}</p>
+              <div class="card bg-light"><code>{{erro.regra}}</code></div>          
+              <p class="card-text alert alert-danger"><b>Erro:</b> {{erro.erro}}</p>
+            </div>
+          </div>
+        {% endfor %}
+       
+	</div>
+{% endblock content %}
