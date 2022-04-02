@@ -4,6 +4,7 @@
 # teste para análise de critérios
 # http://localhost:8000/analisar_criterio?texto=esse%20texto%20legal&criterio=texto&debug=1
 
+from copy import deepcopy
 from flask import Flask, jsonify, request, render_template
 from flask import render_template_string, redirect, url_for, Markup
 
@@ -18,7 +19,7 @@ from regras_controller_pdf import UtilExtrairTextoPDF
 
 ###################################################################
 # controller
-from regras_controller import carregar_exemplos, get_exemplo, limpar_cache_regras
+from regras_controller import carregar_exemplos, get_exemplo, get_regras_carregadas, limpar_cache_regras, get_regras_erros
 from regras_controller_aplicar import analisar_criterios, get_dados_health, analisar_regras, carregar_exemplo_solicitado
 
 EM_DEBUG = os.path.isfile('debug.txt')
@@ -59,6 +60,14 @@ def srv_analisar_regras():
     dados = get_post(request)
     retorno = analisar_regras(dados)
     return jsonify( retorno )
+
+###################################################################
+# recebe {'texto': 'texto para ser analisado pelas regras'}
+# retorna {'retorno': true/false }
+# pode receber seq_regra, seq_grupo_regra ou seq_alvo para filtrar
+@app.route(f'{PATH_API}regras_erro', methods=['GET','POST'])
+def srv_regras_erro():
+    return jsonify( get_regras_erros() )
 
 ###################################################################
 # recebe {'texto': 'texto para ser analisado pelas regras', 'criterio':'critérios de pesquisa'}
@@ -185,6 +194,30 @@ def testar_criterios():
                 exemplos_criterios = exemplos_com_criterios,
                 trechos_extraidos = Markup(trechos_extraidos),
                 contem_trechos_extraidos = contem_trechos_extraidos
+        )
+    except TemplateNotFound as e:
+        return render_template_string(f'Página não encontrada: {e.message}')
+
+#############################################################################
+#############################################################################
+## formulários com regras com erro
+@app.route(f'{PATH_API}apresentar_erros',methods=['GET'])
+def regras_com_erro():
+    try:
+        title = "PesquisaBR: Regras com erros"
+        erros = sorted( get_regras_erros(), key = lambda k:k.get('grupo',''))
+        old = ''
+        for e in erros:
+            if e.get('grupo','') == old:
+               e['grupo'] = ''
+            else:
+               old = e.get('grupo','')
+
+        return render_template("apresentar_erros.html",
+                erros = erros,
+                title=title,
+                ativo_erros='active',
+                qtd_regras = len(get_regras_carregadas())
         )
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')

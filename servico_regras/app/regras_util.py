@@ -33,24 +33,34 @@ def regras_contem_tags(tags_desejadas, tags_existe):
     return bool(regras_regex_tags(tags_desejadas).search(tags_existe))
 
 # retorna true para regex válido em regras ou extrações
-def regex_valido(txt_regex, rotulo):
+def regex_valido(txt_regex, rotulo, retornar_erro = False):
+    erro = ''
     try:
         re.compile(str(txt_regex))
         #print(f'REGEX OK: rótulo "{rotulo}" - regex: {txt_regex}')
+        if retornar_erro:
+            return ''
         return True
-    except re.error:
-        pass
+    except re.error as msgerr:
+        erro = str(msgerr)
+        if retornar_erro: 
+           return erro
     print(f'**ERRO: REGEX inválido: "{rotulo}"')
     print(f'        texto de regex: {txt_regex}')
+    print(f'                 erro : {erro}')
     return False
 
 # verifica se a regra é válida e ignora ela caso tenha algum erro na construção
-def regra_valida(txt_regra, rotulo):
+def regra_valida(txt_regra, rotulo, retornar_erro = False):
     pb = PesquisaBR(texto='', criterios=txt_regra)
     if pb.erros:
+        if retornar_erro:
+            return str(pb.erros)
         print(f'**ERRO: REGRA inválida: "{rotulo}"')
         print(f'        texto de regra: {txt_regra}')
         print(f'                 erro : {pb.erros}')
         return False
     #print(f'REGRA OK: rótulo "{rotulo}" com o texto de regra: {txt_regra}')
+    if retornar_erro:
+        return ''
     return True
