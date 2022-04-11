@@ -34,6 +34,20 @@ class RegrasModelBase():
     def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
         pass 
 
+    # pode-se transformar as regras da lista de erro alterando as chaves grupo e rotulo para ficar uma apresentação mais intuitiva
+    def conversao_erros(self):
+        return self.get_regras_erro_db()
+        # exemplo de conversão:
+        '''
+        erros = deepcopy(self.get_regras_erro_db())
+        for r in erros:
+            complemento = r.get("complemento") or r.get("observacao","-")
+            grupo = r.get("desc_grupo_regra") or r.get("desc_grupo") or r.get("grupo","?")
+            r['grupo'] = f'{grupo} ({complemento})'
+            #print(str(r))
+        return erros
+        '''
+
     def __init__(self):
         self.REGRAS_ERRO = []
         self.REGRAS_CARREGADAS = []
@@ -99,10 +113,6 @@ class RegrasModelArquivo(RegrasModelBase):
 
     # converte os dados retornados pelo controller 
     def conversao_retorno(self, retorno: dict):
-        # para manter a compatibilidade com os testes básicos do serviço
-        if 'rodando-testes' in retorno:
-            print('Em teste - ignorando conversão de retorno')
-            return
         return
         # exemplo para injetar uma chave com os grupos retornados
         # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
@@ -113,27 +123,3 @@ class RegrasModelArquivo(RegrasModelBase):
                if r.get('grupo') and r.get('grupo') not in grupos:
                   grupos.append(r.get('grupo'))
            retorno['grupos'] = grupos
-
-    # converte os dados de entrada para o serviço
-    def conversao_entrada(self, dados: dict, front_end = False, analisar_regras=False, analisar_criterios=False):
-        # para manter a compatibilidade com os testes básicos do serviço
-        if 'rodando-testes' in dados:
-            print('Em teste - ignorando conversão de entrada')
-            return
-        if front_end or analisar_criterios:
-            return
-        # exemplo para converter uma chave em tags de pesquisa
-        # ou retirar dados desnecessários dos resultados
-        # ou tratar dados antes de devolver 
-        # poderia buscar outros dados no BD, em outro serviço, transformar dados, etc
-        if analisar_regras:
-            if 'valor_filtro' in dados:
-               dados['tags'] = f"{dados.get('tags','')} {dados['valor_filtro']}".strip()
-               dados.pop('valor_filtro')
-            # remove as chaves sem valor de filtro - chaves enviadas como null por exemplo
-            # para não serem filtradas nas chaves das regras
-            for chave in list(dados.keys()):
-                if dados[chave] is None:
-                   dados.pop(chave)
-            # força o resultado sempre detalhado
-            dados['detalhar'] = 1

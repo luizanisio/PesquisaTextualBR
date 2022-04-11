@@ -14,6 +14,7 @@ from jinja2 import TemplateNotFound
 import os
 import json
 
+
 from app_config import CONFIG, TEMPO_CACHE_SEGUNDOS, PATH_API
 from regras_controller_pdf import UtilExtrairTextoPDF
 
@@ -103,10 +104,22 @@ def testar_regras():
         else:
             retorno = {}
 
-        # TODO componente extracoes para extracao            
-        contem_trechos_extraidos = any(retorno.get('extracoes', []))
-        trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracoes', [])]
+        contem_trechos_extraidos = False
+        trechos_extraidos = []
+        if 'extracoes' in retorno:
+           contem_trechos_extraidos = any(retorno.get('extracoes', []))
+           trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracoes', [])]
+        elif 'regras' in retorno:
+           for reg in retorno['regras']:
+               if 'extracoes' in reg and any(reg['extracoes']):
+                   contem_trechos_extraidos = True
+                   #trechos_extraidos.append(json.dumps(reg['extracoes']))
+                   trechos_extraidos.extend([json.dumps(_) for _ in reg['extracoes']])
+
         trechos_extraidos = '<br>'.join(trechos_extraidos)
+        #print('EXTRACOES: ', contem_trechos_extraidos, trechos_extraidos)
+        #print('DADOS: ', json.dumps(dados))
+        #print('RETORNO: ', retorno)
         
         # retorna apenas as descrições dos rótulos
         rotulos_retornados = [r.get('rotulo','-') for r in retorno.get('regras', [])]

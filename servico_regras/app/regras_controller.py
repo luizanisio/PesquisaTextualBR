@@ -98,7 +98,7 @@ def get_msg_resumo_regras():
     return f'{len(obj_regras_model.get_regras_carregadas_db())} regras recarregadas e {len(obj_regras_model.get_regras_erro_db())} ignoradas por erro de construção'
 
 def get_regras_erros():
-    erros = deepcopy( obj_regras_model.get_regras_erro_db() )
+    erros = obj_regras_model.conversao_erros()
     for e in erros:
         if e.get('regra','')[:2].lower() == 'r:':
            e['erro'] = regex_valido(e.get('regra','')[2:], '', True)

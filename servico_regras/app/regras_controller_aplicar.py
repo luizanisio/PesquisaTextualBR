@@ -53,43 +53,6 @@ def analisar_regras(dados, front_end = False):
     obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_regras = True)
     # para o caso de lista de textos, o tratamento é diferente pois a pesquisa trata apenas de dicionários
     _texto = dados.get('texto', '')
-    if type(_texto) is list:
-       res = {}
-       pagina = 0
-       for txt in _texto:
-           pagina += 1
-           if txt.strip():
-              _dados = deepcopy(dados)
-              _dados['texto'] = txt
-              _dados = analisar_regras(_dados, front_end=front_end)
-              # inclui a página nas extrações e regras - iniciando de 1
-              _extracoes = _dados.get('extracoes',[])
-              for ex in _extracoes:
-                  ex['pagina'] = pagina
-              _regras = _dados.get('regras',[])
-              for rg in _regras:
-                  rg['pagina'] = pagina
-              # dados numéricos - soma os resultados
-              res['qtd_regras'] = res.get('qtd_regras',0) + _dados.get('qtd_regras',0)
-              res['tempo'] = res.get('tempo',0) + _dados.get('tempo',0)
-              # listas - concatena os resultados
-              if 'extracoes' in _dados:
-                 res['extracoes'] = res.get('extracoes',[]) + _extracoes
-              if 'regras' in _dados:
-                 res['regras'] = res.get('regras',[]) + _regras
-              if 'rotulos' in _dados:
-                 res['rotulos'] = res.get('rotulos',[]) + _dados['rotulos']
-              # textos - cria uma lista das respostas
-              if 'texto' in _dados or 'texto' in res:
-                 res['texto'] = res.get('texto',[]) + [_dados.get('texto','')]
-              if 'texto_analise' in _dados or 'texto_analise' in res:
-                 res['texto_analise'] = res.get('texto_analise',[]) + [_dados.get('texto_analise')]
-              if 'texto_regex' in _dados:
-                 res['texto_regex'] = res.get('texto_regex',[]) + [_dados.get('texto_regex','')]
-       res['front-end'] = front_end
-       res['analisar-regras'] = True
-       return res
-
     _texto = dados.get("texto","")
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")
@@ -149,7 +112,6 @@ def analisar_criterios(dados, front_end = False):
     _grifar = str(dados.get("grifar","")) not in ("","0","False")
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")
 
-    # tratamento de lista pois o PesquisaBr não trata lista
     res = RegrasPesquisaBR.aplicar_criterios(texto = _texto, 
                                             criterios= _criterios,
                                             extrair= _extrair, 
