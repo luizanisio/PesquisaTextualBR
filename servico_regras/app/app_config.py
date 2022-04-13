@@ -4,6 +4,12 @@ ARQ_CONFIG = './config.json'
 CONFIG = {}
 TEMPO_CACHE_SEGUNDOS = 0
 
+'''Usado na configuração da API'''
+PATH_API = '/'
+''' Usado nos testes '''
+PATH_URL = 'http://localhost:8000'
+PATH_URL_API = f'{PATH_URL}{PATH_API}'
+
 ###################################################################
 # configurações do serviço
 def carregar_config():
