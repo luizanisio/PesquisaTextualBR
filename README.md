@@ -144,7 +144,7 @@ Como usar o operador `remover(texto)`:
 
 Esse operador foi criado para recortar o texto (manter o texto) entre dois termos ou conjuntos de termos. Pode-se usar quantos `recortar(...)` forem necessários dentro do critério de pesquisa. Os trechos recortados serão concatenados com `\n`<br>
 
-Como usar o operador `remover(texto)`:
+Como usar o operador `recortar(texto)`:
 - `$` - início/fim de palavra ou texto
 - `#` - quebra de linha ou início/fim de texto
 
