@@ -140,6 +140,23 @@ Como usar o operador `remover(texto)`:
 - `casa adj2 papel remover(termo1) remover(teste)'
 - Ao ser aplicado o critério no texto `o seriado casa termo1 de teste papel`, a avaliação será verdadeira já que os termos `termo1` e `teste` serão removidos antes da análise.
 
+### Operador especial recortar(....)
+
+Esse operador foi criado para recortar o texto (manter o texto) entre dois termos ou conjuntos de termos. Pode-se usar quantos `recortar(...)` forem necessários dentro do critério de pesquisa. Os trechos recortados serão concatenados com `\n`<br>
+
+Como usar o operador `remover(texto)`:
+- `$` - início/fim de palavra ou texto
+- `#` - quebra de linha ou início/fim de texto
+
+<b>Exemplos de uso do recortar:</b>
+- <b>recortar(#resumo#;#metodologia#)</b>: mantém apenas o texto entre `\nresumo\n` e `\nmetodologia\n`<br>
+- <b>recortar(#formulario$;)</b>: mantém apenas o texto após `\nformulario` até o final do texto`<br>
+- <b>recortar(;#resumo#)</b>: mantém apenas o texto do início até o texto `\nresumo\n`<br>
+
+<b>Exemplos de uso dentro dos critérios de pesquisa:</b>
+- `seriado casa adj2 papel recortar($inicio$;$fim$)'
+- Ao ser aplicado o critério no texto `o seriado inicio casa de papel fim qualquer coisa`, a avaliação será falsa já que o texto analisado será `inicio casa de papel fim`.
+
 ### Exemplo de configuração de sinônimos
 
 * ao encontrar um termo no texto analisado, os sinônimos são mapeados como se fossem esse termo
