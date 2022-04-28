@@ -147,11 +147,13 @@ Esse operador foi criado para recortar o texto (manter o texto) entre dois termo
 Como usar o operador `recortar(texto_inicial;texto_final)`:
 - `$` - início/fim de palavra ou texto
 - `#` - quebra de linha ou início/fim de texto
+- pode-se usar o `?` ao final do delimitador para indicar que ele é opcional.
 
 <b>Exemplos de uso do recortar:</b>
 - <b>recortar(#resumo#;#metodologia#)</b>: mantém apenas o texto entre `\nresumo\n` e `\nmetodologia\n`<br>
 - <b>recortar(#formulario$;)</b>: mantém apenas o texto após `\nformulario` até o final do texto`<br>
 - <b>recortar(;#resumo#)</b>: mantém apenas o texto do início até o texto `\nresumo\n`<br>
+- <b>recortar(#resumo#?;#metodologia#)</b>: mantém apenas o texto entre `\nresumo\n` e `\nmetodologia\n`. Não encontrando `\nresumo\n`, mantém o texto do início até `\nmetodologia\n`<br>
 
 <b>Exemplos de uso dentro dos critérios de pesquisa:</b>
 - `seriado casa adj2 papel recortar($inicio$;$fim$)'
