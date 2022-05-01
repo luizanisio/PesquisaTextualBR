@@ -14,5 +14,6 @@
     {"texto": "casa termo1 termo2 termo3 termo4 termo100 de termo5 termo6 termo77 papel", "criterios": "casa adj2 papel remover(termo&??)"},
     {"texto": "teste remocao de trecho ate quebra de linha \n  exemplo 'usando' e 'testando'", "criterios": "teste adj2 exemplo nao usando nao testando remover(remoc*##) remover('usando') remover('te*ndo') "},
     {"texto": "teste de regex para esse texto  CPF: 123.123.123-12 CNPJ: 03.778.130/0001-11 ", "criterios": "r:<CPF>|<CNPJ>"},
-    {"texto": "teste com varias paginas, essa e a numero 1<<pg>>ja essa a numero 2<<pg>>e essa a numero 3", "criterios": "r:numero \\d+\\b"}
+    {"texto": "teste com varias paginas, essa e a numero 1<<pg>>ja essa a numero 2<<pg>>e essa a numero 3", "criterios": "r:numero \\d+\\b"},
+    {"texto": "remover e recortar inicio teste 123 456 789 fim e outro inicio teste 123 456 789 fim e inigrupo1 12 34 56 78 90 fimgrupo1", "criterios": "teste adj 456 recortar($inicio$;$fim$) recortar($inigrupo1$;$fimgrupo1$) remover(12?) "}
 ]}

@@ -3,7 +3,7 @@ import unittest
 
 # https://www.datacamp.com/community/tutorials/making-http-requests-in-python?utm_source=adwords_ppc&utm_campaignid=1455363063&utm_adgroupid=65083631748&utm_device=c&utm_keyword=&utm_matchtype=b&utm_network=g&utm_adpostion=&utm_creative=278443377095&utm_targetid=aud-299261629574:dsa-429603003980&utm_loc_interest_ms=&utm_loc_physical_ms=1001541&gclid=CjwKCAiAxKv_BRBdEiwAyd40N_nVtlAEzbZkyYk-7fWaGjt6giO0CWYEeaKKa2bGoes1E4xUXQGDwhoCtNcQAvD_BwE
 
-from pesquisabr import PesquisaBRTestes, PesquisaBR, TESTES_GRIFAR, TESTES_CABECALHO_RODAPE
+from pesquisabr import PesquisaBRTestes, PesquisaBR, TESTES_GRIFAR, TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER
 from app_config import PATH_URL_API
 # cria um smart_request mais resiliente a falhas pois o teste pode sobrecarregar o serviço
 import requests
@@ -374,6 +374,21 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
             #print('Esperado: ', esperado)
             #print('Rótulo  : ', rotulos)
             self.assertEqual(esperado, rotulos)  
+
+    def testes_remover(self):
+        for i, teste in enumerate(TESTE_COM_REMOVER):
+            with self.subTest(f'Critério Remover() {i+1}'):
+                 dados = {"texto": teste['texto'], "detalhar": 1, "extrair" : 0, 
+                          'rodando-testes' : 1, 'criterio' : teste['criterio']}
+            r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json = dados)
+            esperado = teste.get('texto_limpo','').replace('\n','<br>')
+            retornado = r.get('texto', '').replace('\n','<br>')
+            #print('Esperado: ', esperado)
+            if esperado != retornado:
+               print('Esperado: ', f'|{esperado}|')
+               print('Retornado: ', f'|{retornado}|')
+            #print('Rótulo  : ', rotulos)
+            self.assertEqual(esperado, retornado)
 
 REGRAS_TESTES = [
     {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},

@@ -10,8 +10,14 @@ PATH_API = '/'
 PATH_URL = 'http://localhost:8000'
 PATH_URL_API = f'{PATH_URL}{PATH_API}'
 
+import os
+import json
+ARQ_CONFIG = './config.json'
+CONFIG = {}
+TEMPO_CACHE_SEGUNDOS = 0
+
 ###################################################################
-# configurações do serviço
+# configurações do serviço 
 def carregar_config():
     global CONFIG, TEMPO_CACHE_SEGUNDOS
     _config = {}
@@ -44,4 +50,15 @@ UtilExtracaoRe.PRONTOS.update(novos_prontos)
 # pode-se criar um tipo personalizado carregando do banco ou de onde for necessário
 from regras_model import RegrasModelArquivo
 obj_regras_model = RegrasModelArquivo()
+
+###################################################################################
+# dicionário do PesquisaBR
+from pesquisabr import PesquisaBR
+# para termos simples
+# se eu pesquisar "alegre", é o mesmo que pesquisar (feliz ou sorridente)
+PesquisaBR.SINONIMOS = {'alegre': ['feliz','sorridente']}
+# para termos compostos
+# se eu pesquisar entre aspas "instituto nacional de seguridade social", é o mesmo que pesquisar "inss"
+# se eu pesquisar entre aspas "inss", é o mesmo que pesquisar entre aspas "instituto nacional de seguridade social"
+PesquisaBR.TERMOS_EQUIVALENTES = {"inss" : ['instituto nacional de seguridade social','previdencia social oficial']}
 
