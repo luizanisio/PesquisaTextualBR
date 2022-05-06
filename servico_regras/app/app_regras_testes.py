@@ -82,18 +82,18 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         r = self.limpa_request(r)
         esperado = { "criterios": "esse\\W.*12$",
                      "retorno": True,
-                     'extracao': [{'fim': 14, 'inicio': 0, 'texto': 'esse oficio 12'}],
+                     'extracao': [{'fim': 14, 'inicio': 0, 'texto': 'esse ofício 12'}],
                      "texto": "esse oficio 12" }
         self.assertDictEqual(r, esperado)
 
     def teste_regras(self):
-        dados = {"texto": "esse ofício 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois são vários testes três com o oficio número 5.174", 
+        dados = {"texto": "esse ofício 12 texto tem umas receitas de pão e de bolos legais 123 456 um dois são vários testes três com o ofício número 5.174", 
                  "detalhar":0, "extrair" : 1, 'rodando-testes' : 1, 
                  "tags":"teste", 'regras_externas' : REGRAS_TESTES}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_regras',json = dados)
         r = self.limpa_request(r)
-        esperado = { "extracoes": [{"fim": 14, "inicio": 5, "texto": "oficio 12" },
-                                   {"fim": 41, "inicio": 22, "texto": "oficio numero 5.174"},
+        esperado = { "extracoes": [{"fim": 14, "inicio": 5, "texto": "ofício 12" },
+                                   {"fim": 41, "inicio": 22, "texto": "ofício número 5.174"},
                                    {"fim": 96, "inicio": 91, "texto": "teste"}], 
                      "rotulos": [ "oficio", "teste regex", "teste" ] }
         self.assertDictEqual(r, esperado)
@@ -109,7 +109,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertDictEqual(r, esperado)
 
     def teste_criterio_dict(self):
-        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante numero123", "b": "segundo"}, 
+        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante número123", "b": "segundo"}, 
                  "criterio": "(casa papel) e segund$.b.", "detalhar": 1}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
         r = self.limpa_request(r, manter=['texto_analise'])
@@ -119,7 +119,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                     "texto": {
                         "A": "a casa de papel e um seriado bem interessante numero 123",
                         "B": "segundo"  },
-                    "texto_analise": {'a': 'a casa de papel é um seriado bem interessante numero123',
+                    "texto_analise": {'a': 'a casa de papel é um seriado bem interessante número123',
                                       'b': 'segundo'}
                     }
         # facilita a visualização do erro separar em duas análises
@@ -132,7 +132,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertDictEqual(r, esperado)
 
     def teste_criterio_dict_regex(self):
-        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante numero123", "b": "segundo texto da casa sem papel"}, 
+        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante número123", "b": "segundo texto da casa sem papel"}, 
                  "criterio": "r:casa.{1,20}papel", "detalhar": 1, "grifar" : 1}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
         r = self.limpa_request(r, manter=['texto_analise'])
@@ -142,9 +142,9 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                      "retorno": True,
                      "texto": {"a": "a casa de papel e um seriado bem interessante numero123",
                                "b": "segundo texto da casa sem papel"  },
-                    "texto_analise": {'a': 'a casa de papel é um seriado bem interessante numero123',
+                    "texto_analise": {'a': 'a casa de papel é um seriado bem interessante número123',
                                       'b': 'segundo texto da casa sem papel'},
-                    'texto_grifado': {'a': 'a <mark>casa de papel</mark> e um seriado bem interessante numero123',
+                    'texto_grifado': {'a': 'a <mark>casa de papel</mark> é um seriado bem interessante número123',
                                       'b': 'segundo texto da <mark>casa sem papel</mark>'},
                      "retorno": True
                     }
@@ -158,7 +158,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertDictEqual(r, esperado)
 
     def teste_criterio_list_regex(self):
-        dados = {"texto": ["a casa de papel é um seriado bem interessante numero123", "segundo texto da casa sem papel"], 
+        dados = {"texto": ["a casa de papel é um seriado bem interessante número123", "segundo texto da casa sem papel"], 
                  "criterio": "r:casa.{1,20}papel", "detalhar": 1, "grifar" : 1}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
         r = self.limpa_request(r, manter=['texto_analise'])
@@ -167,8 +167,8 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                                   {'fim': 31, 'inicio': 17, 'texto': 'casa sem papel', 'pagina': 2}],
                      "retorno": True,
                      "texto": ["a casa de papel e um seriado bem interessante numero123", "segundo texto da casa sem papel"],
-                     "texto_analise": ["a casa de papel é um seriado bem interessante numero123", "segundo texto da casa sem papel"],
-                     'texto_grifado': ['a <mark>casa de papel</mark> e um seriado bem interessante numero123',
+                     "texto_analise": ["a casa de papel é um seriado bem interessante número123", "segundo texto da casa sem papel"],
+                     'texto_grifado': ['a <mark>casa de papel</mark> é um seriado bem interessante número123',
                                        'segundo texto da <mark>casa sem papel</mark>'],
                      "retorno": True
                     }
@@ -182,7 +182,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertDictEqual(r, esperado)
 
     def teste_criterio_list_pesquisa(self):
-        dados = {"texto": ["a casa de papel é um seriado bem interessante numero123", "segundo texto da casa sem papel"], 
+        dados = {"texto": ["a casa de papel é um seriado bem interessante número123", "segundo texto da casa sem papel"], 
                  "criterio": "casa adj2 papel sem adj papel", "detalhar": 1, "grifar" : 1}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
         r = self.limpa_request(r, manter=['texto_analise'])
@@ -191,9 +191,9 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                     "retorno": True,
                     "texto": ["a casa de papel e um seriado bem interessante numero 123",
                               "segundo texto da casa sem papel"],
-                    "texto_analise": ["a casa de papel é um seriado bem interessante numero123",
+                    "texto_analise": ["a casa de papel é um seriado bem interessante número123",
                                       "segundo texto da casa sem papel"],
-                    "texto_grifado": ["a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante numero123",
+                    "texto_grifado": ["a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante número123",
                                       "segundo texto da <mark>casa</mark> <mark>sem</mark> <mark>papel</mark>"]
                 }
         # facilita a visualização do erro separar em duas análises
@@ -207,7 +207,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertDictEqual(r, esperado)
 
     def teste_criterio_dict_pesquisa(self):
-        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante numero123", "b": "segundo texto da casa sem papel"}, 
+        dados = {"texto": {"a": "a casa de papel é um seriado bem interessante número123", "b": "segundo texto da casa sem papel"}, 
                  "criterio": "casa adj2 papel sem adj papel", "detalhar": 1, "grifar" : 1}
         r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json= dados)
         r = self.limpa_request(r, manter=['texto_analise','criterios_analise'])
@@ -218,10 +218,10 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                          "A": "a casa de papel e um seriado bem interessante numero 123",
                          "B": "segundo texto da casa sem papel" },
                      "texto_analise": {
-                         "a": "a casa de papel é um seriado bem interessante numero123",
+                         "a": "a casa de papel é um seriado bem interessante número123",
                          "b": "segundo texto da casa sem papel" },
                      "texto_grifado": {
-                         "a": "a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante numero123",
+                         "a": "a <mark>casa</mark> de <mark>papel</mark> é um seriado bem interessante número123",
                          "b": "segundo texto da <mark>casa</mark> <mark>sem</mark> <mark>papel</mark>" },
                      "retorno": True
                     }
@@ -242,6 +242,10 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         self.assertTrue(r.get('ok'))
         r = smart_request_get_post(f'{PATH_URL_API}health')
         self.assertTrue(r.get('ok'))
+        dados = {"texto": "teste limpar cache", 
+                 "detalhar":0, "extrair" : 0, 'rodando-testes' : 1, "tags":"teste", "modo_teste": 1}
+        r = smart_request_get_post(f'{PATH_URL_API}analisar_regras',json = dados)
+        self.assertTrue(r.get('cache_limpo'))
 
     def testes_completos_classe_pesquisabr(self):
         for i, e in enumerate(PesquisaBRTestes.testes_basicos(self.TESTE_RESUMIDO)):
@@ -336,7 +340,7 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                          "retorno": True,
                          "texto": "esse teste e simples 123,45 123.123 simples",
                          "texto_analise": "esse teste é simples 123,45 123.123 simples",
-                         "texto_grifado": "<mark>esse</mark> <mark>teste</mark> e <mark>simples</mark> 123,45 123.123 <mark>simples</mark>"
+                         "texto_grifado": "<mark>esse</mark> <mark>teste</mark> é <mark>simples</mark> 123,45 123.123 <mark>simples</mark>"
                        }
             # facilita a visualização do erro separar em duas análises
             self.assertEqual(r['texto'], esperado['texto'])

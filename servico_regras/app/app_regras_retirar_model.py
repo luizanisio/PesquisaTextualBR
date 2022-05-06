@@ -15,7 +15,7 @@ from datetime import datetime
 import re 
 
 # configuração de caminho para o componente
-from pesquisabr import PesquisaBR, RegrasPesquisaBR
+from pesquisabr import PesquisaBR, RegrasPesquisaBR, UtilExtracaoRe
 
 app = Flask(__name__, template_folder='./templates')
 bootstrap  = Bootstrap(app)
@@ -311,9 +311,10 @@ def testar_criterios():
         _tempo = ''
         # verifica critérios de remoção
         rpbr = RegrasPesquisaBR()
-        texto_r, criterios_r = rpbr.remover_texto_criterio(texto = texto_analise, criterios = texto_criterio )
+        texto_processado = UtilExtracaoRe.processar_texto(texto_analise)
+        texto_r, criterios_r, _ = rpbr.remover_texto_criterio(texto = texto_processado, criterios = texto_criterio )
         criterio_raw = texto_criterio
-        texto_raw = texto_analise
+        texto_raw = texto_analise # apra retornar na tela
         if texto_r:
             texto_analise, texto_criterio = texto_r, criterios_r
         # verifica os critérios no texto

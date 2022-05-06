@@ -8,7 +8,7 @@ from copy import deepcopy
 from flask import Flask, jsonify, request, render_template
 from flask import render_template_string, redirect, url_for, Markup
 
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4 #Bootstrap
 from jinja2 import TemplateNotFound
 
 import os
@@ -26,7 +26,7 @@ from regras_controller_aplicar import analisar_criterios, get_dados_health, anal
 EM_DEBUG = os.path.isfile('debug.txt')
 
 app = Flask(__name__, template_folder='./templates')
-bootstrap  = Bootstrap(app)
+bootstrap  = Bootstrap4(app)
 
 ###################################################################
 # converte request ou dados para dict 
@@ -59,7 +59,15 @@ def get_health():
 @app.route(f'{PATH_API}analisar_regras', methods=['GET','POST'])
 def srv_analisar_regras():
     dados = get_post(request)
+    # no modo teste ou pedido de limpeza de cache, 
+    # o cache é limpo pois pode ter alterações nas regras
+    cache_limpo = False
+    if dados.get('modo_teste') or dados.get('limpar_cache'):
+       limpar_cache_regras()
+       cache_limpo = True
     retorno = analisar_regras(dados)
+    if cache_limpo:
+        retorno['cache_limpo'] = True    
     return jsonify( retorno )
 
 ###################################################################
@@ -114,7 +122,7 @@ def testar_regras():
                if 'extracoes' in reg and any(reg['extracoes']):
                    contem_trechos_extraidos = True
                    #trechos_extraidos.append(json.dumps(reg['extracoes']))
-                   trechos_extraidos.extend([json.dumps(_) for _ in reg['extracoes']])
+                   trechos_extraidos.extend([json.dumps(_, ensure_ascii=False) for _ in reg['extracoes']])
 
         trechos_extraidos = '<br>'.join(trechos_extraidos)
         #print('EXTRACOES: ', contem_trechos_extraidos, trechos_extraidos)
@@ -182,7 +190,7 @@ def testar_criterios():
             retorno = {}
         exemplos_com_criterios = [_ for _ in get_exemplo() if _.get('criterios')]
         contem_trechos_extraidos = any(retorno.get('extracao', []))
-        trechos_extraidos = [json.dumps(_) for _ in retorno.get('extracao', [])]
+        trechos_extraidos = [json.dumps(_,ensure_ascii=False) for _ in retorno.get('extracao', [])]
         trechos_extraidos = '<br>'.join(trechos_extraidos)
 
         if _tem_marcador_paginas:

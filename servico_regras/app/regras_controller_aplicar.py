@@ -14,10 +14,10 @@ from regras_util import lista_regras_corrigir_tags
 ###################################################################
 # retorno dos dados do health
 def get_dados_health():
-    criterios = 'casas ADJ2 papeis PROX10 legal PROX10 seriado remover(teste)'
-    texto = 'a casa teste teste de teste teste papel teste é teste um teste seriado muito legal'
+    criterios = 'casas ADJ2 papeis PROX10 legal PROX10 seriado nao teste nao bla remover(teste) recortar(inicio;fim)'
+    texto = 'bla bla bla inicio a casa teste teste de teste teste papel teste é teste um teste seriado muito legal fim bla bla bla'
     pbr = RegrasPesquisaBR()
-    texto_r, criterios_r = pbr.remover_texto_criterio(texto, criterios)
+    texto_r, criterios_r, _ = pbr.remover_texto_criterio(texto, criterios)
     if texto_r:
         texto = texto_r 
         criterios = criterios_r
@@ -126,34 +126,4 @@ def analisar_criterios(dados, front_end = False):
        res['rodando-testes'] = True
     obj_regras_model.conversao_retorno(res)
     return res
-
-def analisar_criterio_remover_trechos(texto, criterios):
-    if not (RegrasPesquisaBR.RE_REMOVER.search(criterios) or RegrasPesquisaBR.RE_REMOVER_ASPAS.search(criterios)):
-        #print('nenhum critério especial')
-        return texto, criterios
-    # remoção de trechos e aspas - caso receba os critérios especiais
-    # há um processamento extra de processamento do texto que pode ser otimizado futuramente
-    rpbr = RegrasPesquisaBR()
-    # verifica o número de aspas, se for ímpar, ignora a remoção de aspas.
-    if (texto.count('"') % 2 == 1) or (texto.count("'") % 2 ==1):
-        _texto = texto.replace('"',' ').replace("'",' ')
-    else:
-        _texto = texto
-    # verifica se existe critério de remoção de aspas do texto original
-    _texto_sem_aspas, _ = rpbr.remover_texto_aspas(_texto,criterios)
-    _texto = _texto if _texto_sem_aspas is None else _texto_sem_aspas
-    # remove trechos do texto processado
-    pb = PesquisaBR(texto=_texto)
-    _texto = pb.texto #' '.join(pb.tokens_texto)
-    _texto_removido, _criterios_removido = rpbr.remover_texto_criterio(_texto, criterios)
-    '''
-    print('Remoção de trechos: ')
-    print(f'\t critérios:  {criterios}')
-    print(f'\t critérios com remoção: {_criterios_removido}')
-    print(f'\t texto: ', texto)
-    print(f'\t novo : ', _texto_removido)
-    '''
-    if _texto_removido or _criterios_removido:
-        return _texto_removido, _criterios_removido
-    return _texto, criterios
 
