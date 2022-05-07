@@ -6,16 +6,16 @@
 	<div class="card">
     	<div class="card-header text-info font-weight-bold">Avaliação de critério de pesquisa</div>
 		<div class="card-body">
-            <b>POST:</b> /api/ia-regras/analisar_criterio
+            <b>POST:</b> {{ api }}analisar_criterio
             <div class="card bg-light text-info font-weight-bold"><code>
                 {"texto": "esse é um texto legal", "criterio": " texto PROX10 legal", "detalhar": "1", "grifar": 1}
             </code></div>
             <b>Retorno</b>
-            <div class="card bg-light"><code>
+            <div class="card bg-light"><code><pre>
                 { "criterios": "texto PROX10 legal", "criterios_aon": "texto AND legal", "retorno": true, 
                   "texto": "esse e um texto legal",
-                  "texto_grifado": "retorna o texto com tags de highlight nos termos pesquisados" }
-            </code></div>
+                  "texto_grifado": "retorna o texto com tags de highlight nos termos pesquisados" }</pre></code>
+            </div>
             <b>Tipos de regras:</b>
             <div class="card bg-light">
                 BRS: usando operadores E, OU, NÃO, ADJ, COM, PROX<code>texto PROX10 legal</code>
@@ -26,12 +26,12 @@
 
         <div class="card-header text-info font-weight-bold">Avaliação de regras</div>
 		<div class="card-body">
-            <b>POST:</b> /api/ia-regras/analisar_regras
+            <b>POST:</b> {{ api }}analisar_regras
             <div class="card bg-light"><code>
                 {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo."} 
             </code></div>
             <b>Retorno</b>
-            <div class="card bg-light"><code>
+            <div class="card bg-light"><code><pre>
                 {  "regras": [
                         {
                             "desc_regra": "Decreto de Sigilo",
@@ -44,50 +44,67 @@
                             "seq_alvo": 2,
                             "seq_grupo_regra": 10,
                             "seq_regra": 91
-                        }] }
-            </code></div>
+                        }] }</pre></code>
+            </div>
         </div>
 
         <div class="card-header text-info font-weight-bold">Avaliação de regras com filtros de tags</div>
 		<div class="card-body">
-            <b>POST:</b> /api/ia-regras/analisar_regras
+            <b>POST:</b> {{ api }}analisar_regras
             <div class="card bg-light"><code>
-                {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo."
-                 "seq_grupo_regra": 5, 
-                 "seq_local" : 671,
-                 "primeiro_do_grupo" : True}
+                {"texto": "Oficio n. 345 de 01/02/2021 teste", 
+                 "detalhar":0, "primeiro_do_grupo" : false, "grupo" : "grupo_oficio"}
             </code></div>
             <b>Retorno</b>
-            <div class="card bg-light"><code>
-                {  "regras": [
+            <div class="card bg-light">
+            <code><pre>
+                {   "analisar-regras": true,
+                    "extracoes": [
                         {
-                            "desc_regra": "Decreto de Sigilo",
-                            "seq_alvo": 2,
-                            "seq_grupo_regra": 5,
-                            "seq_regra": 58
-                        }] }
-            </code></div>
+                            "fim": 27,
+                            "inicio": 0,
+                            "texto": "Oficio n. 345 de 01/02/2021"
+                        }
+                    ],
+                    "front-end": false,
+                    "rotulos": [
+                        "oficio"
+                    ],
+                    "tempo": 0.0}</pre></code>
+            </div>
+        </div>
+
+        <div class="card-header text-info font-weight-bold">Interceptando entrada e saída de dados do serviço</div>
+		<div class="card-body">
+            <p>É possível criar uma classe para tratar os dados que chegam e que saem do serviço para ajustá-los à necessidade de cada cenário.</p>
+            <p>A interceptação ocorre quando o serviço recebe uma requisição e quando o serviço retorna os dados de uma chamada. Há também a possibilidade de sobrescrever o método de carga dos dados para carregar as regras de um banco de dados.</p>
+            <a href="https://github.com/luizanisio/PesquisaTextualBR/tree/master/servico_regras#configurando-o-servi%C3%A7o" target="_blank"><i class="fas fa-info-circle"></i> Clique e saiba mais...</a>
         </div>
 
         <div class="card-header text-info font-weight-bold">Limpar o cache e recarregar as regras</div>
 		<div class="card-body">
-            <b>GET:</b> /api/ia-regras/cache
+            <b>GET:</b> {{ api }}cache
             <br><b>Retorno</b>
-            <div class="card bg-light"><code>
+            <div class="card bg-light"><code><pre>
                 {  "msg": "cache das regras reiniciado, 61 regras recarregadas e 0 ignoradas por erro de construção", 
                    "ok": true, "erro": false
-                  }
-            </code></div>
+                  }</pre></code></div>
             <p><i>O cache é mantido por 5 minutos.</i></p>
         </div>
 
         <div class="card-header text-info font-weight-bold">Identificação das regras com erro</div>
 		<div class="card-body">
-            <b>GET:</b> /api/ia-regras/regras_erro
+            <b>GET:</b> {{ api }}regras_erro
             <br><b>Retorno</b>
-            <div class="card bg-light"><code>
-                [{"erro":"Parênteses aberto e não fechado","filtro_tipo":"erro","grupo":"grupo_erro","ordem":0,"qtd_cabecalho":0,"qtd_rodape":0,"regra":"regra nao (nao","rotulo":"teste erro regra","tags":""},{"erro":"unknown extension ?) at position 2","filtro_tipo":"erro","grupo":"grupo_erro","ordem":0,"qtd_cabecalho":0,"qtd_rodape":0,"regra":"r: (?)","rotulo":"teste erro regex","tags":""}]
-            </code></div>
+            <div class="card bg-light"><code><pre>
+                [{"erro":"Parênteses aberto e não fechado",
+                  "filtro_tipo":"erro", "grupo":"grupo_erro",
+                  "ordem":0, "qtd_cabecalho":0, "qtd_rodape":0,
+                  "regra":"regra nao (nao","rotulo":"teste erro regra","tags":""},
+                  {"erro":"unknown extension ?) at position 2", "filtro_tipo": "erro", "grupo": "grupo_erro", 
+                   "ordem":0, "qtd_cabecalho":0, "qtd_rodape":0, "regra": "r: (?)",
+                   "rotulo":"teste erro regex","tags":""}]</pre></code>
+                </div>
         </div>
                 
         <div class="card-header text-info font-weight-bold">Regras do exemplo (arquivo regras.json)</div>
@@ -100,7 +117,7 @@
             <li><b>qtd_rodape</b>: a regra é aplicada no final do texto, do caracter da posição informada até o fim</li>
             <li><b>qtd_cabecalho</b> e *qtd_rodape</b>: a regra é aplicada removento o miolo do texto de qtd_cabecalho até qtd_rodape</li>
             </ul>
-            <div class="card bg-light"><pre><code>
+            <div class="card bg-light"><code><pre>
                 {"regras": [
                 {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
                 {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+", "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20, "filtro_tipo" : "grupo"},
@@ -109,9 +126,8 @@
                 {"grupo" : "grupo_multi", "rotulo": "multi2", "regra": "R:multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 1},
                 {"grupo" : "grupo_multi", "rotulo": "multi1", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 0},
                 {"grupo" : "grupo_multi", "rotulo": "multi3", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 3}
-             ]
-            }                
-            </code></pre></div>
+             ]   }</pre></code>
+            </div>
         <p><i>Outras chaves podem ser adicionadas e usadas como filtro no serviço</i></p>
     </div>
 
