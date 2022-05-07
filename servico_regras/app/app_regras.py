@@ -250,7 +250,8 @@ def regras_com_erro():
 def exemplos():
     return render_template("exemplos_servico.html", 
                 title = "PesquisaBR: Exemplos de uso do serviço",
-                ativo_exemplos='active')
+                ativo_exemplos='active',
+                api = PATH_API)
 
 ###################################################################
 # retorna o texto quebrado pelas páginas ou como foi recebido
