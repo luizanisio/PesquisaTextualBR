@@ -4,7 +4,7 @@
     {"grupo" : "receitas_pao", "rotulo": "Receita de Pao", "regra": "receita PROX15 pao", "tags": "receita pao", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "receita"},
     {"grupo" : "grupo_teste", "rotulo": "teste", "regra": "teste", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
     {"grupo" : "grupo_regex", "rotulo": "teste regex", "regra": "r:teste|testar?", "tags": "teste", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "grupo"},
-    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+", "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20, "filtro_tipo" : "grupo"},
+    {"grupo" : "grupo_oficio", "rotulo": "oficio", "regra": "r:oficio\\s?(n.{0,10})?\\d+([/-]\\d+)?([/-]\\d+)?", "tags": "teste oficio", "qtd_cabecalho":20, "qtd_rodape":20, "filtro_tipo" : "grupo"},
     {"grupo" : "grupo_erro", "rotulo": "teste erro regra", "regra": "regra nao (nao" , "filtro_tipo" : "erro"},
     {"grupo" : "grupo_erro", "rotulo": "teste erro regex", "regra": "r: (?)" , "filtro_tipo" : "erro"},
     {"grupo" : "grupo_aspas_termo", "rotulo": "teste aspas termo", "regra": "usando nao testando remover('testando')" , "filtro_tipo" : "grupo"},
