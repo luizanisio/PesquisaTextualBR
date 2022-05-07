@@ -30,35 +30,38 @@
 </head>
 <body>
 {% block content %}
-<a class="btn btn-secondary" href="https://github.com/luizanisio/PesquisaTextualBR" title="Documentação sobre o componente de pesquisa textual"><i class="far fa-lightbulb"></i> PesquisaBR</i></a>
+<div class="container">
+	<small><a class="btn btn-outline-info btn-sm" href="https://github.com/luizanisio/PesquisaTextualBR#pesquisa-textual-em-documentos" title="Documentação sobre o componente de pesquisa textual" target="_blanck"><i class="far fa-lightbulb"></i> PesquisaTextualBR</i></a></small>
 
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link {{ ativo_criterios }}" href="{{ url_for('testar_criterios') }}"><b>Teste de aplicação de critérios de pesquisa</b></a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {{ ativo_regras }}" href="{{ url_for('testar_regras') }}"><b>Teste de aplicação de regras</b></a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {{ ativo_exemplos }}" href="{{ url_for('exemplos') }}"><b>Usando o serviço</b></a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {{ ativo_erros }}" href="{{ url_for('regras_com_erro') }}"><b>Regras com erro</b></a>
-  </li>
+	<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link {{ ativo_criterios }}" href="{{ url_for('testar_criterios') }}"><b>Teste de aplicação de critérios de pesquisa</b></a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ativo_regras }}" href="{{ url_for('testar_regras') }}"><b>Teste de aplicação de regras</b></a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ativo_exemplos }}" href="{{ url_for('exemplos') }}"><b>Usando o serviço</b></a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ativo_erros }}" href="{{ url_for('regras_com_erro') }}"><b>Regras com erro</b></a>
+	</li>
 
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Exemplos</a>
-    <div class="dropdown-menu">
-		{% for e in exemplos_criterios %}		
-   		   <a class="dropdown-item" href="{{ url_for('testar_criterios', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
-		{% endfor %}		
-		{% for e in exemplos_regras %}		
-   		   <a class="dropdown-item" href="{{ url_for('testar_regras', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
-		{% endfor %}		
-    </div>
-  </li>
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Exemplos</a>
+		<div class="dropdown-menu">
+			{% for e in exemplos_criterios %}		
+			<a class="dropdown-item" href="{{ url_for('testar_criterios', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
+			{% endfor %}		
+			{% for e in exemplos_regras %}		
+			<a class="dropdown-item" href="{{ url_for('testar_regras', exemplo=e.get('n')) }}">{{ e.get('rotulo','Sem texto') }}</a>
+			{% endfor %}		
+		</div>
+	</li>
 
-</ul>
+	</ul>
+
+</div>
 
 {% endblock content %}
 

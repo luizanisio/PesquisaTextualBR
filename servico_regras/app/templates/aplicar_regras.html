@@ -2,36 +2,15 @@
 
 {% block content %}
 {{ super() }}
+  <div class="container">
 	<!-- Form -->
 	<form class="text-center" style="color: #757575;" action="{{ url_for('testar_regras') }}" method="post" enctype = "multipart/form-data">
-	<!-- Modal -->
-	<div class="modal fade" id="enviopdfmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-			<h5 class="modal-title" id="exampleModalCenterTitle">Arquivo PDF/TXT</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			</button>
-			</div>
-			<div class="modal-body">
-   			     <input type = "file" name = "pdf" /><input type = "submit"/>
-			</div>
-			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-			</div>
-		</div>
-		</div>
-	</div>
-	<!-- Modal -->
 
 	<div class="card">
 	  <!--Card content-->
 	  <div class="card-body px-lg-5 pt-0">
 	    <div class="card">
-			<div class="card-header">Texto a ser analisado
-				<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#enviopdfmodal"><small>Arquivo</small></button>
-			</div>
+			<div class="card-header">Texto a ser analisado - {% include "enviar_arquivo.html" %}</div>
 			<div class="card-body">
 				
 					<div class="form-group shadow-textarea">
@@ -101,5 +80,6 @@
 	  </div>
 
 	</div>
+  </div>
 
 {% endblock content %}

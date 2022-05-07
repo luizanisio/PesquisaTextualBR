@@ -1,0 +1,58 @@
+	<!-- Modal -->
+	<div class="modal fade" id="dicaspesquisamodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+            <a href="https://github.com/luizanisio/PesquisaTextualBR#conectores-ou-operadores-de-pesquisa" target="_blank"><i class="fas fa-info-circle"></i> Pesquisa Textual - clique e saiba mais...</a>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+                <table class="table table-hover table-sm small">
+                    <thead>
+                     <tr><th>Operador</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                     <tr><td>E, OU, NAO</td><td>Operadores simples</td></tr>
+                     <tr><td>ADJn, ADJCn</td><td>n termos adjacentes (c=no mesmo parágrafo)</td></tr>
+                     <tr><td>PROXn, PROXCn</td><td>n termos próximos (c=no mesmo parágrafo)</td></tr>
+                     <tr><td>COM, COMn</td><td>no mesmo parágrafo (n parágrafos seguintes)</td></tr>
+                     <tr><td>$ ?</td><td>curingas de pesquisa ($ vários caracters opcionais, ? um caractere opcional)</td></tr>
+                     <tr><td>Exemplo:</td><td>solicito ADJc4 envi$ ADJ ?a (carta OU documento)</td></tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-hover table-sm small">
+                    <thead>
+                     <tr><th>Regex</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                     <tr><td>r:expressão</td><td>iniciando a pesquisa com r: indica que o restante é uma expressão regular (regex)</td></tr>
+                     <tr><td>r:teste</td><td>localiza e extrai o termo teste no texto</td></tr>
+                     <tr><td>Expressões prontas</td><td>TERMO, FIMTERMO, CPF, CNPJ</td></tr>
+                     <tr><td>r:&lt;CPF&gt;|\bcpf\b</td><td>Segundo o <u>CPF</u> do João <u>123.456.789-00</u></td></tr>
+                     <tr><td>r:particul&lt;FIMTERMO&gt;&lt;TERMO&gt;{0,10}venda</td><td>Documento <u>particular de compra e venda</u> de imóvel</td></tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-hover table-sm small">
+                    <thead>
+                     <tr><th>Manipulando o texto</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                     <tr><td>Remover(termos...)</td><td>remove trechos do texto antes de pesquisar no texto</td></tr>
+                     <tr><td>Recortar(inicio;fim)</td><td>recorta trechos do texto entre os delimitadores para pesquisar apenas neles</td></tr>
+                     <tr><td>remover(esse*removido)</td><td>remover trechos iniciados com "esse" até "removido"</td></tr>
+                     <tr><td>recortar(#titulo$;#resumo$)</td><td>recorta trechos iniciados por título.... até resumo...</u></td></tr>
+                    </tbody>
+                </table>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+		</div>
+	</div>
+    <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#dicaspesquisamodal"><small><i class="fas fa-info-circle"></i> Dicas</small></button>
+	<!-- Modal -->

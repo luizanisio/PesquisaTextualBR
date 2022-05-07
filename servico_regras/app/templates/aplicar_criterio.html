@@ -3,106 +3,89 @@
 {% block content %}
 {{ super() }}
 	<!-- Form -->
-	<form class="text-center" style="color: #757575;" action="{{ url_for('testar_criterios') }}" method="post" enctype = "multipart/form-data">
-	<!-- Modal -->
-	<div class="modal fade" id="enviopdfmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-			<h5 class="modal-title" id="exampleModalCenterTitle">Arquivo PDF/TXT</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			</button>
-			</div>
-			<div class="modal-body">
-   			     <input type = "file" name = "pdf" /><input type = "submit"/>
-			</div>
-			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-			</div>
-		</div>
-		</div>
-	</div>
-	<!-- Modal -->
-	
-	<div class="card">
-	  <!--Card content-->
-	  <div class="card-body px-lg-5 pt-0">
-	    <div class="card">
-			<div class="card-header">Texto a ser analisado
-				<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#enviopdfmodal"><small>Arquivo</small></button>
-			</div>
-			<div class="card-body">
-					<div class="form-group shadow-textarea">
-					  <textarea class="form-control z-depth-1" name="texto" id="texto" rows="4" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto }}</textarea>
+	<div class="container">
+		<form class="text-center" style="color: #757575;" action="{{ url_for('testar_criterios') }}" method="post" enctype = "multipart/form-data">
+		
+				<div class="card">
+				<!--Card content-->
+				<div class="card-body px-lg-5 pt-0">
+					<div class="card">
+						<div class="card-header">Texto a ser analisado - {% include "enviar_arquivo.html" %}</div>
+						<div class="card-body">
+							<div class="form-group shadow-textarea">
+								<textarea class="form-control z-depth-1" name="texto" id="texto" rows="4" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto }}</textarea>
+							</div>
+						</div>
+						<div class="card-header">Critério de pesquisa - {% include "ajuda_pesquisa.html" %}</div>
+						<div class="card-body">
+							<div class="form-group shadow-textarea">
+								<textarea class="form-control z-depth-1" name="criterios" id="criterios" rows="2" placeholder="Critérios de pesquisa. Exemplo: casa ADJ2 papel">{{ criterios }}</textarea>
+							</div>
+							<!-- Analisar -->
+							<input type="submit" class="btn btn-primary" value="Analisar critério">
+						</div>
 					</div>
-			</div>
-			<div class="card-header">Critério de pesquisa</div>
-			<div class="card-body">
-					<div class="form-group shadow-textarea">
-					  <textarea class="form-control z-depth-1" name="criterios" id="criterios" rows="2" placeholder="Critérios de pesquisa. Exemplo: casa ADJ2 papel">{{ criterios }}</textarea>
-					</div>
-					<!-- Analisar -->
-					<input type="submit" class="btn btn-primary" value="Analisar critério">
 				</div>
-		</div>
+
+				<!-- Form -->
+				{% if erros != '' %}
+					<div class="alert alert-warning" role="alert">
+						<b>Critério com erro na construção:</b> {{ erros }}
+					</div>		
+				  {% elif criterios_ok == True %}
+					<div class="alert alert-success" role="alert">
+					  <b>Critério correspondido no texto:</b> {{ criterios_processados }}
+					</div>
+				{% elif criterios_ok == False %}		
+					<div class="alert alert-danger" role="alert">
+					  <b>Critério NÃO correspondido no texto:</b> {{ criterios_processados }}
+					</div>		
+				{% endif %}
+		
+				{% if tempo %}
+					<div class="alert alert-info" role="alert">
+					  Tempo de processamento: {{ tempo }}
+					</div>		
+				{% endif %}
+		
+				{% if texto_grifado %}
+					<div class="card">
+					<div class="card-header">Texto com termos pesquisados em destaque</div>
+					<div class="card-body">
+					<div class="form-group shadow-textarea text-left">
+						{{ texto_grifado }}
+					</div>
+					</div>
+					</div>
+				{% endif %}		
+		
+				{% if texto_processado %}
+					<div class="card">
+					<div class="card-header">Texto processado para análise</div>
+					<div class="card-body">
+					<div class="form-group shadow-textarea">
+					  <textarea readonly class="form-control z-depth-1" id="textoAnalise" rows="3" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto_processado }}</textarea>
+					</div>
+					</div>
+					</div>
+				{% endif %}		
+		
+				{% if contem_trechos_extraidos %}
+				<div class="card">
+					<div class="card-header">Trechos extraídos</div>
+					<div class="card-body">
+					<div class="form-group shadow-textarea text-left">
+						{{ trechos_extraidos }}
+					</div>
+					</div>
+					</div>
+				{% endif %}			
+			  </div>
+		
+			</div>
 		</form>
-		<!-- Form -->
-		{% if erros != '' %}
-			<div class="alert alert-warning" role="alert">
-				<b>Critério com erro na construção:</b> {{ erros }}
-			</div>		
-  	    {% elif criterios_ok == True %}
-			<div class="alert alert-success" role="alert">
-			  <b>Critério correspondido no texto:</b> {{ criterios_processados }}
-			</div>
-		{% elif criterios_ok == False %}		
-			<div class="alert alert-danger" role="alert">
-			  <b>Critério NÃO correspondido no texto:</b> {{ criterios_processados }}
-			</div>		
-		{% endif %}
-
-		{% if tempo %}
-			<div class="alert alert-info" role="alert">
-			  Tempo de processamento: {{ tempo }}
-			</div>		
-		{% endif %}
-
-		{% if texto_grifado %}
-			<div class="card">
-			<div class="card-header">Texto com termos pesquisados em destaque</div>
-			<div class="card-body">
-			<div class="form-group shadow-textarea text-left">
-				{{ texto_grifado }}
-			</div>
-			</div>
-			</div>
-		{% endif %}		
-
-		{% if texto_processado %}
-			<div class="card">
-			<div class="card-header">Texto processado para análise</div>
-			<div class="card-body">
-			<div class="form-group shadow-textarea">
-			  <textarea readonly class="form-control z-depth-1" id="textoAnalise" rows="3" placeholder="Texto analisado: Exemplo: a casa de papel">{{ texto_processado }}</textarea>
-			</div>
-			</div>
-			</div>
-		{% endif %}		
-
-		{% if contem_trechos_extraidos %}
-		<div class="card">
-			<div class="card-header">Trechos extraídos</div>
-			<div class="card-body">
-			<div class="form-group shadow-textarea text-left">
-				{{ trechos_extraidos }}
-			</div>
-			</div>
-			</div>
-		{% endif %}			
-	  </div>
-
 	</div>
+
 
 
 {% endblock content %}
