@@ -3,7 +3,10 @@ import unittest
 
 # https://www.datacamp.com/community/tutorials/making-http-requests-in-python?utm_source=adwords_ppc&utm_campaignid=1455363063&utm_adgroupid=65083631748&utm_device=c&utm_keyword=&utm_matchtype=b&utm_network=g&utm_adpostion=&utm_creative=278443377095&utm_targetid=aud-299261629574:dsa-429603003980&utm_loc_interest_ms=&utm_loc_physical_ms=1001541&gclid=CjwKCAiAxKv_BRBdEiwAyd40N_nVtlAEzbZkyYk-7fWaGjt6giO0CWYEeaKKa2bGoes1E4xUXQGDwhoCtNcQAvD_BwE
 
-from pesquisabr import PesquisaBRTestes, PesquisaBR, TESTES_GRIFAR, TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER
+from pesquisabr import PesquisaBR
+from pesquisabr import TESTES_RETORNO_COMPLETO, TESTES_EXTRACAO, TESTES_EXTRACAO_REGRAS, \
+                                                 TESTES_COMPLETOS, TESTES_TEXTOS, TESTES_CRITERIOS, \
+                                                 TESTES_GRIFAR, TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER                       
 from app_config import PATH_URL_API
 # cria um smart_request mais resiliente a falhas pois o teste pode sobrecarregar o serviço
 import requests
@@ -51,6 +54,12 @@ class TestAppRegrasBase(unittest.TestCase):
                     'front-end', 'rodando-testes']
         remover = [_ for _ in remover if _ not in manter]
         [r.pop(_, None) for _ in remover]
+        return r
+
+    # limpa as chaves que não estão no esperado
+    def limpa_request_para_esperado(self, r, esperado):
+        manter = list(esperado.keys())
+        [r.pop(_, None) for _ in list(r.keys()) if _ not in manter]
         return r
 
     # limpa as regras para análise
@@ -247,11 +256,27 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
         r = smart_request_get_post(f'{PATH_URL_API}analisar_regras',json = dados)
         self.assertTrue(r.get('cache_limpo'))
 
+    def testes_retorno_completo(self):
+        for i, teste in enumerate(TESTES_RETORNO_COMPLETO):
+            with self.subTest(f'Retorno completo {i+1}'):
+                 dados = {"texto": teste.get('texto',''),
+                          "detalhar": 1, "extrair" : 1, "grifar" : 1, 
+                          "criterios" : teste.get('criterio','')}
+            r = smart_request_get_post(f'{PATH_URL_API}analisar_criterio',json = dados)
+            esperado = teste.get('esperado',{})
+            # ajusta o retorno para as mesmas chaves avaliadas no esperado
+            r = self.limpa_request_para_esperado(r, esperado)
+            esperado['texto'] = PesquisaBR.corrige_quebras_para_br(esperado['texto'], True)
+            esperado['texto_grifado'] = PesquisaBR.corrige_quebras_para_br(esperado['texto_grifado'], True)
+            r['texto'] = PesquisaBR.corrige_quebras_para_br(r.get('texto',''), True)
+            r['texto_grifado'] = PesquisaBR.corrige_quebras_para_br(r.get('texto_grifado',''), True)
+            self.assertDictEqual({'r': r}, {'r': esperado} )  
+
     def testes_completos_classe_pesquisabr(self):
-        for i, e in enumerate(PesquisaBRTestes.testes_basicos(self.TESTE_RESUMIDO)):
+        for i, e in enumerate(TESTES_COMPLETOS):
             subteste = f'Subteste {i}'
             with self.subTest(subteste):
-                texto = str(e.get('texto',''))
+                texto = e.get('texto','')
                 criterio = str(e.get('criterio',''))
                 esperado = e.get('retorno')
                 dados = {"texto": texto, "criterio": criterio, "detalhar": 1}
@@ -260,8 +285,9 @@ class TestAppRegrasCriterios(TestAppRegrasBase):
                 if retorno != esperado:
                     print(f'- TESTES_COMPLETOS {i}------------------------------------------------------------------')
                     print(f'Esperado: {esperado}   Retorno: ', r.get('retorno'))
-                    print('- texto: ', r.get('texto'))
+                    print('- texto: ', PesquisaBR.corrige_quebras_para_br(r.get('texto')) )
                     print('- critério: ', r.get('criterios'))
+                    dados['texto'] = PesquisaBR.corrige_quebras_para_br(dados['texto'])
                     print('Dados: ', dados)
                 # espera true se for match e false se for match_0
                 self.assertTrue(r.get('retorno') == esperado)
@@ -408,5 +434,5 @@ if __name__ == '__main__':
     print('Iniciando os testes na URL: ', PATH_URL_API)
     print('==========================================================================')
     TestAppRegrasCriterios.TESTE_RESUMIDO = True
-    unittest.main(buffer=False)
+    unittest.main(buffer=True, failfast=True)
 

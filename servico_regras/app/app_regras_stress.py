@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pesquisabr import PesquisaBRTestes
+from pesquisabr import TESTES_COMPLETOS
 from app_config import PATH_URL_API
 from app_regras_testes import smart_request_get_post
 
@@ -24,7 +24,7 @@ TAMANHO_TEXTO_GIGANTE = 10000
 texto_gigante_base = 'esse é um teste de texto que foi multiplicado para ficar gigante bla bla bla bla bla bla bla bla bla '
 texto_gigante = texto_gigante_base
 print (f'Utilizando {N_THREADS} threads')
-for i, d in enumerate(PesquisaBRTestes.testes_completos()): 
+for i, d in enumerate(TESTES_COMPLETOS): 
     dados_testes.append(d)
     if len(texto_gigante)< TAMANHO_TEXTO_GIGANTE:
         texto_gigante += f'{(d["texto"])} '
