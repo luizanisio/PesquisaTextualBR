@@ -16,5 +16,6 @@
     {"texto": "teste de regex para esse texto  CPF: 123.123.123-12 CNPJ: 03.778.130/0001-11 ", "criterios": "r:<CPF>|<CNPJ>"},
     {"texto": "teste com varias paginas, essa e a numero 1<<pg>>ja essa a numero 2<<pg>>e essa a numero 3", "criterios": "r:numero \\d+\\b"},
     {"texto": "remover e recortar inicio teste 123 456 789 fim e outro inicio teste 123 456 789 fim e inigrupo1 12 34 56 78 90 fimgrupo1", "criterios": "teste adj 456 recortar($inicio$;$fim$) recortar($inigrupo1$;$fimgrupo1$) remover(12?) "},
-    {"texto": "regex com proximidade de termos com expressoes prontas", "criterios": "r:proxim<FIMTERMO><TERMO>{1,4}expres<FIMTERMO>"}
+    {"texto": "regex com proximidade de termos com expressoes prontas", "criterios": "r:proxim<FIMTERMO><TERMO>{1,4}expres<FIMTERMO>"},
+    {"texto": "texto seguido relatorio texto \r nao seguido fim do teste", "criterios": "texto com seguido RECORTAR(#relatorio#?)"}
 ]}

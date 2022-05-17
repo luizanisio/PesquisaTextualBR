@@ -52,7 +52,7 @@ def get_chaves_filtros(dados):
 def analisar_regras(dados, front_end = False):
     obj_regras_model.conversao_entrada(dados, front_end = front_end, analisar_regras = True)
     # para o caso de lista de textos, o tratamento é diferente pois a pesquisa trata apenas de dicionários
-    _texto = dados.get('texto', '')
+    #_texto = dados.get('texto', '')
     _texto = dados.get("texto","")
     _detalhar = str(dados.get("detalhar","")) not in ("","0","False")
     _extrair = str(dados.get("extrair","1")) not in ("","0","False")

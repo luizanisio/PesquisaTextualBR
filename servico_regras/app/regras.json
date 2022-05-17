@@ -11,6 +11,8 @@
     {"grupo" : "grupo_aspas", "rotulo": "teste_aspas", "regra": "teste remover(aspas)" , "filtro_tipo" : "grupo"},
     {"grupo" : "grupo_multi", "rotulo": "multi2", "regra": "R:multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 1},
     {"grupo" : "grupo_multi", "rotulo": "multi1", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 0},
-    {"grupo" : "grupo_multi", "rotulo": "multi3", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 3}
+    {"grupo" : "grupo_multi", "rotulo": "multi3", "regra": "multi", "tags": "multi", "qtd_cabecalho":0, "qtd_rodape":0, "filtro_tipo" : "multi", "ordem": 3},
+    {"grupo" : "grupo_recortar", "rotulo" : "recortar ini opcional", "regra": "texto com seguido RECORTAR(#relatorio#?)"},
+    {"grupo" : "grupo_recortar", "rotulo" : "recortar ini opcional ext", "regra": "r:\nrelatorio\n"}
  ]
 }

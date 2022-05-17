@@ -1,5 +1,5 @@
 import re
-from pesquisabr import PesquisaBR
+from pesquisabr import PesquisaBR, RegrasPesquisaBR
 
 REGEX_CORRIGE_TAGS = re.compile(r'[\-|,;#\s]+')
 # vai retornar as tags separadas por expaço antes e depois de cada uma
@@ -52,7 +52,17 @@ def regex_valido(txt_regex, rotulo, retornar_erro = False):
 
 # verifica se a regra é válida e ignora ela caso tenha algum erro na construção
 def regra_valida(txt_regra, rotulo, retornar_erro = False):
-    pb = PesquisaBR(texto='', criterios=txt_regra)
+    # retira os critérios de recortar e remover para validar a regra
+    #pbr = RegrasPesquisaBR()
+    #if pbr.RE_REMOVER.search(txt_regra):
+    #    _txt_regra = pbr.RE_REMOVER.sub(' ',txt_regra).strip()
+    #    print('REMOVIDO CRITÉRIO DE REMOÇÃO')
+    #    print('\t ', txt_regra)
+    #    print('\t ', _txt_regra)
+    #else:
+    #    _txt_regra = txt_regra
+    _txt_regra = RegrasPesquisaBR.RE_REMOVER.sub(' ',txt_regra).strip()
+    pb = PesquisaBR(texto='', criterios=_txt_regra)
     if pb.erros:
         if retornar_erro:
             return str(pb.erros)
