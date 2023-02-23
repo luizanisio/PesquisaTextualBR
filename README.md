@@ -221,3 +221,6 @@ Os sinônimos compostos possuem um comportamento peculiar, permitem o mapeamento
 Exemplos disponíveis no arquivo <b>testes_exemplos.py</b> e <b>testes_exemplos_sem_db.py</b>
 Para uso da classe [PesquisaBRMemSQL](./testes_memsql) (experimental) é necessário ter instalado o <b>MemSQL</b> (pode ser o container de exemplo). E criar as tabelas e funções do database <b>pesquisabr</b>. Scripts disponívels: <b>db_funcoes.sql</b> e <b>db_tabelas.sql</b>
 
+## TODOs
+- opção para usar regex multi line
+- opção para analisar operadores multi line
