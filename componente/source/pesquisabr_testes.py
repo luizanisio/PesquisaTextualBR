@@ -1,7 +1,7 @@
 from copy import deepcopy
 from random import random, shuffle
 import unittest
-import re 
+import regex as re 
 from pesquisabr import PesquisaBR
 from pesquisabr import TESTES_COMPLETOS, TESTES_EXTRACAO, TESTES_EXTRACAO_REGRAS, \
                        TESTES_TEXTOS, TESTES_CRITERIOS, TESTES_GRIFAR, \

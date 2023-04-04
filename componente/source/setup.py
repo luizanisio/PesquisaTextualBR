@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.2.9',
+    version= '1.0.3.0',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -89,6 +89,7 @@ setuptools.setup(
 1.0.2.8   - correção remover com texto \r no lugar de \n
 1.0.2.9   - erro no pesquisar por termos com curingas quando o texto é lista e fica vazio por conta do recortar
           - erro ao enviar o texto como uma lista vazia ou um dict vazio
+1.0.3.0   - uso da biblioteca regex no lugar da re para uso do timeout
  '''
 
 ''' TODO
