@@ -1,5 +1,4 @@
 from pesquisabr import RegrasPesquisaBR, PesquisaBR
-import re
 
 rpbr = RegrasPesquisaBR()
 pbr = PesquisaBR()

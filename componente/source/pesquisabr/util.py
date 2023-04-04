@@ -2,7 +2,7 @@
 import platform
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
-import re
+import regex as re
 import time
 import random
 

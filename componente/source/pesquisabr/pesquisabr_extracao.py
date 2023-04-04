@@ -7,12 +7,11 @@
 # 30/11/2020 - disponibilizado no GitHub  
 #######################################################################
 
-from enum import Flag
-import re
+import regex as re # para uso de timeout
 import copy
 from unicodedata import normalize
 
-from regex import F
+REGEX_TIMEOUT = 5 * 60
 
 class UtilExtracaoRe():
     # recebe um critério regex compilado ou não e retorna as posições extraídas e o texto extraído
@@ -65,7 +64,7 @@ class UtilExtracaoRe():
         if type(_texto) is list:
             pagina = 1
             for _txt, _txto in zip(_texto, _texto_original):
-                _res = cls.aplicar_regex(_txt, _txto, regex=rx)
+                _res = cls.aplicar_regex(_txt, _txto, regex_comp=rx)
                 for r in _res:
                     r['pagina'] = pagina
                     res.append(r)
@@ -74,12 +73,12 @@ class UtilExtracaoRe():
         # foi recebido um dict de texto, considera-se que cada chave é um texto
         if type(_texto) is dict:
             for c, _txt in _texto.items():
-                _res = cls.aplicar_regex(_txt, _texto_original.get(c,_txt), regex=rx)
+                _res = cls.aplicar_regex(_txt, _texto_original.get(c,_txt), regex_comp=rx)
                 for r in _res:
                     r['chave'] = c
                     res.append(r)
             return res
-        return cls.aplicar_regex(_texto, _texto_original, regex=rx)
+        return cls.aplicar_regex(_texto, _texto_original, regex_comp=rx)
 
     @classmethod
     def quebra_para_n(cls, texto):
@@ -91,9 +90,9 @@ class UtilExtracaoRe():
 
     # aplicação do regex no texto
     @classmethod
-    def aplicar_regex(cls, _txt, _txto, regex):
+    def aplicar_regex(cls, _txt, _txto, regex_comp):
         res = []
-        for m in regex.finditer(_txt):
+        for m in regex_comp.finditer(_txt, timeout = REGEX_TIMEOUT):
             ini = m.start()
             fim = m.end()
             trecho = _txto[ini:fim]
@@ -256,6 +255,17 @@ class UtilExtracaoRe():
         res = UtilExtracaoRe.extrair_regex_tipo(texto, criterios, chave_regex='re')
         [print(_) for _ in res]
         print('Texto grifado: ', UtilExtracaoRe.grifar_texto(texto_original = texto, extracoes= res, tag_ini= '<mark>', tag_fim= '</mark>\n') )
+
+    @classmethod
+    def regex_valido(self, criterio):
+        # retorna vazio ou o erro de compilação
+        try:
+            re.compile(str(criterio))
+            #print(f'REGEX OK: rótulo "{rotulo}" - regex: {txt_regex}')
+            return ''
+        except re.error as msgerr:
+            erro = str(msgerr)
+            return erro        
 
 if __name__ == "__main__":
     UtilExtracaoRe.testes()

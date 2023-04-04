@@ -6,7 +6,7 @@
 # 30/11/2020 - disponibilizado no GitHub  
 #######################################################################
 
-import re
+import regex as re
 from unicodedata import normalize
 import copy as cp
 import json

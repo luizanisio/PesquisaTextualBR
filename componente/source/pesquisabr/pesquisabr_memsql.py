@@ -4,7 +4,7 @@ from pesquisabr.pesquisabr import PesquisaBR, TESTES_COMPLETOS
 import enum
 from datetime import datetime 
 import json
-import re
+import regex as re
 from cachetools import cached, LRUCache, TTLCache
 from threading import RLock
 from hashlib import sha1 as hl_sha1

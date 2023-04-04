@@ -1,5 +1,5 @@
 from pesquisabr import PesquisaBR
-import re
+import regex as re
 from unicodedata import normalize
 
 RE_TOKENS = re.compile(r'(\s)|([0-9]+)|([a-zA-Z]+)|(\n+)|(\W|.)')
