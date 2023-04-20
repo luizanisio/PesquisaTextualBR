@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.3.0',
+    version= '1.0.3.1',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -90,6 +90,8 @@ setuptools.setup(
 1.0.2.9   - erro no pesquisar por termos com curingas quando o texto é lista e fica vazio por conta do recortar
           - erro ao enviar o texto como uma lista vazia ou um dict vazio
 1.0.3.0   - uso da biblioteca regex no lugar da re para uso do timeout
+1.0.3.1   - objeto UtilRegrasConfig global com configuração de timeout do regex e registro de regex que geraram timeout
+            bem como log de regras lentas com base na configuração
  '''
 
 ''' TODO
