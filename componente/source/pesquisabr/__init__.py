@@ -4,6 +4,7 @@ name = "pesquisabr"
 #import pesquisabr.pesquisabr_testes as pesquisabr_testes
 from pesquisabr.pesquisabr import PesquisaBR
 from pesquisabr.pesquisabr_regras import RegrasPesquisaBR
+from pesquisabr.pesquisabr_regras_util import UtilRegrasConfig
 from pesquisabr.util import Util
 from pesquisabr.pesquisabr_extracao import UtilExtracaoRe
 #from pesquisabr.pesquisabr_relacao_testes import PesquisaBRTestes

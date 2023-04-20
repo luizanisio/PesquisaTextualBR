@@ -13,6 +13,8 @@ from datetime import datetime
 from pesquisabr import PesquisaBR
 from pesquisabr.pesquisabr_extracao import UtilExtracaoRe
 
+from pesquisabr.pesquisabr_regras_util import UtilRegrasConfig
+import time
 
 class RegrasPesquisaBR():
   ''' O retorno contém:
@@ -244,6 +246,7 @@ class RegrasPesquisaBR():
           if regra_regex:
              texto_para_analise = pres[chave_cache]
              texto_original = presorig[chave_cache]
+             tempo_ini = time.time()
              #print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
              #print('xxx RÓTULO: ', r.get('rotulo'))
              #print('xxx TEXTO ANÁLISE: ', texto_para_analise)
@@ -257,7 +260,22 @@ class RegrasPesquisaBR():
              #print('xxx TEXTO ORIGINAL: ', texto_original)
              #print('xxx REGRA FINAL   : ', regra_regex)
              #print('Critério removido : ', _regra_com_remover )
-             retorno = UtilExtracaoRe.extrair_regex(texto= texto_para_analise, criterio=regra_regex, texto_original=texto_original)
+             tempo1 = time.time() - tempo_ini
+             tempo_ini = time.time()
+             # avalia se retornou erro de timeout do regex
+             try:
+                _regra_log = regra_regex if type(regra_regex) is str else str(regra_regex.pattern)
+                retorno = UtilExtracaoRe.extrair_regex(texto= texto_para_analise, criterio=regra_regex, texto_original=texto_original)
+                tempo2 = time.time() - tempo_ini
+                UtilRegrasConfig.inserir_log(_regra_log, tempo1, tempo2, len(str(texto_para_analise)), False) 
+             except Exception as e:
+                  _msg = str(e).lower()
+                  if _msg.find('timeout') >= 0 or _msg.find('timed out') >= 0:
+                     tempo2 = time.time() - tempo_ini
+                     UtilRegrasConfig.inserir_log(_regra_log, tempo1, tempo2,len(str(texto_para_analise)), True) 
+                  raise e
+             #print(f'{tempo1+tempo2:.2f}s - Config Regex timeout: {UtilRegrasConfig.regex_timeout} - Lentos: {UtilRegrasConfig.tempo_lentos}')
+
              if type(retorno) is str:
                 retorno_erros.append(retorno)
                 retorno = [] 
@@ -271,6 +289,8 @@ class RegrasPesquisaBR():
              if detalhar:
                 regra_detalhe['criterios'] = regra_like or regra_regex
                 regra_detalhe['texto'] = texto_para_analise
+             tempo2 = time.time() - tempo_ini
+
           # critério textual
           else:
             # atualiza o critério para o objeto de pesquisa que já processou o texto
@@ -280,6 +300,7 @@ class RegrasPesquisaBR():
             #print('REGRA PESQUISABR - rótulo: ', r.get('rotulo'), ' chave_cache: ', chave_cache) 
             #print('REGRA PESQUISABR - regra:  ', regra)
             #print('REGRA PESQUISABR - texto:  ', _pbr.texto)
+            tempo_ini = time.time()
             texto_para_analise = _pbr.texto
             _texto_com_remover, _regra_com_remover, _ = self.remover_texto_criterio(texto=texto_para_analise, criterios=regra)
             texto_para_analise = _texto_com_remover if _texto_com_remover is not None else texto_para_analise
@@ -300,11 +321,16 @@ class RegrasPesquisaBR():
             if self.print_debug:
                print(f'Testando grupo: [{grupo}] com rótulo: [{rotulo}] e regra: {regra}')
                _pbr.print_resumo()
+            tempo1 = time.time() - tempo_ini
+            tempo_ini = time.time()
             regra_ok = _pbr.retorno()
             if detalhar:
                regra_detalhe['criterios'] = _pbr.criterios
                regra_detalhe['criterios_aon'] = _pbr.criterios_and_or_not
                regra_detalhe['texto'] = texto_para_analise
+            tempo2 = time.time() - tempo_ini
+            #print(f'{tempo1+tempo2:.2f}s - Config Regras Lentas: {UtilRegrasConfig.tempo_lentos}')
+            UtilRegrasConfig.inserir_log(str(_pbr.criterios), tempo1, tempo2, len(str(texto_para_analise)), False) 
 
           # com a regra ok, registra o rótulo para retorno
           if regra_ok:

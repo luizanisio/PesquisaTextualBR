@@ -10,8 +10,7 @@
 import regex as re # para uso de timeout
 import copy
 from unicodedata import normalize
-
-REGEX_TIMEOUT = 5 * 60
+from pesquisabr.pesquisabr_regras_util import UtilRegrasConfig
 
 class UtilExtracaoRe():
     # recebe um critério regex compilado ou não e retorna as posições extraídas e o texto extraído
@@ -92,7 +91,7 @@ class UtilExtracaoRe():
     @classmethod
     def aplicar_regex(cls, _txt, _txto, regex_comp):
         res = []
-        for m in regex_comp.finditer(_txt, timeout = REGEX_TIMEOUT):
+        for m in regex_comp.finditer(_txt, timeout = UtilRegrasConfig.regex_timeout):
             ini = m.start()
             fim = m.end()
             trecho = _txto[ini:fim]
