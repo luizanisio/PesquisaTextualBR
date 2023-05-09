@@ -30,9 +30,17 @@
                     <tbody>
                      <tr><td>r:expressão</td><td>iniciando a pesquisa com r: indica que o restante é uma expressão regular (regex)</td></tr>
                      <tr><td>r:teste</td><td>localiza e extrai o termo teste no texto</td></tr>
-                     <tr><td>Expressões prontas</td><td>TERMO, FIMTERMO, CPF, CNPJ</td></tr>
+                     <tr><td>Expressões prontas</td><td>TERMO, INICIOTERMO, FIMTERMO, OAB, CPF, CNPJ</td></tr>
                      <tr><td>r:&lt;CPF&gt;|\bcpf\b</td><td>Segundo o <u>CPF</u> do João <u>123.456.789-00</u></td></tr>
+                     <tr><td>r:particular&lt;TERMO&gt;{0,10}venda</td><td>Documento <u>particular de compra e venda</u> de imóvel</td></tr>
                      <tr><td>r:particul&lt;FIMTERMO&gt;&lt;TERMO&gt;{0,10}venda</td><td>Documento <u>particular de compra e venda</u> de imóvel</td></tr>
+                     <tr><td>r:documento &lt;INICIOTERMO&gt;ticular</td><td><u>Documento particular</u> de compra e venda de imóvel</td></tr>
+                     <tr><td>r:&lt;NUM:12345,67&gt;</td><td>Documento valor R$ <u>12.345,57</u> de compra e venda de imóvel</td></tr>
+                     <tr><td>r:&lt;OAB:DF12345&gt;</td><td>Com a OAB <u>DF/12345a</u> que pode ser <u>DF12345-a</u>, <u>12345/DF</u> ou <u>DF/12345</u></td></tr>
+                     <tr><td>r:&lt;OAB:DF12345L&gt;</td><td>A OAB DF/12345a não tem o dígito informado, mas a <u>DF12345-l</u> e a <u>12345l/DF</u> têm.</td></tr>
+                     <tr><td>r:&lt;CPF:12345678910&gt;</td><td>Documento com o CPF <u>123.456.789-10</u> do fulano</td></tr>
+                     <tr><td>r:&lt;CNPJ:12345678000110&gt;</td><td>Documento com o CNPJ <u>12.345.678/0001-10</u> da empresa</td></tr>
+                     <tr><td>r:&lt;CNPJ:12345678&gt;</td><td>Documento com o CNPJ <u>12.345.678/0001-10</u> da empresa</td></tr>
                     </tbody>
                 </table>
 
