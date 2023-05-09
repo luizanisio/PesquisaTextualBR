@@ -2,3 +2,4 @@ cachetools
 Flask==2.2.5
 bootstrap-flask==2.0.2
 pdfplumber
+regex==2022.10.31
