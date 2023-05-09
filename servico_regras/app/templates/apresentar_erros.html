@@ -17,6 +17,19 @@
             </div>
           </div>
         {% endfor %}
+
+        {% if erros_regex_html %}
+          <div class="card w-75">
+            <div class="card-body">
+              <h5 class="card-title alert alert-primary" role="alert"><b>Amostragem de regras lentas:</b></h5>
+              <div class="card bg-light">
+                <div class="card-body scrollbar max-height">
+                  <div class="small">{{erros_regex_html}}</div>
+                </div>                
+              </div>
+            </div>
+          </div>
+        {% endif%}
        
 	</div>
 {% endblock content %}
