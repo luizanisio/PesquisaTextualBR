@@ -5,7 +5,7 @@ import os, time
 import uuid
 import pdfplumber
 import traceback
-import re
+import regex as re # para uso do timeout
 
 class UtilExtrairTextoPDF():
     __MARCADOR_PAGINA__ ='<<pg>>'
