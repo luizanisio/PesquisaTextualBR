@@ -1,4 +1,6 @@
 {"exemplos": [
+    {"texto": "Determino a anulacao da certidao de transito em julgado", "criterios": "('determinar' ou 'determino') E (anula$ ou 'torn$ sem efeito') adjc2 'certidao' adjc10 'transito' adjc2 'julgado'"},
+    {"texto": "Descreve-se assim as contrarrazoes do recurso extraordinario aqui apresentado.", "criterios": "contra$ 'recurso extra$' proxc5 apresentado"},
     {"texto": "Teste de dois paragrafos.<br>Para usar a avaliacao de termos entre paragrafos.", "criterios": "(teste COM2 avaliacao) E (teste prox7 avalia??o)NAO (teste proxc10 avaliacao)"},
     {"texto": "Avaliacao complexa de termos e parenteses. Esse teste tem varios criterios concatenados e agrupados..", "criterios": "((avaliacao termo) adj2 parenteses) com2 teste prox5 parentese 'crite$ concate$'"},
     {"texto": "Remocao de aspas e trechos - 'Teste de remocao esse trecho nao sera analisado'", "criterios": "remocao nao (sera adj analisado) remover(aspas)"},
@@ -9,6 +11,8 @@
     {"texto": "Receita 1 - Esse exemplo contem uma receita de bolo", "criterios": "receita bolo"},
     {"texto": "Receita 2 - Esse exemplo contem uma receita de pao", "criterios": "receita pao"},
     {"texto": "Oficio n. 345 de 01/02/2021", "criterios": "'oficio n' OU 'oficion numero'"},
+    {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo"},
+    {"texto": "Condeno a executada conforme orientacao abaixo e decretado sigilo. Tambem devolvo ao ministro relator e defiro todas as notas taquigraficas e como tambem condeno tudo isso a executado"},
     {"texto": "'teste entre aspas' exemplo", "criterios": "exemplo e teste remover(aspas)"},
     {"texto": "esse e um teste de texto de teto te to com remocao usando curingas", "criterios": "teto E te E to NAO teste NAO texto remover(te&t&)"},
     {"texto": "casa termo1 termo2 termo3 termo4 termo100 de termo5 termo6 termo77 papel", "criterios": "casa adj2 papel remover(termo&??)"},
@@ -16,6 +20,8 @@
     {"texto": "teste de regex para esse texto  CPF: 123.123.123-12 CNPJ: 03.778.130/0001-11 ", "criterios": "r:<CPF>|<CNPJ>"},
     {"texto": "teste com varias paginas, essa e a numero 1<<pg>>ja essa a numero 2<<pg>>e essa a numero 3", "criterios": "r:numero \\d+\\b"},
     {"texto": "remover e recortar inicio teste 123 456 789 fim e outro inicio teste 123 456 789 fim e inigrupo1 12 34 56 78 90 fimgrupo1", "criterios": "teste adj 456 recortar($inicio$;$fim$) recortar($inigrupo1$;$fimgrupo1$) remover(12?) "},
-    {"texto": "regex com proximidade de termos com expressoes prontas", "criterios": "r:proxim<FIMTERMO><TERMO>{1,4}expres<FIMTERMO>"},
-    {"texto": "texto seguido relatorio texto \r nao seguido fim do teste", "criterios": "texto com seguido RECORTAR(#relatorio#?)"}
+    {"texto": "regex com proximidade de termos com expressoes prontas e números 1.234,56 ou 1234,56 ou 789", "criterios": "r:(proxim<FIMTERMO><TERMO>{1,4}expres<FIMTERMO>)|<NUM:1234,56>|<NUM:789>"},
+    {"texto": "OAB DF sob o n. 1234a  ou df12357b  \n na OAB/SP sob o n° 23027, OAB/DF sob o n° 1138/A, \n  OAB/SP sob o n° 23027a,\n  SP 23087/d    fas f DF10546L  sad fas 10546 L DF  asdf 10546LDF  asdff dF 10546 / L  \n  DF10546/L  sdas 10546 / L DF  asda 10546/LDF  sda DF-10546-L  asda 10546l-df \n 10546-L-DF  as 10546LDF  asd DF-10546 / L sdaf DF10546/L  asdfasf  10546 / L-DF \n  10546/L-DF ", "criterios": "r:<OAB:DF1234>|<OAB:DF12357>|<OAB:df10546>|<OAB:SP23027>"},
+    {"texto": "A OAB DF/12345a não tem o dígito informado, mas a DF12345-l e a 12345l/DF têm.", "criterios": "r:<OAB:DF12345>"}
 ]}
+
