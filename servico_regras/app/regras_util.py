@@ -1,12 +1,15 @@
-import re
-from pesquisabr import PesquisaBR, RegrasPesquisaBR
+import regex as re # para uso do timeout
+from pesquisabr import PesquisaBR, RegrasPesquisaBR, UtilExtracaoRe
 
 REGEX_CORRIGE_TAGS = re.compile(r'[\-|,;#\s]+')
 # vai retornar as tags separadas por expaço antes e depois de cada uma
+# * é um curinga de filtro, indica para não filtrar a regra mesmo ela contendo o filtro
 def regras_corrigir_tags_re(tags_lista):
     return '' if not tags_lista else '( ' + REGEX_CORRIGE_TAGS.sub(' ', str(tags_lista)).strip().replace(' ',' )|( ') + ' )'
 
 def regras_corrigir_tags(tags_lista):
+    if tags_lista =='*':
+        return tags_lista
     return '' if not tags_lista else ' ' + REGEX_CORRIGE_TAGS.sub(' ', str(tags_lista)).strip() + ' '
 
 def lista_regras_corrigir_tags(regras):
@@ -16,6 +19,9 @@ def lista_regras_corrigir_tags(regras):
 
 # compila a lista de tags para pesquisa
 def regras_regex_tags(tags_pesquisa: str):
+    # tratamento especial para * que é qualquer tag
+    if tags_pesquisa == '*':
+        return tags_pesquisa
     if not tags_pesquisa:
         return None
     return re.compile(regras_corrigir_tags_re(tags_pesquisa)) if type(tags_pesquisa) is str else tags_pesquisa
@@ -23,28 +29,23 @@ def regras_regex_tags(tags_pesquisa: str):
 # verifica se alguma tag desejada está na lista de tags existentes
 # faz uma lista de OR nas desejadas e verifica na lista de existentes
 def regras_contem_tags(tags_desejadas, tags_existe):
-    # se nenhuma desejada for informada, retorna true
-    if not tags_desejadas:
+    # se nenhuma desejada for informada ou for *, retorna true
+    if (not tags_desejadas) or (type(tags_desejadas) is str and tags_desejadas=='*'):
         return True
     # se nenhuma existente for informada, retorna false
     if not tags_existe:
         return False
-    #print('Verificando tag: ', tags_desejadas, tags_existe, regras_regex_tags(tags_desejadas).search(tags_existe))
     return bool(regras_regex_tags(tags_desejadas).search(tags_existe))
 
 # retorna true para regex válido em regras ou extrações
 def regex_valido(txt_regex, rotulo, retornar_erro = False):
-    erro = ''
-    try:
-        re.compile(str(txt_regex))
-        #print(f'REGEX OK: rótulo "{rotulo}" - regex: {txt_regex}')
-        if retornar_erro:
-            return ''
-        return True
-    except re.error as msgerr:
-        erro = str(msgerr)
-        if retornar_erro: 
-           return erro
+    erro = UtilExtracaoRe.regex_valido(str(txt_regex))
+    if not erro:
+       if retornar_erro:
+          return ''
+       return True
+    if retornar_erro: 
+       return erro
     print(f'**ERRO: REGEX inválido: "{rotulo}"')
     print(f'        texto de regex: {txt_regex}')
     print(f'                 erro : {erro}')
