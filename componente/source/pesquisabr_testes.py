@@ -5,7 +5,8 @@ import regex as re
 from pesquisabr import PesquisaBR
 from pesquisabr import TESTES_COMPLETOS, TESTES_EXTRACAO, TESTES_EXTRACAO_REGRAS, \
                        TESTES_TEXTOS, TESTES_CRITERIOS, TESTES_GRIFAR, \
-                       TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER, TESTES_RETORNO_COMPLETO
+                       TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER, TESTES_RETORNO_COMPLETO, \
+                       TESTES_BASICOS_RE_PRONTOS
 from pesquisabr import RegrasPesquisaBR, UtilExtracaoRe
 
 class TestPesquisaBR(unittest.TestCase):
@@ -363,6 +364,43 @@ class TestPesquisaBR(unittest.TestCase):
                     # não faz o teste do AON
                     #print(f'   AON => VAZIO *** ')
                     pass
+
+    ###########################################################
+    ## REGEX PRONTOS
+    def testes_re_prontos(self):
+        """
+        Teste com regex prontos por substituição ou por função
+        """
+        pb=PesquisaBR()
+        pbr=RegrasPesquisaBR()
+        pb.print_debug = False
+        for i, teste in enumerate(TESTES_BASICOS_RE_PRONTOS):
+            with self.subTest(f'testes básicos re prontos - {i+1}/{len(TESTES_BASICOS_RE_PRONTOS)}'):
+                texto = teste['texto']
+                _texto = UtilExtracaoRe.processar_texto(texto)
+                criterio = str(teste['criterio'])
+                esperado = bool(teste['retorno'])
+                erro = ''
+                res = None
+                # avaliação de critérios de remoção
+                _criterio = UtilExtracaoRe.preparar_regex_pronto(criterio)
+                try:
+                   _re = re.compile(_criterio)
+                except Exception as e:
+                    erro = str(e)[:20]
+                if not erro:
+                   res = bool(_re.search(_texto))
+                if res != esperado or erro:
+                    print('==========================================================')
+                    print(f'TESTE: {i+1} ')
+                    print('Texto original:    ', texto)
+                    print('Texto processado:  ', _texto)
+                    print('Regex original:    ', criterio)
+                    print('Regex substituído: ', _criterio)
+                    if erro:
+                       print('ERRO: ', erro)
+                self.assertEqual(esperado, res)
+
 
     ###########################################################
     ## REGRAS

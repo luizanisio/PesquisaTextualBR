@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.3.1',
+    version= '1.0.3.3',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -92,6 +92,9 @@ setuptools.setup(
 1.0.3.0   - uso da biblioteca regex no lugar da re para uso do timeout
 1.0.3.1   - objeto UtilRegrasConfig global com configuração de timeout do regex e registro de regex que geraram timeout
             bem como log de regras lentas com base na configuração
+1.0.3.2   - UtilExtracaoRe - ProntosProgramados - classe com regex prontos com funções programadas 
+            <CPF:99999999999> <CNPJ:99999999999999> <OAB:UF12345> <NUM:123,55>
+1.0.3.3   - UtilExtracaoRe - <OAB> genérica exige lista dos estados e não apenas duas letras.
  '''
 
 ''' TODO
