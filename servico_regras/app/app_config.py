@@ -10,40 +10,56 @@ PATH_API = '/'
 PATH_URL = 'http://localhost:8000'
 PATH_URL_API = f'{PATH_URL}{PATH_API}'
 
-import os
-import json
-ARQ_CONFIG = './config.json'
-CONFIG = {}
-TEMPO_CACHE_SEGUNDOS = 0
+import os 
+from datetime import time, timedelta , datetime
+from hashlib import sha1
 
-###################################################################
-# configurações do serviço 
-def carregar_config():
-    global CONFIG, TEMPO_CACHE_SEGUNDOS
-    _config = {}
-    if os.path.isfile(ARQ_CONFIG):
-        with open(ARQ_CONFIG,mode='r') as f:
-            _config = f.read().replace('\n',' ').strip()
-            if _config and _config[0]=='{' and _config[-1]=='}':
-                _config = json.loads(_config)
-    # correções do tempo de refresh das regras - em segundos
-    # mínimo 10s
-    _config['tempo_regras'] = _config.get('tempo_regras', 600)
-    if (type(_config['tempo_regras']) != int) or (_config['tempo_regras']<10):
-        _config['tempo_regras'] = 10
-    # atualização da configuração
-    CONFIG = _config
+class CONFIG:
+    __EM_DEBUG__ = False 
+    __EM_DEBUG_TM__ = None
 
-    TEMPO_CACHE_SEGUNDOS = CONFIG.get('tempo_regras',0)
-    TEMPO_CACHE_SEGUNDOS = 10* 60 if TEMPO_CACHE_SEGUNDOS < 1 else TEMPO_CACHE_SEGUNDOS
+    # último id_cache que controla o hash do cache utilizado na carga de regras e filtros de regras
+    id_cache = '' # será guardado o id de controle de validade do cache
+    # registrar a última carga de regras
+    data_carga_regras = ''
+    @classmethod
+    def to_string(cls):
+        return f'[ id_cache: {cls.id_cache}, data_carga_regras: {cls.data_carga_regras} ]'
 
-carregar_config()
+    @classmethod
+    def em_debug(cls):
+        if (cls.__EM_DEBUG_TM__ == None) or ((datetime.now()-cls.__EM_DEBUG_TM__).total_seconds() > 60):
+            cls.__EM_DEBUG__ = os.path.isfile('debug.txt')
+            cls.__EM_DEBUG_TM__ = datetime.now()
+            print(f'<< EM DEBUG TESTADO PID#{os.getpid()}: ', f'|controle {cls.__EM_DEBUG_TM__}|', f'|em debug {cls.__EM_DEBUG__}| >>')
+        return cls.__EM_DEBUG__        
+
+    @classmethod
+    def sha1(cls, texto):
+        return sha1(str(texto).encode('utf-8')).hexdigest()
+
+    @classmethod
+    def sha1_mini(cls, texto, salto = 4):
+        return cls.sha1(texto)[::salto]
+
+    @classmethod
+    def print_log_debug(cls,funcionalidade='', msg = '', id_print =''):
+        if not cls.em_debug():
+            return 
+        _txt_comp = ''
+        _func = f'_{funcionalidade}_'.ljust(20,'_') if funcionalidade else ''
+        if _func and id_print:
+           _txt_comp = f'|{_func} - {id_print}|' 
+        elif _func or id_print:
+           _txt_comp = f'|{_func}{id_print}|' 
+        _msg = f'<< DEBUG PID#{os.getpid()} - {datetime.now().strftime("%H:%M:%S")} {_txt_comp} {msg} >>'
+        print(_msg)
 
 ###################################################################################
 # configurando novos padrões prontos de regex
 from pesquisabr import UtilExtracaoRe
-novos_prontos = {'OAB' : r'\b([a-z]{2}[\.\-,; ]?\d{2,7}|\d{2,7}[\.\-,; ]?[a-z]{2})\b'}
-UtilExtracaoRe.PRONTOS.update(novos_prontos)
+#novos_prontos = {'OAB' : r'\b([a-z]{2}[\.\-,; ]?\d{2,7}|\d{2,7}[\.\-,; ]?[a-z]{2})\b'}
+#UtilExtracaoRe.PRONTOS.update(novos_prontos)
 
 ###################################################################################
 # define o tipo de objeto de regras que será carregado
