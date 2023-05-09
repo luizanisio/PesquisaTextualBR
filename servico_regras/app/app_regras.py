@@ -6,7 +6,8 @@
 
 from copy import deepcopy
 from flask import Flask, jsonify, request, render_template
-from flask import render_template_string, redirect, url_for, Markup
+from flask import render_template_string, redirect, url_for #, Markup
+from markupsafe import Markup
 
 from flask_bootstrap import Bootstrap4 #Bootstrap
 from jinja2 import TemplateNotFound
@@ -15,15 +16,15 @@ import os
 import json
 
 
-from app_config import CONFIG, TEMPO_CACHE_SEGUNDOS, PATH_API
+from app_config import CONFIG, PATH_API
 from regras_controller_pdf import UtilExtrairTextoPDF
 
 ###################################################################
 # controller
-from regras_controller import carregar_exemplos, get_exemplo, get_regras_carregadas, limpar_cache_regras, get_regras_erros
+from regras_controller import carregar_exemplos, get_exemplo, get_regras_carregadas, \
+                              limpar_cache_regras, get_regras_erros, conversao_get_post_regras, get_controle_cache,\
+                              get_logs_regras_visual
 from regras_controller_aplicar import analisar_criterios, get_dados_health, analisar_regras, carregar_exemplo_solicitado
-
-EM_DEBUG = os.path.isfile('debug.txt')
 
 app = Flask(__name__, template_folder='./templates')
 bootstrap  = Bootstrap4(app)
@@ -45,7 +46,7 @@ def get_post(req:request):
 @app.route(f'{PATH_API}cache', methods=['GET'])
 def limpar_cache():
     msg = limpar_cache_regras()
-    return jsonify({'ok': True, 'msg': msg, 'erro':False})
+    return jsonify({'ok': True, 'msg': msg})
 
 @app.route(f'{PATH_API}health', methods=['GET'])
 @app.route('/health', methods=['GET'])
@@ -61,14 +62,41 @@ def srv_analisar_regras():
     dados = get_post(request)
     # no modo teste ou pedido de limpeza de cache, 
     # o cache é limpo pois pode ter alterações nas regras
+    conversao_get_post_regras(dados)
     cache_limpo = False
+    # se o pedido de limpeza de cache não for boolean, verifica se mudou o valor
+    # entre chamadas para não fazer a mesma limpeza ao chamar por uma thread
+    # passando um id ou uma data, o cache só limpa uma vez para o mesmo valor seguido
+    # é útil em chamadas por várias threads de um mesmo serviço
+    if dados.get('teste-timeout') or dados.get('testetimeout'):
+       return controla_mensagem_regex_timeout('teste: regex timed out retornado', dados) 
     if dados.get('modo_teste') or dados.get('limpar_cache'):
-       limpar_cache_regras()
-       cache_limpo = True
-    retorno = analisar_regras(dados)
+       cache_limpo = limpar_cache_regras() # forçado
+    try:
+        retorno = analisar_regras(dados)
+    except Exception as e:
+        res = controla_mensagem_regex_timeout(e, dados)
+        if res is not None:
+            return res
+        raise e
     if cache_limpo:
-        retorno['cache_limpo'] = True    
+        retorno['cache_limpo'] = True
     return jsonify( retorno )
+
+# retorna a mensagem de erro caso seja erro controlado
+def controla_mensagem_regex_timeout(e, dados = None):
+    msg = str(e).lower()
+    # substitui por 408 Request Timeout
+    print(f'***** VERIFICANDO ERROS CONTROLADOS: {e}')
+    if msg.find('regex timed out')>=0:
+       print(f'***** ERRO CONTROLADO - REGEX TIMED OUT - ENVIANDO 408: {e}')
+       #return Response(jsonify({'error': 'regex timed out', 'status' : 408}), 
+       #                status=408, mimetype="application/json")       
+       retorno = {'erro': 'regex timed out', 'status' : 408}
+       if dados is not None:
+          retorno .update({c:v for c,v in dados.items() if c != 'texto'})
+       return jsonify(retorno), 408, {'ContentType':'application/json'}
+    return None
 
 ###################################################################
 # recebe {'texto': 'texto para ser analisado pelas regras'}
@@ -101,16 +129,26 @@ def testar_regras():
         _tem_marcador_paginas, dados['texto'] = get_paginas_marcador(dados['texto'])
         dados['primeiro_do_grupo'] = 'primeiro_do_grupo' in dados
         pedido_limpar_cache = dados.pop('limpar_cache','')
+        #limpar cache
+        if pedido_limpar_cache:
+            limpar_cache_regras()
+
         dados['detalhar'] = True
         dados['extrair'] = True
         # recebe um filtro da tela para filtrar as regras, remove o filtro se não for preenchido
         dados['filtro_tipo'] = dados.get('filtro_tipo','').strip()
         if not dados['filtro_tipo']:
            dados.pop('filtro_tipo', None)
-        if dados.get('texto') or dados.get('exemplo'):
-            retorno = analisar_regras(dados, front_end=True)
-        else:
-            retorno = {}
+        try:
+            if dados.get('texto') or dados.get('exemplo'):
+                retorno = analisar_regras(dados, front_end=True)
+            else:
+                retorno = {}
+        except Exception as e:
+            res = controla_mensagem_regex_timeout(e)
+            if res is not None:
+                return res
+            raise e
 
         contem_trechos_extraidos = False
         trechos_extraidos = []
@@ -141,9 +179,6 @@ def testar_regras():
            if 'texto_regex' in retorno:
              retorno['texto_regex'] = __MARCADOR_PAGINA__.join(retorno['texto_regex'])
 
-        #limpar cache
-        if pedido_limpar_cache:
-            limpar_cache_regras()
         return render_template("aplicar_regras.html", 
                 texto = str(retorno.get('texto_analise','')),
                 texto_processado = str(retorno.get('texto','')),
@@ -234,11 +269,15 @@ def regras_com_erro():
             else:
                old = e.get('grupo','')
 
+        # regex com erros de timeout e regras lentas
+        html_regex_erro = get_logs_regras_visual()
+
         return render_template("apresentar_erros.html",
                 erros = erros,
                 title=title,
                 ativo_erros='active',
-                qtd_regras = len(get_regras_carregadas())
+                qtd_regras = len(get_regras_carregadas()),
+                erros_regex_html = Markup(html_regex_erro)
         )
     except TemplateNotFound as e:
         return render_template_string(f'Página não encontrada: {e.message}')
@@ -267,13 +306,20 @@ def get_paginas_marcador(texto):
 #############################################################################
 #############################################################################
 
+from pesquisabr import UtilRegrasConfig
+UtilRegrasConfig.print_config()
+
 if __name__ == "__main__":
     # carrega as regras
-    carregar_exemplos()
+    #carregar_exemplos()
     print( '#########################################')
     print( 'Iniciando o serviço')
-    print( 'Configuações: ', json.dumps(CONFIG))
-    print(f' - tempo de cache: {TEMPO_CACHE_SEGUNDOS}s')
+    print( 'Configuações: ', CONFIG.to_string())
     print( '-----------------------------------------')
-    app.run(host='0.0.0.0', debug=EM_DEBUG,port=8000) 
+    app.run(host='0.0.0.0', debug=CONFIG.em_debug(),port=8000 , threaded = True)
+
+    # gunicorn - configuração para container
+    # chamar init_server.sh
+    # gunicorn --workers 10 --timeout 600 --bind 0.0.0.0:8000 app_regras:app
+
 
