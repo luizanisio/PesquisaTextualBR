@@ -107,7 +107,7 @@ class ProntosProgramados():
 		# se for informado o dígito, ele é obrigatório
 		# se não for informado, é opcional qualquer dígito
         b = r'\b'
-        digito = r'\w'
+        digito = r'[a-z]'
         digito_opcional = '?'
         if str(oab[-1]).isalpha():
            digito =  numero[-1]
@@ -115,12 +115,12 @@ class ProntosProgramados():
            digito_opcional = ''
         numero = self.quebra_numero(numero)
         numero = r'\.?'.join(numero)
-        digito = f'(?: *[\-\./]? *{digito}){digito_opcional}' 
+        digito = fr'(?: *[\-\./\ \\]?{digito}){digito_opcional}' 
 		# exemplo: sob o n. 123
         numeral = r'([a-z ]{0,8} +(nº|n.|n) +)?'
         tipos = []
-        tipos.append(  f'{b}{uf}[ \-\.]?' + numeral + str(numero) + digito + b )
-        tipos.append(  b + str(numero) + digito + f'[ \-\.]?{uf}{b}'  )
+        tipos.append(  fr'{b}{uf}[\-\./\ \\]?' + numeral + str(numero) + digito + b )
+        tipos.append(  b + str(numero) + digito + fr'[\-\./\ \\]?{uf}{b}'  )
         tipos = ')|('.join(tipos)
         return fr'(({tipos}))'
 
