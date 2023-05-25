@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.3.3',
+    version= '1.0.3.5',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -95,6 +95,8 @@ setuptools.setup(
 1.0.3.2   - UtilExtracaoRe - ProntosProgramados - classe com regex prontos com funções programadas 
             <CPF:99999999999> <CNPJ:99999999999999> <OAB:UF12345> <NUM:123,55>
 1.0.3.3   - UtilExtracaoRe - <OAB> genérica exige lista dos estados e não apenas duas letras.
+1.0.3.4   - UtilExtracaoRe - <OAB:nnnn> estava considerando o dígito com possibilidade de número, cusando erros de falso positivos.
+1.0.3.5   - UtilExtracaoRe - <OAB:nnnn> correção de separadores de dígito e UF
  '''
 
 ''' TODO
