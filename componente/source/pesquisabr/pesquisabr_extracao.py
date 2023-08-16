@@ -99,28 +99,38 @@ class ProntosProgramados():
 
 	# DF1000a - procura só DF1000a
     # DF1000 - procura DF1000\w
-    RE_PRONTO_OAB = re.compile(r'<OAB:[a-zA-Z]{2}\d{1,11}[a-zA-Z]?>')
+    RE_PRONTO_OAB = re.compile(r'<OAB:[a-zA-Z]{2}\d{1,11}[a-zA-Z\-]?>')
     def pronto_oab(self, texto):
-		#print(f'OAB({texto})')
+        print(f'OAB({texto})')
         oab = texto[5:-1].lower()
         uf, numero = oab[:2], oab[2:]
 		# se for informado o dígito, ele é obrigatório
 		# se não for informado, é opcional qualquer dígito
         b = r'\b'
+        sem_digito = ''
         digito = r'[a-z]'
         digito_opcional = '?'
-        if str(oab[-1]).isalpha():
-           digito =  numero[-1]
+        if oab[-1].isalpha() or oab[-1] == '-':
+           # se o dígito for -, significa que não é para ter dígito
+           # se for uma letra, é para ser essa letra
+           # sem dígito, ele é opcional
+           digito =  numero[-1] 
            numero = numero[:-1]
            digito_opcional = ''
         numero = self.quebra_numero(numero)
         numero = r'\.?'.join(numero)
-        digito = fr'(?: *[\-\./\ \\]?{digito}){digito_opcional}' 
+        digito = fr'(?: *[–\-\./\ \\]?{digito}){digito_opcional}' 
+        if oab[-1] == '-':
+           # impede que o formato UFnnnn tenha algo como -a, a, /a como dígito da OAB
+           digito = ''
+           sem_digito = r'(?![–\-\.\/]?\w\b)'
 		# exemplo: sob o n. 123
-        numeral = r'([a-z ]{0,8} +(nº|n.|n) +)?'
+        numeral = r'([a-z ]{0,8} +(n\.º|nº|n\.|n) +)?'
+        #if oab[-1] == '-':
+        #   print('Dígito obrigatoriamente vazio', texto,' |||| ', numeral, ' |||| ', digito)
         tipos = []
-        tipos.append(  fr'{b}{uf}[\-\./\ \\]?' + numeral + str(numero) + digito + b )
-        tipos.append(  b + str(numero) + digito + fr'[\-\./\ \\]?{uf}{b}'  )
+        tipos.append(  fr'{b}{uf} *[–\-\./\ \\]? *' + numeral + str(numero) + digito + sem_digito + b )
+        tipos.append(  b + str(numero) + digito + fr' *[–\-\./\ \\]? *{uf}{b}'  )
         tipos = ')|('.join(tipos)
         return fr'(({tipos}))'
 
@@ -146,6 +156,7 @@ class UtilExtracaoRe():
     #        CNPJ: \b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b
     # Como usar: colocar no trecho do regex <CPF> que será substituído por (regex do cpf)
     UFs = '(?:AC|AL|AM|AP|BA|CE|DF|ES|GO|MA|MG|MS|MT|PA|PB|PE|PI|PR|RJ|RN|RO|RR|RS|SC|SE|SP|TO)'.lower()
+    __0_8__ = '{0,8}'
     PRONTOS = {'CPF' : r'\b\d{3}\.?\d{3}\.?\d{3}\-?\d{2}\b',
                'CPF-OCR': r'\b[0-9ilo]{3}[\.,;]?[0-9ilo]{3}[\.,;]?[0-9ilo]{3}\-?[0-9ilo]{2}\b',
                'CNPJ' : r'\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b',
@@ -153,7 +164,7 @@ class UtilExtracaoRe():
                'FIMTERMO' : r'\w*\s*\b',
                'INICIOTERMO' : r'\b\s*+\w*\s*',
                'TERMO' : r'\b\s*+\w+\s*\b',
-               'OAB' : rf'((?:\b{UFs}[ \-\./]?(?:[a-z ]{0,8} +(?:nº|n.|n) +)?(?:\d(?:\.\d)?)+(?: *[\-\./]? *\w)?\b)|(\b(?:\d(?:\.\d)?)+(?: *[\-\./]? *\w)?[ \-\./]?{UFs}\b))'}
+               'OAB' : rf'((?:\b{UFs} *[ \-\./–]? *(?:[a-z ]{__0_8__} +(?:n\.º|nº|n\.|n) +)?(?:\d(?:\.\d)?)+(?: *[\-\./–]? *\w)?\b)|(\b(?:\d(?:\.\d)?)+(?: *[\-\./]? *\w)? *[ \-\./–]? *{UFs}\b))'}
     # PRONTOS_FUNC
     # deve-se criar funções que recebam o texto do regex e analisem se devem ou não fazer algo.
     # o texto do regex vai passar por todas as funções na ordem definida pela lista depois de ter passado pelos PRONTOS
