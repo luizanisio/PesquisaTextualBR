@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.3.5',
+    version= '1.0.4.0',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -97,6 +97,13 @@ setuptools.setup(
 1.0.3.3   - UtilExtracaoRe - <OAB> genérica exige lista dos estados e não apenas duas letras.
 1.0.3.4   - UtilExtracaoRe - <OAB:nnnn> estava considerando o dígito com possibilidade de número, cusando erros de falso positivos.
 1.0.3.5   - UtilExtracaoRe - <OAB:nnnn> correção de separadores de dígito e UF
+1.0.3.6   - UtilExtracaoRe - <OAB:nnnn-> com o hífen no final indica que não é para encontrar a OAB se tiver escrita com dígito no final
+1.0.3.7   - UtilExtracaoRe - <OAB:nnnn-> mais testes e retirada do debug
+1.0.3.8   - UtilExtracaoRe - <OAB:nnnn-> espaçamento permitido entre a UF e o número da OAB. Exemplo: 12345a - DF
+                             Correção do {0,8} nos caracteres entre UF e número
+1.0.3.9   - UtilExtracaoRe - uso do – como separador além do -
+1.0.4.0   - UtilExtracaoRe - NA <OAB> e <OAB:xxnnn>, considerar a possibilidade de n.º além de n. e nº
+                             
  '''
 
 ''' TODO
