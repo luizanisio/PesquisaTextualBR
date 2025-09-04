@@ -3,10 +3,10 @@
 - a construção da classe para uso do componente no MemSQL/SingleStore está pausada
 
 **Para usar:**
-- pip install pesquisabr-1.0.3.5.tar.gz
+- pip install pesquisabr-1.0.4.3.tar.gz
 
 **OU**
-- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.3.5.tar.gz
+- pip install https://github.com/luizanisio/PesquisaTextualBR/raw/master/componente/pesquisabr-1.0.4.3.tar.gz
 
 ## O exemplo do servico_regras está funcional
 
@@ -26,3 +26,4 @@
 
 - python app_regras_testes.py
 - python app_regras_stress.py
+
