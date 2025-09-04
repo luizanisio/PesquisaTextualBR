@@ -159,6 +159,14 @@ Como usar o operador `recortar(texto_inicial;texto_final)`:
 - `seriado casa adj2 papel recortar($inicio$;$fim$)'
 - Ao ser aplicado o critério no texto `o seriado inicio casa de papel fim qualquer coisa`, a avaliação será falsa já que o texto analisado será `inicio casa de papel fim`.
 
+### Operador especial \<vazio\>
+
+Esse operador foi criado para identificar se um texto está vazio ou contém apenas caracteres soltos de acentos, pontuações, tabulações e quebras de linha. Pode ser combinado com `remover` e `recortar`, por exemplo.
+
+<b>Exemplos de uso:</b>
+- <b>\<vazio\></b>: retorna `true` se o texto estiver vazio ou contém apenas ruído (acentos, tab, enter, pontuações)<br>
+- <b>\<vazio\></b> <b>recortar</b>(EMENTA): retorna `true` se depois de remover o texto `EMENTA` o texto estiver vazio ou contém apenas ruído (acentos, tab, enter, pontuações)<br>
+
 ### Exemplo de configuração de sinônimos
 
 * ao encontrar um termo no texto analisado, os sinônimos são mapeados como se fossem esse termo
