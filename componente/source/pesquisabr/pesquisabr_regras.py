@@ -67,6 +67,12 @@ class RegrasPesquisaBR():
   # todo - grifar ser aplicado no texto original - para isso o remover deve retornar o texto original também
   @classmethod
   def aplicar_criterios(self, texto = None, criterios = None, detalhar = False, extrair = True, grifar = False):
+      if PesquisaBR.regra_especial_vazio(texto, criterios):
+         if detalhar:
+            return {'retorno': True, 
+                    'criterios': '<vazio>',
+                    'criterios_aon':'', 'texto': texto}
+         return {'retorno': True}
       if (not texto) or (not criterios):
          if detalhar:
             return {'retorno': False, 'criterios': '', 'texto': ''}
@@ -83,6 +89,7 @@ class RegrasPesquisaBR():
       #print('Texto limpo: ', texto_limpo)
       # regex ou like
       regra_like, regra_regex = self.regra_like_regex(_criterios)
+      #print('REGRALIKE:', regra_like, regra_regex)
       # verifica se existe o texto processado para regex
       if regra_regex:
          # print('texto_limpo: ', texto_limpo)
@@ -107,7 +114,7 @@ class RegrasPesquisaBR():
          return self.registrar_tempo_segundos(res, ini_processamento)
       # verifica os critérios no texto
       #print('TEXTO: ', _texto)
-      #print('CRITÉRIOS: ', _criterios)
+      #print('CRITÉRIOS PARA REGRAS: ', _criterios)
       pb = PesquisaBR(texto=_texto, criterios=_criterios, print_debug=False)
       if pb.erros:
          res = {'retorno': None, 'erros': pb.erros, 'criterios': pb.criterios }
@@ -153,7 +160,7 @@ class RegrasPesquisaBR():
   # 3) remove critérios remover(...) do texto
   # processa regex ou regras 
   def aplicar_regras(self, texto = None, primeiro_do_grupo = True, detalhar = False, extrair = False):
-      if (not self.regras) or (not texto):
+      if (not self.regras): # or (not texto):
          return {'rotulos':[], 'extracoes': []}
       ini_processamento = datetime.now()
       grupos_ok = []
@@ -316,8 +323,11 @@ class RegrasPesquisaBR():
               regra = _regra_com_remover
             # registra no objeto novo ou do cache o critério de pesquisa
             _pbr.novo_criterio(regra)
+            #print(f'NOVO CRITÉRIO: {regra}')
             if _pbr.erros:
                 retorno_erros.append(_pbr.erros)
+            #print(f'NOVO CRITÉRIO PBR: {_pbr.criterios}')
+            #_pbr.print_resumo()
             if self.print_debug:
                print(f'Testando grupo: [{grupo}] com rótulo: [{rotulo}] e regra: {regra}')
                _pbr.print_resumo()
@@ -339,11 +349,13 @@ class RegrasPesquisaBR():
                  # indica que o grupo já foi retornado, não retornando outras regras do grupo
                  grupos_ok.append(grupo)
              # inclui o rótulo no retorno
+             #print(f'REGRA OK: {rotulo}')
              retorno_rotulos.append(rotulo)
              # verifica se é retorno detalhado e inclui a regra que incluiu o rótulo no retorno
              if detalhar: 
                  retorno_regras.append(regra_detalhe)
       # finalizando o retorno
+      # print(f'REGRA RÓTULOS: {retorno_rotulos}')
       res = {'rotulos':retorno_rotulos}
       if any(retorno_erros):
          res['erros'] = retorno_erros
@@ -360,6 +372,7 @@ class RegrasPesquisaBR():
       res['regras'] = retorno_regras
       res['qtd_regras'] = len(self.regras)
       self.registrar_tempo_segundos(res, ini_processamento)
+      # print('RES:',res)
       return res
 
   @classmethod
@@ -450,7 +463,7 @@ class RegrasPesquisaBR():
          return None, None, None
       # não tem texto, retorna os critérios limpos
       if not texto:
-         #print('### SEM TEXTO ###')
+         #print('### SEM TEXTO ###', criterios)
          return '', self.RE_REMOVER.sub(' ',criterios).strip(), ''
       # padroniza as aspas do texto
       _texto = self.padronizar_aspas(texto)

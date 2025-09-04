@@ -298,6 +298,8 @@ class PesquisaBR():
       return [self.processar_tokens(texto = str(t), criterios=criterios, processar=processar) for t in texto]
 
     # tokens de texto
+    if criterios and texto.strip(self.STRIP_VAZIO).lower() == '<vazio>':
+       return ['<vazio>']
     if criterios:
       # prepara critérios nao "literal literal literal" para nao ("literal literal literal")
       _txt = texto.replace('*','$').replace("'",'"') if not processar else self.processar_texto(texto.replace('*','$').replace("'",'"'))
@@ -573,6 +575,8 @@ class PesquisaBR():
   def converte_criterios_para_aon(self, mapa_criterios:list):
       # remove critérios NOT com especiais pois na simplificação são o mesmo que TRUE
       # ex.: palavra1 NOT (palavra2 ADJ1 palavra3)  =>  palavra1 
+      if len(mapa_criterios) == 1 and mapa_criterios[0]['texto'] == '<vazio>':
+         return ''
       _mapa_limpo = self.remover_nao_com_especiais_para_aon(mapa_criterios)
       _criterios = self.criterios_para_texto(_mapa_limpo)
       # converte os outros operadores
@@ -961,7 +965,27 @@ class PesquisaBR():
   # com o mapa de pesquisa, os critérios são analisados recursivamente por conjunto de parênteses, retornando uma lista de combinações que deram match em cada análise
   # ao final, se existir um dict de termo que tem posições no texto, a pesquisa teve resultado positivo
   ################################################################################
+  STRIP_VAZIO = ' \n\t\r'
+  STRIP_VAZIO_COMPLETO = ' \n\t\r.,;:/?-_=+`´~^"!@#$%¨&*\<>()[]\{\}|\\' + "'"
+  @classmethod
+  def regra_especial_vazio(cls, texto, criterios:str):
+      #print(f'REGRA ESPECIAL VAZIO?')
+      if criterios == "<vazio>":
+          # Check if text is empty string
+          if isinstance(texto, str) and texto.strip(cls.STRIP_VAZIO_COMPLETO) == "":
+              return True
+          # Check if text is a list of empty strings
+          elif isinstance(texto, list) and all(isinstance(item, str) and item.strip(cls.STRIP_VAZIO_COMPLETO) == "" for item in texto):
+              return True
+          # Check if text is a dictionary with empty values
+          elif isinstance(texto, dict) and all(isinstance(value, str) and value.strip(cls.STRIP_VAZIO_COMPLETO) == "" for value in texto.values()):
+              return True
+      
   def analisar_mapa_pesquisa(self, mapa_pesquisa:list = None, retornar_analises = False):
+    # caso especial de critério "<vazio>"
+    if self.regra_especial_vazio(self.texto, self.criterios):
+       return True
+
     _analises = []
     if mapa_pesquisa is None:
         _mapa = cp.copy(self.mapa_pesquisa)

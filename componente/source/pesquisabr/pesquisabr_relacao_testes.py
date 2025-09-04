@@ -705,6 +705,26 @@ TESTES_EXTRACAO_REGRAS = [
                                'texto' : {'a': '', 'b': 'inicio100   teste tambem acentuacao texto fim100'},
                                "criterios": "teste.*texto" }], 
                    "qtd_regras": 2}     
+     },
+    #vazio
+    {"texto": ['',''],
+     "regras_externas": [{"grupo": "vz", "rotulo": "vz1", "regra": "<vazio>"},
+                          {"grupo": "vz", "rotulo": "vz2", "regra": "aaa"}],
+     "esperado": {"rotulos": ['vz1'], "texto": ['',''],
+                  "texto_analise": ['',''], 
+                  "regras": [{'rotulo': 'vz1', 'texto': ['',''], 
+                              "criterios": "<vazio>", "criterios_aon": "" }],
+                  "qtd_regras": 2}
+     },
+    #não vazio
+    {"texto": ['','','aaa'],
+     "regras_externas": [{"grupo": "vz", "rotulo": "vz1", "regra": "<vazio>"},
+                          {"grupo": "vz", "rotulo": "vz2", "regra": "aaa"}],
+     "esperado": {"rotulos": ['vz2'], "texto": ['','','aaa'],
+                  "texto_analise": ['','','aaa'], 
+                  "regras": [{'rotulo': 'vz2', 'texto': ['','','aaa'], 
+                              "criterios": "aaa", "criterios_aon": "aaa" }],
+                  "qtd_regras": 2}
      }
 ]
 #TESTES_EXTRACAO_REGRAS = TESTES_EXTRACAO_REGRAS[-1:]
@@ -780,3 +800,11 @@ TESTES_BASICOS_RE_PRONTOS = [
             {'texto':'Qualquer coisa em SP - nº   201126a','criterio':'<OAB:SP201126>','retorno':True},
             {'texto':'Qualquer coisa em SP - nº   201126a','criterio':'<OAB>','retorno':True},
            ]
+
+TESTES_CRITERIOS_VAZIOS = [('',True,'<vazio>'), ('x', False,'<vazio>'), ('<vazio>', False,'<vazio>'),
+                           (['',''], True,'<vazio>'), (['','','a'], False,'<vazio>'),
+                           ([';.,;.',''], True,'<vazio>'), (['','','a'], False,'<vazio>'),
+                           ([';.,;.','/;,;/;;.   \t\n'], True,'<vazio>'), (['','b',''], False,'<vazio>'),
+                           (['',''], False,'outro'), (['','','a'], True,'a'),
+                           (['/;,.;,.',''], False,'outro'), ([';.;,;.,','','a'], True,'a'),
+                           ({'A':'','B':''}, True,'<vazio>'),({'A':'','B':'x'}, False,'<vazio>')]
