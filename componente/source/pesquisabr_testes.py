@@ -6,7 +6,7 @@ from pesquisabr import PesquisaBR
 from pesquisabr import TESTES_COMPLETOS, TESTES_EXTRACAO, TESTES_EXTRACAO_REGRAS, \
                        TESTES_TEXTOS, TESTES_CRITERIOS, TESTES_GRIFAR, \
                        TESTES_CABECALHO_RODAPE, TESTE_COM_REMOVER, TESTES_RETORNO_COMPLETO, \
-                       TESTES_BASICOS_RE_PRONTOS
+                       TESTES_BASICOS_RE_PRONTOS, TESTES_CRITERIOS_VAZIOS
 from pesquisabr import RegrasPesquisaBR, UtilExtracaoRe
 
 class TestPesquisaBR(unittest.TestCase):
@@ -25,6 +25,7 @@ class TestPesquisaBR(unittest.TestCase):
         self.assertTrue(len(TESTES_EXTRACAO_REGRAS)>0)
         self.assertTrue(len(TESTES_RETORNO_COMPLETO)>0)
         self.assertTrue(len(TESTE_COM_REMOVER)>0)
+        self.assertTrue(len(TESTES_CRITERIOS_VAZIOS)>0)
 
     def limpar_chaves(self, dicionario, chaves):
         if type(dicionario) is list:
@@ -622,6 +623,15 @@ class TestPesquisaBR(unittest.TestCase):
                     print('Texto esperado   : ', teste['texto_limpo'])
                     print('critério         : ', teste['criterio'])
                 self.assertEqual(texto, esperado)  
+                
+    def testes_com_vazios(self):
+        for i, (texto, resposta, criterio) in enumerate(TESTES_CRITERIOS_VAZIOS):
+            with self.subTest(f'Textos vazios: {i}'):
+                pbr = PesquisaBR(texto = texto, print_debug=False)
+                pbr.novo_criterio(criterio)
+                res = pbr.retorno()
+                print(f'Pesquisa com {criterio}: "{texto}" >> ', res)
+                self.assertEqual(res, resposta)
 
     def print_erro(self, msg_erro):
         if not msg_erro:

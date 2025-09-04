@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="pesquisabr",
-    version= '1.0.4.0',
+    version= '1.0.4.3',
     author="Luiz Anísio",
     author_email="",
     description="Projeto para pesquisa textual",
@@ -103,7 +103,9 @@ setuptools.setup(
                              Correção do {0,8} nos caracteres entre UF e número
 1.0.3.9   - UtilExtracaoRe - uso do – como separador além do -
 1.0.4.0   - UtilExtracaoRe - NA <OAB> e <OAB:xxnnn>, considerar a possibilidade de n.º além de n. e nº
-                             
+1.0.4.1   - PesquisaBr - critério = '<vazio>' retorna True se o texto estiver vazio                            
+1.0.4.2   - PesquisaBr - strip STRIP_VAZIO_COMPLETO para verificar o texto vazio
+1.0.4.3   - PesquisaBr - strip STRIP_VAZIO_COMPLETO com mais caracteres de limpeza
  '''
 
 ''' TODO
